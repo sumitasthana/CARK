@@ -345,6 +345,63 @@ def test_tiny_imagenet_tasks_come_from_the_saved_partition():
     assert not hasattr(sys.modules["uncle.data"], "_fetch_tiny_imagenet")
 
 
+def test_task_codes_do_not_depend_on_request_order():
+    """Task 3's starting code is the same whether it is learned first or third.
+
+    This is what makes a paired reference honest. If the code came from the
+    shared global generator, removing another task's requests would change
+    task 3's starting point too, and the recovery gap would measure that
+    instead of residual knowledge.
+    """
+    config = Config(backbone="cnn", chunks=4, hidden=(8,), code_dim=4,
+                    tasks=("0", "1", "3"), requests=(("learn", "3"),))
+
+    torch.manual_seed(0)
+    first = HyperNetwork(build_target(config), config)
+    first.add_task("3")
+
+    torch.manual_seed(0)
+    later = HyperNetwork(build_target(config), config)
+    for name in ("0", "1", "3"):
+        later.add_task(name)
+
+    assert torch.equal(first.task_codes["3"], later.task_codes["3"])
+    # Different tasks still get different codes.
+    assert not torch.equal(later.task_codes["0"], later.task_codes["3"])
+
+
+def test_the_preserve_term_has_no_gradient_at_the_first_forget_step():
+    """Measured, not assumed: only the noise term pulls at step 1.
+
+    `preserve` compares the model against a snapshot taken when the request
+    started, so at the first step it is comparing the model with itself: zero
+    loss and zero gradient. Whatever damage that first step does to the
+    retained tasks, nothing in the objective is resisting it.
+    """
+    config = Config(backbone="cnn", chunks=4, hidden=(8,), code_dim=4,
+                    tasks=("0", "1"), requests=(("learn", "0"),))
+    torch.manual_seed(0)
+    hypernet = HyperNetwork(build_target(config), config)
+    uncle = UnCLe(hypernet, config, build_target(config))
+    hypernet.add_task("0")
+    hypernet.add_task("1")
+
+    steps = []
+    uncle.forget("0", ["1"], burn_in=2, on_step=steps.append, measure=True)
+
+    first, second = steps[1], steps[2]
+    assert _norm(first["preserve_gradient"]) == 0.0, first["preserve_gradient"]
+    assert _norm(first["noise_gradient"]) > 0.0, first["noise_gradient"]
+    # Once the first update has moved the model, the penalty starts pulling back.
+    assert _norm(second["preserve_gradient"]) > 0.0, second["preserve_gradient"]
+    # Both terms report every parameter group, so neither can hide in a total.
+    assert set(first["noise_gradient"]) == {"trunk", "heads.weights"}
+
+
+def _norm(norms):
+    return sum(value ** 2 for value in norms.values()) ** 0.5
+
+
 def main():
     tests = [value for name, value in sorted(globals().items())
              if name.startswith("test_") and callable(value)]

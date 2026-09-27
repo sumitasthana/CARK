@@ -19,6 +19,11 @@ from .tinyimagenet import DEFAULT_ROOT
 from .trainer import UnCLe
 
 
+def _total(norms: dict) -> float:
+    """One number from the per-group gradient norms: the norm over all groups."""
+    return sum(value ** 2 for value in norms.values()) ** 0.5
+
+
 def diagnose_forgetting(
     checkpoint, *, task="3", forgetting_lr=None, gamma=None, steps=10,
     root=None, download=False, output=None, device=None, verbose=True, tasks=None,
@@ -34,6 +39,12 @@ def diagnose_forgetting(
     Evaluation covers all seen tasks and does not consume the update RNG stream.
     Loss columns refer to before an update; accuracy columns refer to afterward.
     The initial row is step zero. This reports measurements, not a deletion test.
+
+    Every step also records each loss term's gradient norm per parameter group
+    and the size of the forgotten task's raw output. The two losses are read
+    off different quantities, raw against scaled, so their sizes say nothing
+    about which one moves the model; the gradients do. This triples the
+    backward work per step, which is the point of a diagnostic.
 
     output is a directory (default: a diagnostics folder beside the checkpoint).
     A uniquely named JSON report is updated after each observation. The source
@@ -137,13 +148,15 @@ def diagnose_forgetting(
             values = "  ".join(f"{name}: {accuracies[name]:.1f}%" for name in seen)
             losses = ("" if record["step"] == 0 else
                       f"  noise={record['weighted_noise_before']:.2f}"
-                      f"  preserve={record['preserve_before']:.2f}")
+                      f"  preserve={record['preserve_before']:.2f}"
+                      f"  |g|noise={_total(record['noise_gradient']):.3g}"
+                      f"  |g|preserve={_total(record['preserve_gradient']):.3g}")
             print(f"step {record['step']:>3}  {values}{losses}", flush=True)
             if record["step"] == 0 and not report["initial_matches_checkpoint"]:
                 print("Initial accuracies differ from the checkpoint; check evaluation data and device.")
 
     try:
-        uncle.forget(task, protected, burn_in=steps, on_step=observe)
+        uncle.forget(task, protected, burn_in=steps, on_step=observe, measure=True)
     except BaseException as error:
         report["status"] = "interrupted" if isinstance(error, KeyboardInterrupt) else "failed"
         report["error"] = f"{type(error).__name__}: {error}"

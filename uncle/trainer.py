@@ -14,7 +14,7 @@ from torch import nn
 from torch.func import functional_call
 from torch.utils.data import DataLoader, Dataset
 
-from .config import Config
+from .config import Config, random_stream
 from .hypernet import HyperNetwork
 from .telemetry import progress_bar
 
@@ -166,9 +166,35 @@ class UnCLe:
 
     # -- forget --------------------------------------------------------------
 
+    def _term_gradient(self, term: torch.Tensor, trainable: list) -> dict[str, float]:
+        """Gradient norm of one loss term, per parameter group.
+
+        The forget objective adds two terms that are measured on different
+        things: the noise term reads the generator's raw output, the preserve
+        term reads the scaled weights. Their losses are therefore not
+        comparable, and only their gradients say which one is actually moving
+        the model. This costs one extra backward pass per term, so it runs
+        only when a caller asks to measure.
+        """
+        if not term.requires_grad:
+            return {}
+        gradients = torch.autograd.grad(term, trainable, retain_graph=True,
+                                        allow_unused=True)
+        names = {id(parameter): name
+                 for name, parameter in self.hypernet.named_parameters()}
+        squares: dict[str, float] = {}
+        for parameter, gradient in zip(trainable, gradients):
+            if gradient is None:
+                continue
+            name = names.get(id(parameter), "unknown")
+            # "trunk", "heads.weights", "heads.batchnorm", "heads.residual".
+            group = ".".join(name.split(".")[:1 if name.startswith("trunk") else 2])
+            squares[group] = squares.get(group, 0.0) + gradient.square().sum().item()
+        return {group: value ** 0.5 for group, value in squares.items()}
+
     def forget(
         self, task: str, protected: list[str], burn_in: int | None = None,
-        on_step: Callable[[dict], None] | None = None,
+        on_step: Callable[[dict], None] | None = None, measure: bool = False,
     ) -> list[float]:
         """Teach the hypernetwork to turn one task's code into noise. Paper eq. 3.
 
@@ -184,6 +210,10 @@ class UnCLe:
         components are measured before the update; callbacks can measure
         accuracy afterward. Callback RNG consumption and model modes are
         restored. Callbacks must not mutate model parameters or stored buffers.
+
+        measure adds per-group gradient norms for each loss term and the size
+        of the forgotten task's raw output to every step record. It triples the
+        backward work, so it is for diagnostics rather than production runs.
         """
         if task not in self.hypernet.task_codes:
             raise ValueError(f"Task {task} was never learned.")
@@ -206,6 +236,10 @@ class UnCLe:
         self.hypernet.train()
         losses = []
 
+        # This task's own noise stream, so the draws do not depend on how many
+        # requests came before this one. See `random_stream`.
+        noise = random_stream(self.config.seed, "forget", task, self.device)
+
         self._notify_forget_step(on_step, {"step": 0})
 
         bar = progress_bar(iterations, f"forget {task}", self.progress, leave=False)
@@ -224,13 +258,23 @@ class UnCLe:
             # than randomizing them. Either way the task stops working. See
             # "What the noise objective actually does" in the README.
             to_noise = sum(
-                (raw - torch.randn_like(raw)).square().sum()
+                (raw - torch.randn(raw.shape, generator=noise,
+                                   device=raw.device, dtype=raw.dtype)
+                 ).square().sum()
                 for _ in range(self.config.noise_samples)
             ) / self.config.noise_samples
 
             preservation = self.preserve(protected, snapshot)
             weighted_noise = self.config.gamma * to_noise
             loss = weighted_noise + preservation
+
+            measured = {}
+            if measure:
+                measured = {
+                    "noise_gradient": self._term_gradient(weighted_noise, trainable),
+                    "preserve_gradient": self._term_gradient(preservation, trainable),
+                    "raw_norm": raw.detach().norm().item(),
+                }
 
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
@@ -239,6 +283,7 @@ class UnCLe:
             losses.append(loss.item())
             if on_step is not None:
                 self._notify_forget_step(on_step, {
+                    **measured,
                     "step": step,
                     "noise_loss_before": to_noise.item(),
                     "weighted_noise_before": weighted_noise.item(),

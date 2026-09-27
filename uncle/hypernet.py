@@ -13,7 +13,7 @@ import torch
 from torch import nn
 from torchvision.models import resnet18, resnet50
 
-from .config import Config
+from .config import Config, random_stream
 
 BATCHNORM = (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d)
 
@@ -202,13 +202,19 @@ class HyperNetwork(nn.Module):
     # -- codes ---------------------------------------------------------------
 
     def add_task(self, task: str) -> nn.Parameter:
-        """Create a fresh random code for a task that has not been seen."""
+        """Create a fresh random code for a task that has not been seen.
+
+        Drawn from this task's own stream, so the starting code does not depend
+        on which requests came before it. See `random_stream`.
+        """
         if task in self.task_codes:
             raise ValueError(f"Task {task} already has a code.")
 
-        self.task_codes[task] = nn.Parameter(
-            torch.randn(self.config.code_dim, device=self.config.torch_device)
-        )
+        device = self.config.torch_device
+        self.task_codes[task] = nn.Parameter(torch.randn(
+            self.config.code_dim, device=device,
+            generator=random_stream(self.config.seed, "code", task, device),
+        ))
         return self.task_codes[task]
 
     @property

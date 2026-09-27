@@ -1,9 +1,33 @@
 """Every knob in one place, with the paper's values as the defaults."""
 
 from dataclasses import dataclass, field
+import hashlib
 import math
 
 import torch
+
+
+def random_stream(seed: int, purpose: str, task: str, device) -> torch.Generator:
+    """A generator whose draws depend only on the seed, the purpose and the task.
+
+    The global generator is shared by everything, so a draw made for task 9
+    depends on how many draws every earlier request happened to make. That is
+    fine for one run and fatal for the paired references the study needs: a
+    reference with task 3's requests removed would differ from the unlearned
+    model everywhere, not just at task 3, and the recovery gap would include
+    that difference.
+
+    Each purpose and task therefore gets its own stream, addressed by name
+    rather than by position in the run. Task 3's code is the same whether it
+    was learned first or last, and its forget noise is the same whether two
+    requests preceded it or twenty.
+    """
+    digest = hashlib.blake2b(
+        f"{seed}:{purpose}:{task}".encode(), digest_size=8
+    ).digest()
+    generator = torch.Generator(device=device)
+    generator.manual_seed(int.from_bytes(digest, "big") >> 1)
+    return generator
 
 # Appendix C, Table 4. The author runs three random request sequences per
 # dataset. `L#n` means learn task n, `U#n` means unlearn task n.
