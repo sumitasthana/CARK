@@ -183,23 +183,25 @@ claim. Without it, report comparisons only against the metrics actually tested.
 
 ## 3. Current implementation status
 
-Existing code provides configuration, task streams, model construction, learning,
-forgetting, four original metrics, request runners, telemetry, and checkpoints.
-`uncle/diagnostics.py` restores a saved model and records a forgetting trajectory.
-Existing tests cover parts of these paths; no tests were rerun for this document
-update, and software checks do not establish a successful reproduction.
+Section 6 states, module by module, what the repository holds and what is
+missing. This section states what is true of the research.
 
-The reproduction remains unresolved. The earlier full Tiny ImageNet run reported
-10% retained accuracy against 55.24% in the paper, with mean spill 30.72.
-The later short diagnostics through E14 have not met both screening criteria.
-See the experiment log for measured settings and limitations.
+The method is implemented and the reproduction has not succeeded. The full
+Tiny ImageNet run reported 10% retained accuracy against the paper's 55.24%,
+with mean spill 30.72 against 0.722. The short diagnostics through E14 have not
+met both screening criteria at any setting tried. The experiment log holds the
+measured settings and their limits.
 
-The dedicated relearning path, four-condition reference builder, reserved probe
-splits, Y control, component intervention framework, Fisher screening, and six
-diagnostic metrics are not yet implemented as a complete study workflow.
-Membership inference is also missing. CIFAR-100, 5-Tasks, alternative noising
-strategies, and the seven comparison methods are outside the required build
-unless the study scope changes.
+All 52 checks and the 19 guide code blocks passed on 2026-09-27, on CPU, with
+the CUDA-specific check skipped. Passing checks establish software behavior on
+the tested machine. They do not establish a reproduction, and no result in this
+document was measured during this update.
+
+Not implemented at all: the relearning entry point, the four-condition
+reference builder, the reserved adaptation split, the Y control, component
+interventions, Fisher screening, the six study metrics, and membership
+inference. Out of scope unless the study changes: CIFAR-100, 5-Tasks, the
+alternative noising strategies, and the seven comparison methods.
 
 ## 4. Implementation decisions to retain
 
@@ -243,161 +245,293 @@ unless the study scope changes.
 - Keep evaluation observational: it must not update stored buffers, parameters,
   or the random stream used by training.
 
-## 6. Modules to build or extend
+## 6. Modules: what exists and what must be built
 
-Module IDs below identify functional responsibilities, not a requirement to
-create one file per module. Existing paths are starting points. Each module
-needs recorded inputs and outputs so another run can reproduce its result.
+Every module below states what the repository holds today, then what is
+missing. Status was checked against the code on 2026-09-27, not carried over
+from an earlier plan. Module IDs name a responsibility, not a file; several
+already live in one file.
+
+| | Module | Status |
+| --- | --- | --- |
+| M01 | Study configuration | Run configuration built, study configuration missing |
+| M02 | Dataset splits and control task | Task splits built, adaptation reserve and Y missing |
+| M03 | Model component access | Accessors built, named groups and freeze masks missing |
+| M04 | Learning and forgetting | Built, one switch missing, reproduction unresolved |
+| M05 | Reproduction diagnostics | Built |
+| M06 | Matched reference construction | Not built |
+| M07 | Checkpoint collection and restoration | Built for resuming, stage retention missing |
+| M08 | Relearning probe | Not built, and currently refused by validation |
+| M09 | Component interventions | Not built |
+| M10 | Experimental controls | Evaluation hygiene built, seven of eight controls missing |
+| M11 | Fisher screening | Not built |
+| M12 | Evaluation and metrics | Four metrics built, six study metrics missing |
+| M13 | Statistical analysis | Not built |
+| M14 | Experiment orchestration | Reproduction matrix built, study matrix missing |
+| M15 | Logging and report generation | Run logging built, analysis outputs missing |
+| M16 | Experiment verification | 52 checks built, study checks missing |
+| Conditional | Membership inference | Not built |
 
 ### M01. Study configuration
 
-Extend `uncle/config.py` or add a separate probe configuration. Record conditions,
-X and Y, budgets, checkpoint stages, random streams, interventions, evaluation
-intervals, and analysis choices. This keeps paired comparisons consistent.
-Depends on the protocol decisions in section 9. Accept when incomplete study
-configurations fail validation and saved configurations reproduce the run matrix.
+**Built.** `uncle/config.py` holds every run knob as a frozen dataclass and
+rejects invalid request lists, unknown datasets and unknown backbones in
+`Config.__post_init__`. `dataset_defaults` supplies the paper's per-dataset
+values, and `random_stream` gives each purpose and task its own generator so a
+draw does not depend on how many requests came before it.
+
+**Missing.** Nothing describes a study run: conditions, probed task X, control
+task Y, adaptation budgets, checkpoint stages, interventions, evaluation
+intervals and analysis choices. Add a separate probe configuration rather than
+widening `Config`, which is the reproduction's contract with the paper.
+
+**Accept** when an incomplete study configuration fails validation and a saved
+one reproduces the run matrix. Depends on the decisions in section 9.
 
 ### M02. Dataset splits and control task
 
-Extend `uncle/data.py`, `uncle/tasks.py`, and `uncle/streams.py`. Build persistent
-initial-training, adaptation, and evaluation indices, nested budgets, and the
-never-seen Y task. This prevents overlap and supplies the specificity control.
-Depends on M01 and the Y decision. Accept when split counts and disjointness are
-checked, Y is absent from all training sequences, and paired runs use identical
-adaptation examples and labels.
+**Built.** `uncle/tasks.py` loads the seed-42 partition from
+`uncle/task_partition.json` and verifies it is complete and disjoint on every
+run. `uncle/streams.py` builds Tiny ImageNet tasks from it, sharing one base
+dataset per split, with `include` and `max_images`. `uncle/data.py` routes
+Permuted MNIST and Tiny ImageNet through one entry point.
+
+**Missing.** The 100-image-per-class adaptation reserve does not exist: every
+task currently trains on all 500. There are no persisted split indices, no
+nested budget subsets, and no never-seen Y task. Write the indices to a file
+beside the partition, in the same style. Do not regenerate them from a seed.
+
+**Accept** when split counts and disjointness are checked, Y is absent from
+every training sequence, and paired runs read identical adaptation examples.
 
 ### M03. Model component access
 
-Extend `uncle/hypernet.py` and the trainer's buffer handling with explicit groups
-for embeddings, shared layers, heads, chunk embeddings, and BatchNorm buffers.
-This makes interventions precise. Depends on M01. Accept when groups match the
-actual model, parameters and buffers are distinguished, and interventions change
-only the requested state.
+**Built.** `HyperNetwork` exposes `trunk`, `heads`, `chunk_codes`, `task_codes`
+and `generator_parameters()`, and `UnCLe` holds `task_buffers` and
+`buffer_template`. Every component the study addresses is reachable today.
+
+**Missing.** There is no named grouping over them, no freeze mask, and no check
+that an intervention changed only what it claimed. `forget` freezes by calling
+`requires_grad_(False)` and re-enabling one list, which is right for its two
+fixed cases and does not generalise to seven arms.
+
+**Accept** when groups match the live model, parameters and buffers are
+distinguished, and a check proves an intervention moved nothing else.
 
 ### M04. Learning and forgetting
 
-Use `uncle/trainer.py` and `uncle/experiment.py`; resolve the reproduction failure
-and add an explicit way to remove preservation for the requested control.
-This is the method the study evaluates. Depends on M01-M03. Accept when the
-proposal's applicable reproduction or recovery-entry criteria in section 7 are
-measured, forgetting uses no X data, and implementation departures are recorded.
+**Built.** `UnCLe.learn`, `UnCLe.forget` and `UnCLe.preserve` implement the
+paper's equations, including per-task BatchNorm statistics, chunk codes frozen
+after the first task, averaged noise draws and annealed burn-in.
+`uncle/experiment.py` runs a request sequence, protecting every seen task
+except the request's own.
+
+**Missing.** A way to remove the preservation term during a forget request, for
+the indirect-preservation control. Setting `gamma` to zero removes the noise
+term instead, so this needs its own switch. The reproduction failure itself is
+unresolved and blocks everything downstream.
+
+**Accept** when the section 7 thresholds are measured, forgetting still uses no
+data from the forgotten task, and departures from the paper are recorded.
 
 ### M05. Reproduction diagnostics
 
-Extend `uncle/diagnostics.py`. Restore the same checkpoint for each comparison;
-inspect raw-versus-scaled objectives, parameter-group contributions, and retained
-accuracy trajectories. This addresses the current blocking issue before the
-study runs. Depends on M03, M04, and existing checkpoint support. Accept when
-reports identify their starting checkpoint and settings, preserve source state,
-and distinguish observed results from candidate explanations.
+**Built.** `uncle/diagnostics.py` restores a checkpoint, runs the real
+forgetting loop for a chosen number of steps, evaluates every seen task at step
+zero and after each update, and writes a uniquely named report without touching
+the source checkpoint. `UnCLe.forget(measure=True)` adds each loss term's
+gradient norm per parameter group and the forgotten task's raw output size.
+That is what separates the two terms: they are computed from different
+quantities, raw output against scaled weights, so their losses are not
+comparable and their gradients are.
+
+**Missing.** Nothing structural. The next step is running it, not building it.
+
+**Accept** when reports name their starting checkpoint and settings, preserve
+the source state, and separate observations from candidate explanations.
 
 ### M06. Matched reference construction
 
-Extend the experiment runner to build all four model conditions, aligned stages,
-and recorded random streams. This supplies the recovery baseline and controls.
-Depends on M01, M02, M04, and M07. Accept when request-list differences are exactly
-those specified, initial shared state matches, and the manifest records changes
-to protection sets, burn-in, and first-task chunk training.
+**Not built.** `uncle/experiment.py` runs one fixed request list, and
+`run_sequences` in `uncle/experiments.py` loops over sequences and seeds.
+Neither knows about conditions.
+
+**To build.** A builder for all four conditions in section 2, producing aligned
+checkpoint stages and a manifest of what differs between them: request lists,
+protected-task sets, burn-in schedules, and whether removing X changed which
+task trained the chunk codes.
+
+**Accept** when request-list differences are exactly those specified, the
+initial shared state matches, and the manifest records every other difference.
+Depends on M01, M02, M04, M07.
 
 ### M07. Checkpoint collection and restoration
 
-Extend `uncle/checkpoint.py` and the runner to retain pre-deletion,
-immediate-post-deletion, and endpoint checkpoints without overwriting them.
-Include all model parameters, task buffers, random state, and split identifiers.
-This isolates probes and allows aligned comparisons. Depends on M01-M03.
-Accept when restoration reproduces step-zero outputs and probing cannot mutate
-the source or another branch. Save optimiser and sampler state too if resuming
-inside an adaptation run; otherwise restart that probe from its source.
+**Built.** `uncle/checkpoint.py` saves the hypernetwork, per-task buffers, the
+request history, the seen and forgotten lists, previous accuracies, costs and
+the CPU and CUDA random state. It writes to a temporary file and moves it into
+place, refuses a checkpoint whose configuration differs anywhere, and restores
+onto CPU before moving to the device. `load(config=None)` exists for diagnostic
+callers, so a probe can open a checkpoint without the resume comparison
+fighting it. A resumed run reproduces the records an uninterrupted one would
+have had, which is tested.
+
+**Missing.** One file per run, replaced after every request. The study needs
+three surviving states per probed task: immediately before its forget,
+immediately after, and at the sequence end. Optimiser and sampler state are not
+saved, which is fine at a request boundary and not for resuming inside an
+adaptation run.
+
+**Accept** when restoration reproduces step-zero outputs and a probe cannot
+mutate its source or another branch.
 
 ### M08. Relearning probe
 
-Add a dedicated adaptation API alongside `UnCLe.learn`. Support existing task
-state and creation of missing state for reference models and Y, fresh optimisers,
-fixed update counts, and protection disabled. This implements the primary test.
-Depends on M02, M03, and M07. Accept when paired runs use matching examples and
-update budgets, record step zero, and learn in a controlled positive example
-without changing frozen parameters.
+**Not built, and currently refused.** `Config.__post_init__` rejects a task
+learned twice, and `HyperNetwork.add_task` raises on a task that already has a
+code. Both are correct for continual learning and both block the probe.
+
+**To build.** A separate adaptation entry point beside `UnCLe.learn`: works on
+an existing task state, creates state for reference models and Y, takes a fresh
+optimiser, runs a fixed number of updates rather than epochs, and leaves the
+preservation penalty off by default. Do not relax the existing validation to
+make room for it.
+
+**Accept** when paired runs use matching examples and update budgets, step zero
+is recorded, a positive example actually learns, and frozen parameters do not
+move. Depends on M02, M03, M07.
 
 ### M09. Component interventions
 
-Implement the arms in section 2, including resets, swaps, joint chunk tests,
-and combined changes. This tests contributions to recovery rather than only
-reporting a model-wide gap. Depends on M03, M07, and M08. Accept when trainable
-parameter sets and buffer policies are verified for every arm, each arm has a
-matched reference, and swap donors and incompatibility checks are recorded.
+**Not built.** The arms in section 2 have no implementation, and the grouping
+they need is M03.
+
+**To build.** Restricted adaptation per component, embedding replacement, the
+BatchNorm keep-versus-reset comparison, the joint chunk test, and combined
+interventions.
+
+**Accept** when every arm's trainable set and buffer policy are verified, each
+arm has a reference under the same restriction, and swap donors and
+incompatibility checks are recorded. Depends on M03, M07, M08.
 
 ### M10. Experimental controls
 
-Implement all eight controls in section 2, including Y, adaptation-versus-held-out
-accuracy, the positive control, and removal of preservation during forgetting.
-These check alternative explanations for a recovery advantage. Depends on M02,
-M04, M06, M08, and M12; component controls also depend on M09. Accept when every
-reported result links to its required controls and failed controls are visible.
+**Partly built.** `UnCLe.accuracy` evaluates without disturbing stored
+statistics, cloning buffers first, and the forget callback isolates its random
+draws and restores model modes. That is the evaluation hygiene every control
+rests on.
+
+**Missing.** Seven of the eight controls in section 2: Y, adaptation against
+held-out accuracy, the pre-deletion positive control as a routine part of every
+experiment, matched restrictions per arm, embedding replacement, the
+no-preservation forget request, and the interaction comparison.
+
+**Accept** when every reported result links to its required controls and a
+failed control is visible rather than silent. Depends on M02, M04, M06, M08 and
+M12, plus M09 for the component controls.
 
 ### M11. Fisher screening
 
-Add diagonal empirical and model-predicted Fisher calculations at the
-pre-deletion checkpoint. Square per-example gradients before averaging; compute
-the model-predicted expectation exactly over classes, then normalise component
-scores per parameter. This orders component tests without claiming storage.
-Depends on M03 and M07. Accept when a small exact calculation agrees with the
-implementation, input examples are recorded, model state stays unchanged, and
-BatchNorm buffers are explicitly excluded from the ranking.
+**Not built** in the repository. A sanity script exists outside it, in the
+ignored `ops-docs/` directory, and is not a tested implementation.
+
+**To build.** Diagonal empirical and model-predicted Fisher at the pre-deletion
+checkpoint: square per-example gradients before averaging, take the
+model-predicted expectation exactly over classes, then normalise component
+scores per parameter. This orders the component tests and claims nothing about
+storage. Scores taken at the pre-deletion checkpoint rank components of the
+model that still holds the task, so using them to order tests on the unlearned
+model is an assumption to state rather than assume.
+
+**Accept** when a small exact calculation agrees with the implementation, input
+examples are recorded, model state is unchanged, and BatchNorm buffers are
+excluded from the ranking. Depends on M03, M07.
 
 ### M12. Evaluation and metrics
 
-Extend `uncle/metrics.py` and evaluation to implement all six diagnostic metrics,
-held-out log-probabilities, adaptation accuracy, and retained-task measurements.
-This turns raw probe outputs into the proposed comparisons. Depends on M01 and
-M08; attribution metrics also use M09. Accept when hand-calculated cases agree,
-paired records cannot be mismatched, and zero-denominator ratios are reported
-as undefined. Preserve the original four unlearning metrics.
+**Built.** `uncle/metrics.py` computes the paper's four numbers: retain
+accuracy, forget accuracy, spill per forget request, and relapse per forgotten
+task, summarised from the run history.
+
+**Missing.** All six study metrics in section 2, held-out log-probabilities,
+adaptation accuracy, and retained-task measurement during adaptation. Keep the
+four existing metrics unchanged; the study adds to them.
+
+**Accept** when hand-calculated cases agree, paired records cannot be
+mismatched, and zero-denominator ratios are reported as undefined. Depends on
+M01 and M08, plus M09 for the attribution metrics.
 
 ### M13. Statistical analysis
 
-Add paired analysis by task, seed, and sequence with uncertainty that respects
-shared models. Record the decision rule and smallest effect of interest before
-main experiments. This supports interpretation of positive and null results.
-Depends on M12 and the section 9 decisions. Accept when per-pair results remain
-available, shared-model dependence is retained, and conclusions follow the
-recorded rule rather than a rule chosen after seeing the main results.
+**Not built.** Nothing aggregates across tasks, seeds or sequences beyond
+`compare` in `uncle/experiments.py`, which prints a table.
+
+**To build.** Paired analysis by task, seed and sequence, with uncertainty that
+respects the fact that tasks inside one run share a model. Record the decision
+rule and the smallest effect of interest before the main runs.
+
+**Accept** when per-pair results stay available, shared-model dependence is
+retained, and conclusions follow the rule recorded beforehand. Depends on M12
+and the section 9 decisions.
 
 ### M14. Experiment orchestration
 
-Extend `uncle/experiments.py` with separate pilot and main-study run matrices,
-condition dependencies, continuation criteria, unique output paths, and resume
-behavior. This avoids missing or duplicated comparisons. Depends on M01,
-M06-M08, M10, and M12; full attribution also needs M09 and M11. Accept when a
-small run exercises the complete pilot matrix and an interruption neither mixes
-configurations nor silently repeats completed probes.
+**Built for the reproduction.** `uncle/experiments.py` builds a config, runs a
+sequence, writes `history_`, `summary_`, `costs_` and `environment_` files
+named for sequence, backbone and seed, loops sequences and seeds through
+`run_sequences`, and resumes from a checkpoint.
+
+**Missing.** A study matrix: conditions, budgets, interventions and probe
+timings, with the dependencies between them and a continuation rule after the
+pilot. The existing file names cannot separate those runs, which is why
+section 5 requires a run identifier.
+
+**Accept** when a small run exercises the whole pilot matrix and an
+interruption neither mixes configurations nor silently repeats completed
+probes. Depends on M01, M06, M07, M08, M10 and M12, plus M09 and M11 for full
+attribution.
 
 ### M15. Logging and report generation
 
-Extend `uncle/telemetry.py` and add analysis outputs for recovery curves,
-likelihood, X-versus-Y comparisons, component effects, interactions, and retained
-accuracy. Record code version, configuration, split and checkpoint identities,
-runtime, GPU memory, and raw measurements. This makes findings traceable.
-Depends on M12-M14 for final reports; log support starts with M01. Accept when
-every plotted value can be traced to a raw run record and figures can be rebuilt
-without retraining.
+**Built.** `uncle/telemetry.py` times each request, separates learning from
+forgetting, records seconds per step, peak GPU memory and protected count, and
+writes an environment record with the GPU, torch version and git commit, so a
+number found later can be traced to the code that produced it.
+
+**Missing.** Analysis outputs: recovery curves, likelihood comparisons, X
+against Y, component effects, interactions and retained-accuracy cost, plus
+split and checkpoint identities in the record.
+
+**Accept** when every plotted value traces to a raw run record and figures can
+be rebuilt without retraining. Depends on M12 to M14; log support starts at M01.
 
 ### M16. Experiment verification
 
-Extend `tests/` with checks for split separation, matched histories, restoration,
-probe isolation, freeze masks, BatchNorm behavior, Fisher, metrics, and run
-resumption. These detect errors that could create or hide recovery advantages.
-Build checks alongside the relevant modules. Accept when they include positive
-examples and deliberately invalid inputs, and a small end-to-end run exercises
-the study path before expensive experiments.
+**Built.** 52 checks across `tests/test_uncle.py`, `tests/test_tasks.py`,
+`tests/test_experiments.py` and `tests/test_diagnostics.py`, plus
+`scripts/check_guide.py`, which executes the guide's code blocks. They cover
+the paper's stated values, the partition, resume equivalence, evaluation
+hygiene, and that the preserve term has no gradient at the first forget step.
+
+**Missing.** Checks for everything the study adds: split separation, matched
+histories, stage restoration, probe isolation, freeze masks, BatchNorm policy,
+Fisher, the new metrics, and run resumption. The freeze-mask check matters
+most: a leak there does not crash, it produces a clean-looking component
+ranking that is wrong.
+
+**Accept** when the checks include positive examples and deliberately invalid
+inputs, and a small end-to-end run exercises the study path before any
+expensive experiment.
 
 ### Conditional module: membership inference
 
-Implement a separate evaluator if retaining the membership-inference comparison.
-Specify attack access, original member and nonmember sets, held-out attack
-evaluation, and success criteria; record any difference from the original paper's
-protocol. Depends on M02, M06, M07, and M15. Accept when the attack is checked on
-appropriate controls and evaluated on the same study checkpoints. Do not infer
-membership-inference success from chance-level forgotten-task accuracy.
+**Not built.** Required only if the final paper keeps the proposal's
+conditional claim.
+
+**To build.** A separate evaluator with stated attack access, member and
+nonmember sets, held-out attack evaluation and success criteria, recording any
+difference from the original paper's protocol. Do not infer success from
+chance-level accuracy on a forgotten task. Depends on M02, M06, M07, M15.
 
 ## 7. Execution order, schedule, and budget
 
