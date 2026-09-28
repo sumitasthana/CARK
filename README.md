@@ -5,6 +5,9 @@ in *An Unlearning Framework for Continual Learning* (Adhikari et al., 2025,
 [arXiv:2509.17530](https://arxiv.org/abs/2509.17530)), and a study of which
 parts of the model still hold a task after that task has been unlearned.
 
+Experiment results are recorded in the [project wiki](https://github.com/sumitasthana/CARK/wiki).
+The structured data and provenance are in [docs/experiments](docs/experiments/README.md).
+
 A note on names, since the two get conflated. *An Unlearning Framework for
 Continual Learning* is the paper. **UnCLe** is the method it introduces, and
 what this repository implements. There is no paper called UnCLe.

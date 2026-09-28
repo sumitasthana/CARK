@@ -1,0 +1,1084 @@
+{
+  "schema_version": 1,
+  "updated": "2026-09-28",
+  "repository": "https://github.com/sumitasthana/CARK",
+  "scope": "All completed experiment records and numerical checks located in the repository, local run notes, and the supplied conversation. Missing raw artifacts are not reconstructed.",
+  "identifier_policy": "E02-E15 retain their existing labels. Descriptive IDs for earlier and numerical records are archive labels, not invented historical E-numbers.",
+  "thresholds": {
+    "minimum_initial_accuracy_pct": 25,
+    "target_accuracy_at_most_pct": 12,
+    "retained_absolute_drift_strictly_under_pp": 5
+  },
+  "common_protocol": {
+    "dataset": "Tiny ImageNet",
+    "target_task": "3",
+    "retained_task": "0",
+    "target_backbone": "ResNet50",
+    "evaluation": "validation images",
+    "intended_configuration": {
+      "chunks": 200,
+      "hidden": [
+        128,
+        256,
+        512
+      ],
+      "task_embedding_dim": 32,
+      "chunk_embedding_dim": 32,
+      "epochs": 5,
+      "batch_size": 64,
+      "eval_batch_size": 256,
+      "beta": 0.01,
+      "noise_samples": 10,
+      "seed": 0,
+      "partition_seed": 42
+    },
+    "configuration_status": "Common intended setup from the experiment log; not independently verified for every run."
+  },
+  "experiments": [
+    {
+      "id": "full-sequence-20260921",
+      "title": "Full sequence 1 on Tiny ImageNet",
+      "category": "reproduction",
+      "question": "Does the implementation retain tasks while processing the full sequence?",
+      "run_date": "2026-09-21",
+      "date_evidence": "Date stated in the archived local run log.",
+      "reported_commit": "c6d89ce",
+      "hardware": "NVIDIA A100, Colab (reported)",
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "sequence": 1,
+        "requests": 30,
+        "learn_requests": 18,
+        "forget_requests": 12,
+        "seed": 0,
+        "partition_seed": 42,
+        "chunks": 200,
+        "epochs": 5,
+        "batch_size": 64,
+        "learning_rate": 0.001,
+        "beta": 0.01,
+        "gamma": 0.01,
+        "noise_samples": 10,
+        "initial_forget_steps": 100,
+        "burn_in_decay": 0.9,
+        "minimum_forget_steps": 20
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": null,
+      "observations": {
+        "retained_accuracy_pct": 10.0,
+        "forgotten_accuracy_pct": 10.0,
+        "mean_spill": 30.72,
+        "mean_relapse": 0.0,
+        "reported_wall_minutes": 55.9,
+        "reported_peak_gpu_gib": 7.72,
+        "generated_parameters": 23520842,
+        "hypernetwork_parameters": 134015898
+      },
+      "decision": "Reproduction failed",
+      "interpretation": "Retained accuracy is at chance. Chance forgotten accuracy and zero relapse do not establish successful selective forgetting.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "transcribed local run note",
+          "path": "docs/experiments/sources/full_sequence_20260921.md",
+          "note": "Summarises ops-docs/notes/run-log.html; underlying runtime JSON not inspected."
+        },
+        {
+          "kind": "tracked record",
+          "path": "docs/PLAN.md",
+          "note": null
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "costs_seq1_resnet50_seed0.json",
+          "availability": "Named in the local run note; not located or inspected."
+        }
+      ],
+      "next_step": "Use the short learn-learn-forget diagnostic to investigate retention failure."
+    },
+    {
+      "id": "initial-probe",
+      "title": "Initial learn-learn-forget probe",
+      "category": "learning and forgetting",
+      "question": "Was task 3 learned well enough to evaluate forgetting?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "shared_learning_rate": 0.001,
+        "gamma": 0.01,
+        "forget_steps": 100
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": null,
+      "observations": {
+        "task3_after_own_learning_pct": 14.4,
+        "task3_before_forgetting_pct": 12.2,
+        "task3_after_forgetting_pct": 10.0,
+        "task0_before_forgetting_pct": 36.6,
+        "task0_after_forgetting_pct": 34.8
+      },
+      "decision": "Invalid starting point",
+      "interpretation": "Task 3 was below the 25% learning screen before forgetting.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": "Check direct classifier learning and hypernetwork learning separately."
+    },
+    {
+      "id": "direct-baseline",
+      "title": "Direct ResNet50 baseline on task 3",
+      "category": "learning baseline",
+      "question": "Can the target architecture learn task 3 without the hypernetwork?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "task": "3",
+        "epochs": 5,
+        "learning_rate": 0.001,
+        "hypernetwork": false
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": null,
+      "observations": {
+        "validation_accuracy_pct_by_epoch": [
+          38.4,
+          24.2,
+          55.6,
+          47.0,
+          53.8
+        ]
+      },
+      "decision": "Learning demonstrated",
+      "interpretation": "Direct training reached 53.8% final validation accuracy. This does not identify which hypernetwork choice caused weaker learning.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": "Check the hypernetwork learning path."
+    },
+    {
+      "id": "E02",
+      "title": "E02: task 3 learning at a lower rate",
+      "category": "learning",
+      "question": "Does a lower learning rate let the hypernetwork learn task 3?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "task": "3",
+        "learning_rate": 0.0001
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": null,
+      "observations": {
+        "task3_final_accuracy_pct": 32.0,
+        "final_learning_loss": 1.574293
+      },
+      "decision": "Learning screen passed",
+      "interpretation": "Task 3 exceeded 25% in this run. This is not a multi-seed hyperparameter comparison.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": "Learn task 0 and recheck task 3."
+    },
+    {
+      "id": "E03",
+      "title": "E03: learn tasks 3 and 0",
+      "category": "learning",
+      "question": "Do both tasks remain above the learning screen before forgetting?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "requests": [
+          "L3",
+          "L0"
+        ],
+        "learning_rate": 0.0001
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": null,
+      "observations": {
+        "task3_after_own_learning_pct": 32.0,
+        "task3_after_task0_learning_pct": 30.4,
+        "task0_final_accuracy_pct": 43.8
+      },
+      "decision": "Both learning screens passed",
+      "interpretation": "Both tasks exceeded 25%. No forget request was run.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": "Test forgetting task 3 while protecting task 0."
+    },
+    {
+      "id": "E04",
+      "title": "E04: fresh-training forgetting probe",
+      "category": "learning and forgetting",
+      "question": "Can this forgetting setting reduce task 3 accuracy while preserving task 0?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "shared_learning_rate": 0.0001,
+        "gamma": 0.01,
+        "forget_steps": 100
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": "Freshly trained for this run; not the later E08 checkpoint.",
+      "observations": {
+        "task3_after_own_learning_pct": 31.0,
+        "task3_before_forgetting_pct": 26.4,
+        "task3_after_forgetting_pct": 10.0,
+        "task0_before_forgetting_pct": 41.6,
+        "task0_after_forgetting_pct": 10.0,
+        "reported_spill_pp": 31.6,
+        "final_forgetting_loss": 565622.875,
+        "reported_forgetting_seconds": 22.6
+      },
+      "decision": "Retention failed",
+      "interpretation": "Both tasks ended at chance. Fresh training produced different starting states across these runs.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": "Restore a single saved starting model for subsequent comparisons."
+    },
+    {
+      "id": "E05",
+      "title": "E05: fresh-training forgetting probe",
+      "category": "learning and forgetting",
+      "question": "Can this forgetting setting reduce task 3 accuracy while preserving task 0?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "shared_learning_rate": 0.0001,
+        "gamma": 0.001,
+        "forget_steps": 100
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": "Freshly trained for this run; not the later E08 checkpoint.",
+      "observations": {
+        "task3_after_own_learning_pct": 38.2,
+        "task3_before_forgetting_pct": 35.8,
+        "task3_after_forgetting_pct": 10.0,
+        "task0_before_forgetting_pct": 34.8,
+        "task0_after_forgetting_pct": 10.0,
+        "reported_spill_pp": 24.8,
+        "final_forgetting_loss": 53909.2578,
+        "reported_forgetting_seconds": 22.6
+      },
+      "decision": "Retention failed",
+      "interpretation": "Both tasks ended at chance. Fresh training produced different starting states across these runs.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": "Restore a single saved starting model for subsequent comparisons."
+    },
+    {
+      "id": "E06",
+      "title": "E06: fresh-training forgetting probe",
+      "category": "learning and forgetting",
+      "question": "Can this forgetting setting reduce task 3 accuracy while preserving task 0?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "shared_learning_rate": 0.0001,
+        "gamma": 0.0001,
+        "forget_steps": 100
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": "Freshly trained for this run; not the later E08 checkpoint.",
+      "observations": {
+        "task3_after_own_learning_pct": 42.6,
+        "task3_before_forgetting_pct": 35.2,
+        "task3_after_forgetting_pct": 10.0,
+        "task0_before_forgetting_pct": 37.0,
+        "task0_after_forgetting_pct": 10.0,
+        "reported_spill_pp": 27.0,
+        "final_forgetting_loss": 6864.8228,
+        "reported_forgetting_seconds": 22.6
+      },
+      "decision": "Retention failed",
+      "interpretation": "Both tasks ended at chance. Fresh training produced different starting states across these runs.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive.",
+        "The output directory reused an E04 label; gamma is user-confirmed, not inferred from that directory name."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": "Restore a single saved starting model for subsequent comparisons."
+    },
+    {
+      "id": "E07",
+      "title": "E07: fresh-training forgetting probe",
+      "category": "learning and forgetting",
+      "question": "Can this forgetting setting reduce task 3 accuracy while preserving task 0?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "shared_learning_rate": 0.0001,
+        "gamma": 0.0001,
+        "forget_steps": 10,
+        "minimum_forget_steps": 10
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": "Freshly trained for this run; not the later E08 checkpoint.",
+      "observations": {
+        "task3_after_own_learning_pct": 37.0,
+        "task3_before_forgetting_pct": 39.6,
+        "task3_after_forgetting_pct": 10.0,
+        "task0_before_forgetting_pct": 48.8,
+        "task0_after_forgetting_pct": 10.0,
+        "reported_spill_pp": 38.8,
+        "final_forgetting_loss": 36058.9922,
+        "reported_forgetting_seconds": 3.1
+      },
+      "decision": "Retention failed",
+      "interpretation": "Both tasks ended at chance. Fresh training produced different starting states across these runs.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": "Restore a single saved starting model for subsequent comparisons."
+    },
+    {
+      "id": "checkpoint-preparation",
+      "title": "Preparation of the persistent E08 checkpoint",
+      "category": "checkpoint preparation",
+      "question": "Can subsequent diagnostics share one trained starting state?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "dataset": "Tiny ImageNet",
+        "backbone": "ResNet50",
+        "requests": [
+          "L3",
+          "L0"
+        ]
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": null,
+      "observations": {
+        "task3_after_own_learning_pct": 36.4,
+        "task3_saved_accuracy_pct": 26.0,
+        "task0_saved_accuracy_pct": 44.6
+      },
+      "decision": "Checkpoint saved and restored",
+      "interpretation": "The reported restored predictions matched the saved accuracies. This is preparation, not a successful unlearning result.",
+      "limitations": [
+        "Original runtime artifacts were not independently inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "/content/drive/MyDrive/uncle/E08_forgetting_trace/before_forgetting.pt",
+          "availability": "Reported on Drive; restored in later user runs, including E15; not opened from this machine."
+        }
+      ],
+      "next_step": null
+    },
+    {
+      "id": "E08",
+      "title": "E08: checkpoint-based forgetting",
+      "category": "forgetting diagnostic",
+      "question": "Does this setting meet the forgetting and retention screen from the shared checkpoint?",
+      "run_date": "2026-09-23",
+      "date_evidence": "Historical log or reported artifact filename.",
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "forgetting_lr": 0.0001,
+        "gamma": 0.0001,
+        "steps": 10
+      },
+      "settings_evidence": "original configuration JSON not independently inspected",
+      "initial_state": "Restore the E08 pre-forgetting checkpoint: task 3 = 26.0%, task 0 = 44.6%.",
+      "observations": {
+        "task3_initial_accuracy_pct": 26.0,
+        "task0_initial_accuracy_pct": 44.6,
+        "task3_final_accuracy_pct": 10.0,
+        "task0_final_accuracy_pct": 10.0,
+        "minimum_task3_accuracy_pct": 10.0,
+        "maximum_task0_absolute_drift_pp": 34.6,
+        "first_retention_failure_step": 1,
+        "passing_steps": [],
+        "accuracy_observations": 11
+      },
+      "decision": "No passing step",
+      "interpretation": "The first update reduced retained accuracy by 21.2 points. Later target accuracy reached chance with retention already lost.",
+      "limitations": [
+        "One reported checkpoint and run per setting; not multi-seed evidence.",
+        "Original runtime JSON was not inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/forgetting_traces.csv",
+          "note": null
+        },
+        {
+          "kind": "tracked record",
+          "path": "docs/experiments/manifest.json",
+          "note": null
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "forget_trace_20260923_020958_555174.json",
+          "availability": "Reported location; original file not independently opened."
+        }
+      ],
+      "next_step": "See the next recorded experiment; this run did not complete the reproduction."
+    },
+    {
+      "id": "E09",
+      "title": "E09: checkpoint-based forgetting",
+      "category": "forgetting diagnostic",
+      "question": "Does this setting meet the forgetting and retention screen from the shared checkpoint?",
+      "run_date": "2026-09-23",
+      "date_evidence": "Historical log or reported artifact filename.",
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "forgetting_lr": 1e-05,
+        "gamma": 0.0001,
+        "steps": 10
+      },
+      "settings_evidence": "original configuration JSON not independently inspected",
+      "initial_state": "Restore the E08 pre-forgetting checkpoint: task 3 = 26.0%, task 0 = 44.6%.",
+      "observations": {
+        "task3_initial_accuracy_pct": 26.0,
+        "task0_initial_accuracy_pct": 44.6,
+        "task3_final_accuracy_pct": 15.8,
+        "task0_final_accuracy_pct": 30.0,
+        "minimum_task3_accuracy_pct": 15.8,
+        "maximum_task0_absolute_drift_pp": 14.6,
+        "first_retention_failure_step": 6,
+        "passing_steps": [],
+        "accuracy_observations": 11
+      },
+      "decision": "No passing step",
+      "interpretation": "The smaller forgetting learning rate delayed retention failure to step 6; no step passed both criteria.",
+      "limitations": [
+        "One reported checkpoint and run per setting; not multi-seed evidence.",
+        "Original runtime JSON was not inspected for this archive."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/forgetting_traces.csv",
+          "note": null
+        },
+        {
+          "kind": "tracked record",
+          "path": "docs/experiments/manifest.json",
+          "note": null
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "E09_forget_lr_1e-5_20260923_022053_354220.json",
+          "availability": "Reported location; original file not independently opened."
+        }
+      ],
+      "next_step": "See the next recorded experiment; this run did not complete the reproduction."
+    },
+    {
+      "id": "E10",
+      "title": "E10: checkpoint-based forgetting",
+      "category": "forgetting diagnostic",
+      "question": "Does this setting meet the forgetting and retention screen from the shared checkpoint?",
+      "run_date": "2026-09-23",
+      "date_evidence": "Historical log or reported artifact filename.",
+      "reported_commit": null,
+      "hardware": "Tesla T4 (explicitly user-reported)",
+      "settings": {
+        "forgetting_lr": 1e-05,
+        "gamma": 1e-05,
+        "steps": 10
+      },
+      "settings_evidence": "original configuration JSON not independently inspected",
+      "initial_state": "Restore the E08 pre-forgetting checkpoint: task 3 = 26.0%, task 0 = 44.6%.",
+      "observations": {
+        "task3_initial_accuracy_pct": 26.0,
+        "task0_initial_accuracy_pct": 44.6,
+        "task3_final_accuracy_pct": 16.0,
+        "task0_final_accuracy_pct": 44.8,
+        "minimum_task3_accuracy_pct": 16.0,
+        "maximum_task0_absolute_drift_pp": 2.0,
+        "first_retention_failure_step": null,
+        "passing_steps": [],
+        "accuracy_observations": 11
+      },
+      "decision": "No passing step",
+      "interpretation": "Retention stayed within the limit for ten updates, but target accuracy remained above 12%.",
+      "limitations": [
+        "One reported checkpoint and run per setting; not multi-seed evidence.",
+        "Original runtime JSON was not inspected for this archive.",
+        "Comparison with E09 also changes the reported hardware and diagnostic implementation; gamma is not the only difference."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/forgetting_traces.csv",
+          "note": null
+        },
+        {
+          "kind": "tracked record",
+          "path": "docs/experiments/manifest.json",
+          "note": null
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/forget_20260923_142742_335991_88cd96f2.screen.json",
+          "availability": "Reported location; original file not independently opened."
+        }
+      ],
+      "next_step": "See the next recorded experiment; this run did not complete the reproduction."
+    },
+    {
+      "id": "E11",
+      "title": "E11: checkpoint-based forgetting",
+      "category": "forgetting diagnostic",
+      "question": "Does this setting meet the forgetting and retention screen from the shared checkpoint?",
+      "run_date": "2026-09-23",
+      "date_evidence": "Historical log or reported artifact filename.",
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "forgetting_lr": 1e-05,
+        "gamma": 1e-05,
+        "steps": 30
+      },
+      "settings_evidence": "original configuration JSON not independently inspected",
+      "initial_state": "Restore the E08 pre-forgetting checkpoint: task 3 = 26.0%, task 0 = 44.6%.",
+      "observations": {
+        "task3_initial_accuracy_pct": 26.0,
+        "task0_initial_accuracy_pct": 44.6,
+        "task3_final_accuracy_pct": 13.4,
+        "task0_final_accuracy_pct": 36.4,
+        "minimum_task3_accuracy_pct": 12.6,
+        "maximum_task0_absolute_drift_pp": 8.2,
+        "first_retention_failure_step": 23,
+        "passing_steps": [],
+        "accuracy_observations": 31
+      },
+      "decision": "No passing step",
+      "interpretation": "Longer forgetting reduced target accuracy further, but retention first failed at step 23. The minimum target accuracy was still above 12%.",
+      "limitations": [
+        "One reported checkpoint and run per setting; not multi-seed evidence.",
+        "Original runtime JSON was not inspected for this archive.",
+        "The same T4 runtime was requested; a separate per-run hardware identity was not supplied."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/forgetting_traces.csv",
+          "note": null
+        },
+        {
+          "kind": "tracked record",
+          "path": "docs/experiments/manifest.json",
+          "note": null
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/forget_20260923_143249_572038_f52e5457.screen.json",
+          "availability": "Reported location; original file not independently opened."
+        }
+      ],
+      "next_step": "See the next recorded experiment; this run did not complete the reproduction."
+    },
+    {
+      "id": "E12",
+      "title": "E12: checkpoint-based forgetting",
+      "category": "forgetting diagnostic",
+      "question": "Does this setting meet the forgetting and retention screen from the shared checkpoint?",
+      "run_date": "2026-09-23",
+      "date_evidence": "Historical log or reported artifact filename.",
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "forgetting_lr": 1e-05,
+        "gamma": 3e-06,
+        "steps": 30
+      },
+      "settings_evidence": "original configuration JSON not independently inspected",
+      "initial_state": "Restore the E08 pre-forgetting checkpoint: task 3 = 26.0%, task 0 = 44.6%.",
+      "observations": {
+        "task3_initial_accuracy_pct": 26.0,
+        "task0_initial_accuracy_pct": 44.6,
+        "task3_final_accuracy_pct": 13.0,
+        "task0_final_accuracy_pct": 42.8,
+        "minimum_task3_accuracy_pct": 13.0,
+        "maximum_task0_absolute_drift_pp": 1.8,
+        "first_retention_failure_step": null,
+        "passing_steps": [],
+        "accuracy_observations": 31
+      },
+      "decision": "No passing step",
+      "interpretation": "Retention passed throughout, but target accuracy did not reach 12%.",
+      "limitations": [
+        "One reported checkpoint and run per setting; not multi-seed evidence.",
+        "Original runtime JSON was not inspected for this archive.",
+        "The same T4 runtime was requested; a separate per-run hardware identity was not supplied."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/forgetting_traces.csv",
+          "note": null
+        },
+        {
+          "kind": "tracked record",
+          "path": "docs/experiments/manifest.json",
+          "note": null
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/forget_20260923_143653_273412_d31bb28c.screen.json",
+          "availability": "Reported location; original file not independently opened."
+        }
+      ],
+      "next_step": "See the next recorded experiment; this run did not complete the reproduction."
+    },
+    {
+      "id": "E13",
+      "title": "E13: checkpoint-based forgetting",
+      "category": "forgetting diagnostic",
+      "question": "Does this setting meet the forgetting and retention screen from the shared checkpoint?",
+      "run_date": "2026-09-23",
+      "date_evidence": "Historical log or reported artifact filename.",
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "forgetting_lr": 1e-05,
+        "gamma": 3e-06,
+        "steps": 50,
+        "noise_samples": 10
+      },
+      "settings_evidence": "Corroborated by saved notebook output; original runtime report JSON not inspected.",
+      "initial_state": "Restore the E08 pre-forgetting checkpoint: task 3 = 26.0%, task 0 = 44.6%.",
+      "observations": {
+        "task3_initial_accuracy_pct": 26.0,
+        "task0_initial_accuracy_pct": 44.6,
+        "task3_final_accuracy_pct": 13.2,
+        "task0_final_accuracy_pct": 43.8,
+        "minimum_task3_accuracy_pct": 13.0,
+        "maximum_task0_absolute_drift_pp": 1.8,
+        "first_retention_failure_step": null,
+        "passing_steps": [],
+        "accuracy_observations": 51
+      },
+      "decision": "No passing step",
+      "interpretation": "Extending the E12 setting to 50 steps preserved retention but did not bring target accuracy to the threshold.",
+      "limitations": [
+        "One reported checkpoint and run per setting; not multi-seed evidence.",
+        "Original runtime JSON was not inspected for this archive.",
+        "The same T4 runtime was requested; a separate per-run hardware identity was not supplied."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/forgetting_traces.csv",
+          "note": null
+        },
+        {
+          "kind": "tracked record",
+          "path": "docs/experiments/manifest.json",
+          "note": null
+        },
+        {
+          "kind": "saved notebook output",
+          "path": "docs/experiments/notebook_saved_outputs.txt",
+          "note": "Confirms settings; setup hardware and commit are session evidence, not per-run metadata."
+        },
+        {
+          "kind": "sampled measurements",
+          "path": "docs/experiments/e13_sampled_losses.csv",
+          "note": null
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/forget_20260923_143926_526429_aa83a19b.screen.json",
+          "availability": "Reported location; original file not independently opened."
+        }
+      ],
+      "next_step": "See the next recorded experiment; this run did not complete the reproduction."
+    },
+    {
+      "id": "E14",
+      "title": "E14: checkpoint-based forgetting",
+      "category": "forgetting diagnostic",
+      "question": "Does this setting meet the forgetting and retention screen from the shared checkpoint?",
+      "run_date": "2026-09-23",
+      "date_evidence": "Historical log or reported artifact filename.",
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "forgetting_lr": 1e-05,
+        "gamma": 5e-06,
+        "steps": 50,
+        "noise_samples": 10
+      },
+      "settings_evidence": "Corroborated by saved notebook output; original runtime report JSON not inspected.",
+      "initial_state": "Restore the E08 pre-forgetting checkpoint: task 3 = 26.0%, task 0 = 44.6%.",
+      "observations": {
+        "task3_initial_accuracy_pct": 26.0,
+        "task0_initial_accuracy_pct": 44.6,
+        "task3_final_accuracy_pct": 12.6,
+        "task0_final_accuracy_pct": 37.4,
+        "minimum_task3_accuracy_pct": 12.4,
+        "maximum_task0_absolute_drift_pp": 7.2,
+        "first_retention_failure_step": 36,
+        "passing_steps": [],
+        "accuracy_observations": 51
+      },
+      "decision": "No passing step",
+      "interpretation": "Target accuracy approached the threshold without reaching it. Retention first failed at step 36.",
+      "limitations": [
+        "One reported checkpoint and run per setting; not multi-seed evidence.",
+        "Original runtime JSON was not inspected for this archive.",
+        "The same T4 runtime was requested; a separate per-run hardware identity was not supplied."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/forgetting_traces.csv",
+          "note": null
+        },
+        {
+          "kind": "tracked record",
+          "path": "docs/experiments/manifest.json",
+          "note": null
+        },
+        {
+          "kind": "saved notebook output",
+          "path": "docs/experiments/notebook_saved_outputs.txt",
+          "note": "Confirms settings; setup hardware and commit are session evidence, not per-run metadata."
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/forget_20260923_151049_593433_8a010c9b.screen.json",
+          "availability": "Reported location; original file not independently opened."
+        }
+      ],
+      "next_step": "See the next recorded experiment; this run did not complete the reproduction."
+    },
+    {
+      "id": "E15",
+      "title": "E15: gradient diagnostic",
+      "category": "gradient diagnostic",
+      "question": "How do noise and preservation gradients compare across parameter groups?",
+      "run_date": "2026-09-28",
+      "date_evidence": "UTC date encoded in the reported JSON filename; not an independently read runtime timestamp.",
+      "reported_commit": "e3087f0",
+      "hardware": null,
+      "settings": {
+        "forgetting_lr": 1e-05,
+        "gamma": 5e-06,
+        "steps": 10,
+        "noise_samples": 10
+      },
+      "settings_evidence": "Settings, commit, complete status and valid start were included in the pasted output. Original runtime JSON has not been inspected.",
+      "initial_state": "Restore the E08 pre-forgetting checkpoint: task 3 = 26.0%, task 0 = 44.6%.",
+      "observations": {
+        "task3_initial_accuracy_pct": 26.0,
+        "task0_initial_accuracy_pct": 44.6,
+        "task3_final_accuracy_pct": 16.2,
+        "task0_final_accuracy_pct": 44.6,
+        "minimum_task3_accuracy_pct": 16.0,
+        "maximum_task0_absolute_drift_pp": 1.8,
+        "first_retention_failure_step": null,
+        "passing_steps": [],
+        "accuracy_observations": 11,
+        "reported_status": "complete",
+        "reported_valid_start": true,
+        "gradient_steps_supplied": [
+          1,
+          2,
+          5,
+          10
+        ],
+        "raw_norm_before_step1": 19080,
+        "raw_norm_before_step10": 18860
+      },
+      "decision": "No passing step",
+      "interpretation": "Preservation gradients are zero before update 1 and substantial by update 2. Their magnitudes vary by parameter group. Norms alone do not establish cancellation or Adam update contributions.",
+      "limitations": [
+        "One reported checkpoint and run per setting; not multi-seed evidence.",
+        "Original runtime JSON was not inspected for this archive.",
+        "GPU and runtime were not supplied.",
+        "Gradient and raw-output norms have the precision printed in the supplied table.",
+        "Loss components and full gradient vectors were not supplied.",
+        "Commit 4c08f54 changed forgetting-noise generation; E15 is not an exact replay of E14."
+      ],
+      "evidence": [
+        {
+          "kind": "reported GPU results",
+          "path": "docs/EXPERIMENT_LOG.md",
+          "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/forgetting_traces.csv",
+          "note": null
+        },
+        {
+          "kind": "tracked record",
+          "path": "docs/experiments/manifest.json",
+          "note": null
+        },
+        {
+          "kind": "user-pasted notebook output",
+          "path": "docs/experiments/e15_reported_output.txt",
+          "note": null
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/gradient_norms.csv",
+          "note": null
+        },
+        {
+          "kind": "transcribed measurements",
+          "path": "docs/experiments/raw_output_norms.csv",
+          "note": null
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/E15_gradients/forget_20260928_011538_895545_c81f33b2.json",
+          "availability": "Reported location; original file not independently opened."
+        }
+      ],
+      "next_step": "Measure gradient alignment, combined gradients, and actual update norms before attributing the failure to cancellation."
+    },
+    {
+      "id": "noise-objective-check",
+      "title": "Numerical check of the noise objective",
+      "category": "numerical check",
+      "question": "Do fresh Gaussian targets produce noise-shaped or near-zero outputs?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": null,
+      "settings": {
+        "vector_values": 2000,
+        "updates": 3000,
+        "variants": [
+          "average of 10 fresh draws",
+          "one fresh draw",
+          "one fixed draw"
+        ]
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": null,
+      "observations": {
+        "reported_final_spread_average_10_fresh": 0.04,
+        "reported_final_spread_one_fresh": 0.07,
+        "reported_final_spread_fixed_draw": 0.98
+      },
+      "decision": "Numerical behavior reported",
+      "interpretation": "The recorded toy result is consistent with the expected squared-error objective being minimised at zero for fresh zero-mean targets.",
+      "limitations": [
+        "Only summary values are available. The definition of spread, seed, optimiser, runtime, and original output were not archived here.",
+        "This is a vector optimisation check, not a model unlearning experiment."
+      ],
+      "evidence": [
+        {
+          "kind": "reported numerical result",
+          "path": "README.md",
+          "note": "Section: What the noise objective actually does."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": null
+    },
+    {
+      "id": "fisher-sanity-check",
+      "title": "Numerical checks of Fisher calculations",
+      "category": "numerical check",
+      "question": "Do the gradient and Fisher calculations match their definitions on a small model?",
+      "run_date": null,
+      "date_evidence": null,
+      "reported_commit": null,
+      "hardware": "Windows CPU; Python 3.14.6 and torch 2.12.0+cpu (reported)",
+      "settings": {
+        "input_features": 4,
+        "classes": 2,
+        "model": "linear",
+        "class_expectation": "exact"
+      },
+      "settings_evidence": "Reported or intended settings in the cited record; original configuration JSON not independently inspected.",
+      "initial_state": null,
+      "observations": {
+        "autograd_gradient": 2.810392324786,
+        "finite_difference_gradient": 2.810392322417,
+        "reported_absolute_difference": 2.369e-09,
+        "empirical_to_model_fisher_ratio_uniform": 1.0,
+        "ratio_confident_correct": 0.01,
+        "ratio_confident_wrong": 99.0,
+        "square_then_average": 0.3681804,
+        "average_then_square": 0.0140179,
+        "reported_ordering_ratio": 26.27
+      },
+      "decision": "Recorded numerical checks passed",
+      "interpretation": "The saved output checks gradients, differences between Fisher definitions, and averaging order on this constructed example.",
+      "limitations": [
+        "Date and source commit were not recorded. This check was not rerun for the archive.",
+        "No evidence here establishes that an unlearned classifier must be confidently wrong. Chance accuracy does not determine confidence.",
+        "This does not implement or validate Fisher attribution on the hypernetwork."
+      ],
+      "evidence": [
+        {
+          "kind": "saved numerical output",
+          "path": "docs/experiments/sources/fisher_sanity_output.txt",
+          "note": "Copied from the fenced output in ops-docs/airlift/04_sanity_output.md."
+        }
+      ],
+      "reported_artifacts": [],
+      "next_step": null
+    }
+  ]
+}

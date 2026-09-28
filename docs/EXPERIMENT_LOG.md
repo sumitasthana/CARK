@@ -5,19 +5,23 @@ The GPU experiments were run in Colab; their complete artifacts remain on the
 user's Drive or in earlier runtime-local directories. The tables below transcribe
 results supplied in the conversation. They are not newly reproduced measurements.
 
-Current status: **no tested forgetting trajectory has passed both criteria.
-E14 first failed retention at step 36 and never reached target accuracy at
-or below 12%. Pause scalar tuning and inspect the objective's parameter scaling.**
+Current status: **no recorded diagnostic has passed both criteria. E15 retained
+task 0 accuracy over ten updates, but task 3 ended at 16.2%, above the 12%
+threshold. Gradient magnitudes are now recorded; gradient directions and actual
+update contributions remain unmeasured.**
 
-Start the next session with [03_forgetting_diagnostics.ipynb](../notebooks/03_forgetting_diagnostics.ipynb).
+Start the next session with [04_gradient_diagnostics.ipynb](../notebooks/04_gradient_diagnostics.ipynb).
 It restores the existing checkpoint and uses `uncle.diagnose_forgetting`.
 
 ## Reading this record
 
-Last updated: 2026-09-24. This is the narrative record of all results supplied
+Last updated: 2026-09-28. This is the narrative record of all results supplied
 in this conversation, not an archive of every original Colab output file.
-[Structured observations](experiments/README.md) provide CSV traces for E08-E14,
-sampled E13 losses, and a manifest linking the supplied artifact paths.
+[Structured observations](experiments/README.md) provide CSV traces for E08-E15,
+sampled E13 losses, E15 gradient and raw-output norms, and reported artifact paths.
+The [registry](experiments/registry.json) also includes the earlier full-sequence
+run and numerical checks. The [wiki](https://github.com/sumitasthana/CARK/wiki)
+presents one structured page per record, generated from these files.
 Earlier learning results and request summaries appear below; missing
 measurements are not reconstructed.
 
@@ -26,12 +30,10 @@ reused, so a label alone does not verify a configuration. Settings described
 as intended or instructed must be checked against original report JSON before
 using them as independently verified experimental metadata.
 
-The latest Colab session expired. The model and diagnostic reports were saved
-on Drive, but their current availability has not been checked from this machine.
-In a fresh GPU runtime, run notebook sections 1-3 only to mount Drive and inspect
-the checkpoint. Expected saved accuracies: task 3 = 26.0%, task 0 = 44.6%.
-Stop before section 4, which contains a saved E14 run with older E10 explanatory text.
-The proposed parameter-group diagnostic is not implemented yet.
+E15 reports a successful restore of the existing Drive checkpoint. Expected
+starting accuracies remain task 3 = 26.0%, task 0 = 44.6%. The original report
+and checkpoint have not been opened from this machine. Notebook 04 contains
+the current setup and gradient diagnostic; notebook 03 retains historical cells.
 
 ## Question and protocol
 
@@ -85,6 +87,7 @@ variation was not established.
 | E12 | Same checkpoint, LR 0.00001 and 30-step budget; gamma 0.000003 | 26.0% to 13.0% | 44.6% to 42.8% | Fail: target above 12%; retention passed throughout. |
 | E13 | Same checkpoint, LR 0.00001 and gamma 0.000003; 50 updates | 26.0% to 13.2%; minimum 13.0% | 44.6% to 43.8% | Fail: retention passes throughout; extra updates do not reach 12%. |
 | E14 | Same checkpoint, intended LR 0.00001 and gamma 0.000005; 50 updates | 26.0% to 12.6%; minimum 12.4% | 44.6% to 37.4% | Fail: retention first breached at step 36; target never passed. |
+| E15 | Same checkpoint; LR 0.00001, gamma 0.000005, ten updates; commit e3087f0; gradient measurement enabled | 26.0% to 16.2%; minimum 16.0% | 44.6% to 44.6%; maximum absolute drift 1.8 points | Fail: retention passed throughout, target remained above 12%. |
 
 E06 reused a directory whose label began `E04_first_forget`; the user clarified
 that the hyperparameters changed while the label was reused. We record the gamma
@@ -494,6 +497,38 @@ checkpoint. This finite search does not prove that no useful gamma exists or
 that a structural defect is the cause. It does justify switching from further
 nearby scalar guesses to the planned objective audit.
 
+## E15: gradient measurements from the saved checkpoint
+
+The user supplied a completed diagnostic table reporting commit `e3087f0`,
+forgetting LR 0.00001, gamma 0.000005, ten updates, ten noise samples, and a
+valid starting point. The filename carries the UTC date 2026-09-28. GPU identity,
+runtime, loss components, and the original JSON were not supplied for inspection.
+
+Task 3 fell from 26.0% to 16.2%, reaching a minimum of 16.0% at step 9.
+Task 0 ended at its starting 44.6%; its maximum absolute drift was 1.8 points.
+No step passed the joint screen. The printed raw-output norm fell from
+`1.908e+04` before update 1 to `1.886e+04` before update 10. Those norms describe
+the model before the named updates, not the final model after ten updates.
+
+At the first update, preservation gradients were zero in every measured group.
+Before update 2, the shared-layer preservation gradient norm was 3,493 against
+2,771 for the weighted noise term. Preservation is therefore not negligible in
+every group. The BatchNorm-head noise gradient remained larger than its
+preservation gradient at the supplied steps. These are generated BatchNorm scale
+and offset parameters, not running statistics.
+
+Gradient norms alone do not establish cancellation, storage, or each term's
+contribution to Adam's update. Commit `4c08f54` changed the forgetting-noise
+stream, so E15 is not an exact replay of the first ten E14 steps.
+
+The [transcribed output](experiments/e15_reported_output.txt) preserves the
+supplied values. Accuracy traces, raw norms, and the 16 supplied gradient rows
+are in the [structured files](experiments/README.md). Full gradient vectors and
+unreported steps' gradient norms are not reconstructed.
+
+Reported artifact:
+`/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/E15_gradients/forget_20260928_011538_895545_c81f33b2.json`.
+
 ### Initial code audit: the two terms use different parameter scales
 
 `UnCLe.forget` uses `hypernet.raw_for(task)` for its noise term, before layer
@@ -532,9 +567,9 @@ an explicit choice of noise scale; it must not be silently treated as a fix.
 6. **Smaller forgetting updates delay, but have not prevented, the tradeoff.** E09
    keeps task 0 within the drift limit through step 5, while task 3 remains above
    the forgetting threshold. Continuing to step 10 damages retention.
-7. **Loss magnitudes do not establish gradient dominance.** Gradient measurements
-   would be needed for that claim. Low weight drift also does not directly
-   guarantee low accuracy drift.
+7. **Loss magnitudes do not establish gradient dominance.** E15 adds per-group
+   gradient norms, but their directions and the actual Adam update still need
+   measurement. Low weight drift does not directly guarantee low accuracy drift.
 8. **Chance accuracy does not prove erasure.** No recovery experiment has yet
    established whether residual task information remains.
 9. **Zero relapse here is not a stability result.** These traces have no later
@@ -592,7 +627,8 @@ diagnostic should measure target and retained generated-weight changes by
 parameter group, including their raw and scaled norms, and relate those to
 accuracy. If measuring gradient contributions, distinguish them from losses.
 
-These measurements should be implemented in the repository with a short
-notebook call, preserving optimizer continuity and observational RNG behavior.
-No new objective, instrumentation, or GPU run has been executed in this update.
-The audit above is a starting hypothesis to test, not a confirmed root cause.
+E15 now supplies gradient magnitudes. The next diagnostic should add gradient
+alignment, combined-gradient norms, and actual parameter-update norms while
+preserving optimizer continuity and observational RNG behavior. The scaling
+audit remains a hypothesis to test, not a confirmed root cause. This archive
+update transcribes existing results; it does not run a new GPU experiment.

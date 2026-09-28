@@ -1,0 +1,32 @@
+Saved numerical output from ops-docs/airlift/04_sanity_output.md. Not rerun for this archive.
+
+(a) gradient of log-likelihood w.r.t. w[2,1]
+    autograd          :  2.810392324786
+    finite difference :  2.810392322417
+    abs difference    :  2.369e-09
+    PASS
+
+(b) empirical vs true Fisher, reported at w[0,1]
+    model p(class 1) | true label | F_emp      | F_true     | ratio
+    --------------------------------------------------------------
+                0.50 | 1          | 1.5625e-02 | 1.5625e-02 |     1.00
+                0.99 | 1          | 6.2500e-06 | 6.1875e-04 |     0.01
+                0.99 | 0          | 6.1256e-02 | 6.1875e-04 |    99.00
+
+    ratio at p=0.5           : 1.0000
+    ratio when confident+wrong: 99.0000
+    PASS: agree at p=0.5, empirical Fisher blows up when confident and wrong
+
+(c) order of operations in the empirical Fisher, at w[0,1]
+    square each, then average (CORRECT): 1.000000e-02
+    average, then square     (WRONG)   : 1.000000e-02
+    (identical here only because every example shares the same input;
+     the point is that they are different computations -- see the note below)
+
+(c2) same check, varied inputs and labels, at w[0,1]
+    square each, then average (CORRECT): 3.681804e-01
+    average, then square     (WRONG)   : 1.401790e-02
+    ratio correct/wrong                : 26.27x
+    PASS: the two orderings are not interchangeable
+
+all checks passed

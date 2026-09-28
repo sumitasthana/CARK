@@ -9,7 +9,7 @@ below records its requirements for readers of the tracked repository.
 Last updated: 2026-09-27.
 
 [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) records the reported GPU experiments
-through E14 and the checkpoint-based diagnostic refactor. No reported
+through E15 and the checkpoint-based diagnostics. No reported
 trajectory has passed both the short-run forgetting and retention criteria.
 These are existing observations, not measurements made during this plan update.
 
@@ -188,7 +188,7 @@ missing. This section states what is true of the research.
 
 The method is implemented and the reproduction has not succeeded. The full
 Tiny ImageNet run reported 10% retained accuracy against the paper's 55.24%,
-with mean spill 30.72 against 0.722. The short diagnostics through E14 have not
+with mean spill 30.72 against 0.722. The short diagnostics through E15 have not
 met both screening criteria at any setting tried. The experiment log holds the
 measured settings and their limits.
 

@@ -1,0 +1,17 @@
+run,step,parameter_group,weighted_noise_gradient_norm_before,preservation_gradient_norm_before
+E15,1,heads.batchnorm,2.959,0
+E15,1,heads.residual,16.5,0
+E15,1,heads.weights,128.2,0
+E15,1,trunk,2786,0
+E15,2,heads.batchnorm,2.95,0.1124
+E15,2,heads.residual,16.42,30.51
+E15,2,heads.weights,127.6,153.1
+E15,2,trunk,2771,3493
+E15,5,heads.batchnorm,2.932,0.2842
+E15,5,heads.residual,16.37,16.87
+E15,5,heads.weights,127,134.6
+E15,5,trunk,2756,2928
+E15,10,heads.batchnorm,2.904,0.5428
+E15,10,heads.residual,16.22,15.57
+E15,10,heads.weights,125.9,102.8
+E15,10,trunk,2728,2309

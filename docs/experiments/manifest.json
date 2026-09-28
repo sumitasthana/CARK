@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-24",
+  "updated": "2026-09-28",
   "provenance": "Transcriptions of results supplied by the user; not original runtime JSON or independently reproduced GPU measurements.",
   "checkpoint_reported_path": "/content/drive/MyDrive/uncle/E08_forgetting_trace/before_forgetting.pt",
   "thresholds": {
@@ -139,6 +139,43 @@
         "steps": 50,
         "noise_samples": 10
       }
+    },
+    {
+      "run": "E15",
+      "source": "User-pasted notebook output in the conversation; archived in e15_reported_output.txt.",
+      "intended_settings": {
+        "forgetting_lr": 1e-05,
+        "gamma": 5e-06,
+        "steps": 10
+      },
+      "observed_settings_from_user_output": {
+        "forgetting_lr": 1e-05,
+        "gamma": 5e-06,
+        "steps": 10,
+        "noise_samples": 10
+      },
+      "settings_verification": "Settings, commit, complete status and valid start were included in the pasted output. Original runtime JSON has not been inspected.",
+      "reported_commit": "e3087f0",
+      "reported_status": "complete",
+      "reported_valid_start": true,
+      "reported_artifact_paths": [
+        "/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/E15_gradients/forget_20260928_011538_895545_c81f33b2.json"
+      ],
+      "passing_steps": [],
+      "first_retention_failure_step": null,
+      "minimum_task3_accuracy_pct": 16.0,
+      "gradient_steps_supplied": [
+        1,
+        2,
+        5,
+        10
+      ],
+      "limitations": [
+        "GPU and runtime were not supplied.",
+        "Gradient and raw-output norms have the precision printed in the supplied table.",
+        "Loss components and full gradient vectors were not supplied.",
+        "Commit 4c08f54 changed forgetting-noise generation; E15 is not an exact replay of E14."
+      ]
     }
   ],
   "additional_source": {

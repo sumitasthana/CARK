@@ -1,0 +1,39 @@
+Transcription of user-supplied E15 output. Original runtime JSON not inspected.
+
+Status: complete
+Commit: e3087f0
+Settings: {'forgetting_lr': 1e-05, 'gamma': 5e-06, 'steps': 10, 'noise_samples': 10}
+Valid starting point: True
+step target retained_mean max_drift raw_norm_before passes_screen
+0 26.0 44.6 0.0 n/a False
+1 23.0 45.0 0.4 1.908e+04 False
+2 22.0 45.6 1.0 1.903e+04 False
+3 21.0 46.0 1.4 1.9e+04 False
+4 19.2 46.2 1.6 1.898e+04 False
+5 18.6 46.4 1.8 1.897e+04 False
+6 18.0 46.4 1.8 1.896e+04 False
+7 17.0 46.0 1.4 1.894e+04 False
+8 16.4 45.8 1.2 1.892e+04 False
+9 16.0 44.6 0.0 1.889e+04 False
+10 16.2 44.6 0.0 1.886e+04 False
+
+Gradient norms before each selected update (noise includes gamma):
+step group noise preserve
+1 heads.batchnorm 2.959 0
+1 heads.residual 16.5 0
+1 heads.weights 128.2 0
+1 trunk 2786 0
+2 heads.batchnorm 2.95 0.1124
+2 heads.residual 16.42 30.51
+2 heads.weights 127.6 153.1
+2 trunk 2771 3493
+5 heads.batchnorm 2.932 0.2842
+5 heads.residual 16.37 16.87
+5 heads.weights 127 134.6
+5 trunk 2756 2928
+10 heads.batchnorm 2.904 0.5428
+10 heads.residual 16.22 15.57
+10 heads.weights 125.9 102.8
+10 trunk 2728 2309
+Passing steps: []
+Report: /content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/E15_gradients/forget_20260928_011538_895545_c81f33b2.json
