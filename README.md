@@ -1,4 +1,4 @@
-# Component-level Attribution of Residual Knowledge after Task Unlearning
+# Component-level Attribution of Residual Knowledge after Task Unlearning (CARK)
 
 Working title. An independent reproduction of **UnCLe**, the method introduced
 in *An Unlearning Framework for Continual Learning* (Adhikari et al., 2025,
