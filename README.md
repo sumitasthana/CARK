@@ -1,10 +1,9 @@
 # Component-level Attribution of Residual Knowledge after Task Unlearning
 
 Working title. An independent reproduction of **UnCLe**, the method introduced
-in *An Unlearning Framework for Continual Learning* (Adhikari, Kumaravelu and
-Srijith, 2025, [arXiv:2509.17530](https://arxiv.org/abs/2509.17530)), and a
-study of which parts of the model still hold a task after that task has been
-unlearned.
+in *An Unlearning Framework for Continual Learning* (Adhikari et al., 2025,
+[arXiv:2509.17530](https://arxiv.org/abs/2509.17530)), and a study of which
+parts of the model still hold a task after that task has been unlearned.
 
 A note on names, since the two get conflated. *An Unlearning Framework for
 Continual Learning* is the paper. **UnCLe** is the method it introduces, and
@@ -168,6 +167,9 @@ one is not.
 
 ## Citation
 
-Adhikari, Kumaravelu, and Srijith (2025), [An Unlearning Framework for Continual
-Learning](https://arxiv.org/abs/2509.17530). The BibTeX entry for the paper
+Adhikari, Sayanta, et al. "An Unlearning Framework for Continual Learning."
+*arXiv*, 2025.
+[doi:10.48550/arXiv.2509.17530](https://doi.org/10.48550/arXiv.2509.17530).
+
+Same form as the proposal's reference list. The BibTeX entry for the paper
 reimplemented here is in [references.bib](references.bib).
