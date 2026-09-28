@@ -140,14 +140,24 @@ worked examples, and every experiment in the paper with what to look for.
 
 ## Diagnose forgetting from a checkpoint
 
-Start with [the fresh diagnostic notebook](notebooks/03_forgetting_diagnostics.ipynb)
-([open in Colab](https://colab.research.google.com/github/sumitasthana/hypernetworks/blob/main/notebooks/03_forgetting_diagnostics.ipynb)).
+Start with [the gradient diagnostic notebook](notebooks/04_gradient_diagnostics.ipynb)
+([open in Colab](https://colab.research.google.com/github/sumitasthana/hypernetworks/blob/main/notebooks/04_gradient_diagnostics.ipynb)).
+Its five cells fetch the latest `main`, define the experiment, check the session
+and checkpoint, run the diagnostic, and display the results. Run setup once in
+a fresh GPU runtime. The code records the commit used rather than requiring a
+commit hash in the notebook. The helper files must be on `main` before Colab
+can download them.
+
+Reusable setup lives in `scripts/colab_setup.py`; checkpoint checks and result
+tables live in `uncle/notebook.py`. Update experiment paths and settings in the
+configuration cell. Keep images on runtime-local storage and reports on Drive.
 The [experiment log](docs/EXPERIMENT_LOG.md) records the results, limitations, and
 findings through E14. No measured step passes both forgetting and retention
 criteria. [Structured observations](docs/experiments/README.md) preserve the
 supplied traces and their provenance. The next priority is objective diagnostics.
-After a session restart, run notebook sections 1-3 only; section 4 still contains
-the saved E14 run with older E10 prose, not the proposed parameter-group diagnostic.
+The older `03_forgetting_diagnostics.ipynb` retains historical cells and outputs.
+Use notebook 04 for the new gradient diagnostic. Its noise stream differs from
+the older runs, so identical settings need not reproduce their trajectories.
 
 Use a checkpoint saved after learning the target task and before forgetting it.
 This restores the model, task buffers, and random state on every call. It runs
@@ -193,6 +203,7 @@ Check the diagnostic machinery without downloading data:
 
 ```bash
 python tests/test_diagnostics.py
+python tests/test_notebook.py
 ```
 
 ## What a run costs
