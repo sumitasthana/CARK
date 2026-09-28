@@ -98,9 +98,22 @@ def render(registry, traces, gradients, norms):
         [link(row["title"], "Experiment-" + row["id"]), row["category"],
          row["run_date"] or "Not recorded", row["decision"]] for row in rows
     ])
-    pages["Home.md"] = f"""# CARK experiment history
+    pages["Home.md"] = f"""# CARK wiki
 
-Updated {registry['updated']}. This wiki records completed experiments and numerical
+- {link('Concepts and processes: FAQ', 'Concepts-and-processes')}: general explanations of
+  hypernetworks, heads and chunks, learning, forgetting, evaluation, and experiment workflow.
+- {link('Run logs explained', 'run-logs-explained')}: the experiment archive, including
+  results, protocol, evidence, software checks, and the record template.
+- {link('Anchor paper', 'An-Unlearning-Framework-for-Continual-Learning')}: the paper
+  used as the reproduction reference.
+"""
+    pages["Concepts-and-processes.md"] = (ROOT / "docs" / "CONCEPTS.md").read_text(encoding="utf-8")
+    pages["An-Unlearning-Framework-for-Continual-Learning.md"] = (
+        ROOT / "docs" / "ANCHOR_PAPER.md"
+    ).read_text(encoding="utf-8")
+    pages["run-logs-explained.md"] = f"""# Run logs explained
+
+Updated {registry['updated']}. This section records completed experiments and numerical
 checks. It separates reported measurements, interpretation, and proposed next work.
 
 **Current result:** the full-sequence reproduction failed retention, and none of
@@ -113,6 +126,7 @@ E15 retained task 0 accuracy but ended at 16.2% on task 3, above the 12% thresho
 - {link('Evidence and downloadable files', 'Evidence-and-files')}: provenance and source data.
 - {link('Software validation', 'Software-validation')}: checks kept separate from research runs.
 - {link('Record template', 'Record-template')}: how to log the next experiment.
+- {link('Anchor paper', 'An-Unlearning-Framework-for-Continual-Learning')}: the reproduction reference.
 
 Original Drive artifacts are not mirrored here. Measurements transcribed from
 tables retain their reported precision; missing values remain missing. The
@@ -319,9 +333,14 @@ earlier validation history remains in {source('docs/EXPERIMENT_LOG.md')}.
                 f"- `{item['path']}`: {item['availability']}" for item in experiment["reported_artifacts"]))
         pages["Experiment-" + identifier + ".md"] = "\n\n".join(sections) + "\n"
     pages["_Sidebar.md"] = "\n".join("- " + link(title, slug) for title, slug in [
-        ("Home", "Home"), ("Experiment index", "Experiment-index"), ("Protocol", "Protocol"),
-        ("Latest: E15", "Experiment-E15"), ("Evidence and files", "Evidence-and-files"),
-        ("Software validation", "Software-validation"), ("Record template", "Record-template")]) + "\n"
+        ("Home", "Home"), ("Concepts and processes: FAQ", "Concepts-and-processes"),
+        ("Run logs explained", "run-logs-explained"),
+        ("Anchor paper", "An-Unlearning-Framework-for-Continual-Learning")]) + "\n"
+    for name in ["Experiment-index.md", "Protocol.md", "Evidence-and-files.md",
+                 "Record-template.md", "Software-validation.md",
+                 *["Experiment-" + row["id"] + ".md" for row in rows]]:
+        title, body = pages[name].split("\n", 1)
+        pages[name] = title + "\n\n" + link("Run logs explained", "run-logs-explained") + "\n" + body
     return pages
 
 

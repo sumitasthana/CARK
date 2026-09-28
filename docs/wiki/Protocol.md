@@ -1,5 +1,7 @@
 # Protocol and interpretation
 
+[Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
+
 The short diagnostic is `L3 L0 U3`: learn task 3, learn task 0, then forget task 3
 while protecting task 0. Tiny ImageNet accuracy uses its labelled validation split.
 Each task has ten classes. The common intended model is ResNet50 generated in

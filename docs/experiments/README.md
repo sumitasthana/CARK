@@ -1,8 +1,12 @@
 # Reported experiment observations
 
-The [GitHub wiki](https://github.com/sumitasthana/CARK/wiki) presents this archive
+The [Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained) section presents this archive
 as an index, a shared protocol, and one page per completed record. The canonical
 structured source is `registry.json`; generated Markdown is in `docs/wiki/`.
+
+The wiki's general FAQ is maintained in `docs/CONCEPTS.md`. The existing
+anchor-paper link is preserved in `docs/ANCHOR_PAPER.md`. The generator publishes
+both alongside the archive and maintains the home page and section navigation.
 
 Read [the experiment log](../EXPERIMENT_LOG.md) for the complete narrative,
 earlier learning runs, decisions, limitations, and code findings.

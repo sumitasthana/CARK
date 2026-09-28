@@ -1,5 +1,7 @@
 # Direct ResNet50 baseline on task 3
 
+[Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
+
 [Experiment index](https://github.com/sumitasthana/CARK/wiki/Experiment-index)
 
 ## Question

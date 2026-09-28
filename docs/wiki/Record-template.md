@@ -1,5 +1,7 @@
 # Adding an experiment
 
+[Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
+
 Create the record when a run starts and fill its observed results when it ends.
 Preserve failed and interrupted runs. Distinguish intended settings from the
 settings printed or stored by the actual run. Use null for unavailable metadata.

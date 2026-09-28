@@ -1,5 +1,7 @@
 # E15: gradient diagnostic
 
+[Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
+
 [Experiment index](https://github.com/sumitasthana/CARK/wiki/Experiment-index)
 
 ## Question

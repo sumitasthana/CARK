@@ -1,5 +1,7 @@
 # Experiment index
 
+[Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
+
 E02-E15 retain their existing labels. Descriptive IDs for earlier and numerical records are archive labels, not invented historical E-numbers.
 
 | Record | Category | Date evidence | Decision |

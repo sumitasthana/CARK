@@ -1,5 +1,7 @@
 # Evidence and files
 
+[Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
+
 - [registry.json](https://github.com/sumitasthana/CARK/blob/main/docs/experiments/registry.json)
 - [manifest.json](https://github.com/sumitasthana/CARK/blob/main/docs/experiments/manifest.json)
 - [forgetting_traces.csv](https://github.com/sumitasthana/CARK/blob/main/docs/experiments/forgetting_traces.csv)

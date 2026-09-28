@@ -5,7 +5,8 @@ in *An Unlearning Framework for Continual Learning* (Adhikari et al., 2025,
 [arXiv:2509.17530](https://arxiv.org/abs/2509.17530)), and a study of which
 parts of the model still hold a task after that task has been unlearned.
 
-Experiment results are recorded in the [project wiki](https://github.com/sumitasthana/CARK/wiki).
+The wiki has a [concepts FAQ](https://github.com/sumitasthana/CARK/wiki/Concepts-and-processes)
+and [run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained).
 The structured data and provenance are in [docs/experiments](docs/experiments/README.md).
 
 A note on names, since the two get conflated. *An Unlearning Framework for

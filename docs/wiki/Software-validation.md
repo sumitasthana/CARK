@@ -1,5 +1,7 @@
 # Software validation
 
+[Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
+
 These are software checks, not measurements of successful unlearning.
 
 ## Commit 4c08f54 review

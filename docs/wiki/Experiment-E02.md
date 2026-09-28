@@ -1,5 +1,7 @@
 # E02: task 3 learning at a lower rate
 
+[Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
+
 [Experiment index](https://github.com/sumitasthana/CARK/wiki/Experiment-index)
 
 ## Question

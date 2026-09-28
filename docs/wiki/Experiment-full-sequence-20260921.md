@@ -1,5 +1,7 @@
 # Full sequence 1 on Tiny ImageNet
 
+[Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
+
 [Experiment index](https://github.com/sumitasthana/CARK/wiki/Experiment-index)
 
 ## Question
