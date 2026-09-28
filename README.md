@@ -170,6 +170,3 @@ one is not.
 Adhikari, Sayanta, et al. "An Unlearning Framework for Continual Learning."
 *arXiv*, 2025.
 [doi:10.48550/arXiv.2509.17530](https://doi.org/10.48550/arXiv.2509.17530).
-
-Same form as the proposal's reference list. The BibTeX entry for the paper
-reimplemented here is in [references.bib](references.bib).
