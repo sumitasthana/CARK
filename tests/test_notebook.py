@@ -197,6 +197,8 @@ class NotebookFlowTests(unittest.TestCase):
         self.assertTrue(report["initial_matches_checkpoint"])
         self.assertEqual([r["step"] for r in report["trace"]], [0, 1, 2])
         self.assertIn("noise_gradient", report["trace"][1])
+        self.assertIn("gradient_cosine", report["trace"][1])
+        self.assertIn("adam_update_norm", report["trace"][1])
         self.assertTrue(Path(report["report_path"]).is_file())
         self.assertEqual(before, hashlib.sha256(fixture.path.read_bytes()).digest())
 

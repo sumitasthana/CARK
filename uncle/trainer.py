@@ -166,8 +166,9 @@ class UnCLe:
 
     # -- forget --------------------------------------------------------------
 
-    def _term_gradient(self, term: torch.Tensor, trainable: list) -> dict[str, float]:
-        """Gradient norm of one loss term, per parameter group.
+    def _term_gradients(self, noise: torch.Tensor, preserve: torch.Tensor,
+                        trainable: list) -> tuple[dict, dict, dict]:
+        """Return each term's group norms and their cosine similarity.
 
         The forget objective adds two terms that are measured on different
         things: the noise term reads the generator's raw output, the preserve
@@ -176,21 +177,37 @@ class UnCLe:
         the model. This costs one extra backward pass per term, so it runs
         only when a caller asks to measure.
         """
-        if not term.requires_grad:
-            return {}
-        gradients = torch.autograd.grad(term, trainable, retain_graph=True,
-                                        allow_unused=True)
+        gradients = [
+            torch.autograd.grad(term, trainable, retain_graph=True,
+                                allow_unused=True) if term.requires_grad
+            else [None] * len(trainable)
+            for term in (noise, preserve)
+        ]
         names = {id(parameter): name
                  for name, parameter in self.hypernet.named_parameters()}
-        squares: dict[str, float] = {}
-        for parameter, gradient in zip(trainable, gradients):
-            if gradient is None:
-                continue
+        noise_squares: dict[str, float] = {}
+        preserve_squares: dict[str, float] = {}
+        products: dict[str, float] = {}
+        for parameter, noise_grad, preserve_grad in zip(trainable, *gradients):
             name = names.get(id(parameter), "unknown")
             # "trunk", "heads.weights", "heads.batchnorm", "heads.residual".
             group = ".".join(name.split(".")[:1 if name.startswith("trunk") else 2])
-            squares[group] = squares.get(group, 0.0) + gradient.square().sum().item()
-        return {group: value ** 0.5 for group, value in squares.items()}
+            if noise_grad is not None:
+                noise_squares[group] = noise_squares.get(group, 0.0) + noise_grad.square().sum().item()
+            if preserve_grad is not None:
+                preserve_squares[group] = (preserve_squares.get(group, 0.0)
+                                           + preserve_grad.square().sum().item())
+            if noise_grad is not None and preserve_grad is not None:
+                products[group] = (products.get(group, 0.0)
+                                   + (noise_grad * preserve_grad).sum().item())
+        noise_norms = {group: value ** 0.5 for group, value in noise_squares.items()}
+        preserve_norms = {group: value ** 0.5 for group, value in preserve_squares.items()}
+        cosine = {
+            group: max(-1.0, min(1.0, products[group] / (noise_norms[group] * preserve_norms[group])))
+            if noise_norms.get(group, 0.0) and preserve_norms.get(group, 0.0) else None
+            for group in noise_squares.keys() | preserve_squares.keys()
+        }
+        return noise_norms, preserve_norms, cosine
 
     def forget(
         self, task: str, protected: list[str], burn_in: int | None = None,
@@ -211,9 +228,10 @@ class UnCLe:
         accuracy afterward. Callback RNG consumption and model modes are
         restored. Callbacks must not mutate model parameters or stored buffers.
 
-        measure adds per-group gradient norms for each loss term and the size
-        of the forgotten task's raw output to every step record. It triples the
-        backward work, so it is for diagnostics rather than production runs.
+        measure adds per-group gradient norms, their cosine similarity, actual
+        Adam update norms, and the size of the forgotten task's raw output.
+        It triples the backward work, so it is for diagnostics rather than
+        production runs.
         """
         if task not in self.hypernet.task_codes:
             raise ValueError(f"Task {task} was never learned.")
@@ -270,15 +288,33 @@ class UnCLe:
 
             measured = {}
             if measure:
+                noise_norms, preserve_norms, cosine = self._term_gradients(
+                    weighted_noise, preservation, trainable)
                 measured = {
-                    "noise_gradient": self._term_gradient(weighted_noise, trainable),
-                    "preserve_gradient": self._term_gradient(preservation, trainable),
+                    "noise_gradient": noise_norms,
+                    "preserve_gradient": preserve_norms,
+                    "gradient_cosine": cosine,
                     "raw_norm": raw.detach().norm().item(),
                 }
 
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
+            before = [parameter.detach().clone() for parameter in trainable] if measure else None
             optimizer.step()
+            if before is not None:
+                names = {id(parameter): name
+                         for name, parameter in self.hypernet.named_parameters()}
+                update_squares: dict[str, torch.Tensor] = {}
+                with torch.no_grad():
+                    for parameter, previous in zip(trainable, before):
+                        name = names.get(id(parameter), "unknown")
+                        group = ".".join(name.split(".")[:1 if name.startswith("trunk") else 2])
+                        square = (parameter - previous).square().sum()
+                        update_squares[group] = update_squares.get(group, 0) + square
+                measured["adam_update_norm"] = {
+                    group: square.sqrt().item() for group, square in update_squares.items()
+                }
+                del before
 
             losses.append(loss.item())
             if on_step is not None:

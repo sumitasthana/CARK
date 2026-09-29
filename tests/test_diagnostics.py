@@ -101,6 +101,54 @@ class DiagnosticTests(unittest.TestCase):
                          json.loads(json.dumps(first)))
         self.assertEqual(hashlib.sha256(self.path.read_bytes()).hexdigest(), digest)
 
+    def test_cosine_uses_gradient_directions_and_undefined_zero_norm(self):
+        uncle = self.fresh()
+        probe = torch.nn.Parameter(torch.tensor([1.0, 2.0]))
+        noise = probe.sum()
+        preserve = -probe.sum()
+        noise_norm, preserve_norm, cosine = uncle._term_gradients(
+            noise, preserve, [probe])
+        self.assertAlmostEqual(noise_norm["unknown"], 2 ** 0.5)
+        self.assertAlmostEqual(preserve_norm["unknown"], 2 ** 0.5)
+        self.assertAlmostEqual(cosine["unknown"], -1.0)
+        _, _, zero_cosine = uncle._term_gradients(noise, probe.sum() * 0, [probe])
+        self.assertIsNone(zero_cosine["unknown"])
+
+    def test_measured_adam_update_matches_parameter_change_and_plain_run(self):
+        observed = self.restored()
+        before = {name: parameter.detach().clone()
+                  for name, parameter in observed.hypernet.named_parameters()}
+        rows = []
+        measured_loss = observed.forget("3", ["0"], burn_in=1,
+                                        on_step=rows.append, measure=True)
+        step = rows[1]
+        squared = {}
+        for name, parameter in observed.hypernet.named_parameters():
+            if name not in before or not parameter.requires_grad:
+                continue
+            group = ".".join(name.split(".")[:1 if name.startswith("trunk") else 2])
+            squared[group] = (squared.get(group, 0)
+                              + (parameter.detach() - before[name]).square().sum().item())
+        for group, value in squared.items():
+            self.assertAlmostEqual(step["adam_update_norm"][group], value ** 0.5, places=6)
+        self.assertTrue(all(value is None for value in step["gradient_cosine"].values()))
+
+        plain = self.restored()
+        self.assertEqual(measured_loss, plain.forget("3", ["0"], burn_in=1))
+        for name, value in observed.hypernet.state_dict().items():
+            self.assertTrue(torch.equal(value, plain.hypernet.state_dict()[name]), name)
+
+        observed = self.restored()
+        plain = self.restored()
+        rows = []
+        measured_losses = observed.forget("3", ["0"], burn_in=3,
+                                          on_step=rows.append, measure=True)
+        self.assertEqual(measured_losses, plain.forget("3", ["0"], burn_in=3))
+        for name, value in observed.hypernet.state_dict().items():
+            self.assertTrue(torch.equal(value, plain.hypernet.state_dict()[name]), name)
+        self.assertTrue(all("gradient_cosine" in row and "adam_update_norm" in row
+                            for row in rows[1:]))
+
     def test_legacy_checkpoint_loads_but_explicit_rate_mismatch_is_rejected(self):
         saved = checkpoint.load(self.path)
         del saved["config"]["forgetting_learning_rate"]

@@ -81,7 +81,7 @@ def prepare_session(checkpoint, *, mount_drive=True, require_gpu=True,
 
 def show_diagnostic(report, *, gradient_steps=(1, 2, 5, 10), min_before=25.0,
                     target_at_most=12.0, drift_under=5.0):
-    """Print accuracy screens and gradient norms from an existing report.
+    """Print accuracy screens and available optimizer diagnostics.
 
     Gradients and raw norms are measured before updates; accuracies are after
     updates. The screen is a debugging criterion, not evidence of deletion.
@@ -130,6 +130,19 @@ def show_diagnostic(report, *, gradient_steps=(1, 2, 5, 10), min_before=25.0,
             n = f"{noise[group]:.4g}" if group in noise else "n/a"
             p = f"{preserve[group]:.4g}" if group in preserve else "n/a"
             print(f"{row['step']:4d}  {group:22}  {n:>10}  {p:>13}")
+    if any("gradient_cosine" in row or "adam_update_norm" in row for row in trace):
+        print("\nGradient cosine and actual Adam update norm for each selected step:")
+        print("Cosine: -1 opposite, 0 perpendicular, +1 aligned; n/a if a norm is zero.")
+        print("step  group                    cosine       Adam update")
+        for row in trace:
+            if row["step"] not in gradient_steps:
+                continue
+            cosine = row.get("gradient_cosine", {})
+            update = row.get("adam_update_norm", {})
+            for group in sorted(set(cosine) | set(update)):
+                c = "n/a" if cosine.get(group) is None else f"{cosine[group]:.4g}"
+                u = f"{update[group]:.4g}" if group in update else "n/a"
+                print(f"{row['step']:4d}  {group:22}  {c:>10}  {u:>16}")
     print("Passing steps:", passing)
     print("Report:", report["report_path"])
     return {"valid_start": valid_start, "complete": complete, "passing_steps": passing}
