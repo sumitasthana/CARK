@@ -104,6 +104,8 @@ def render(registry, traces, gradients, norms):
   hypernetworks, heads and chunks, learning, forgetting, evaluation, and experiment workflow.
 - {link('Run logs explained', 'run-logs-explained')}: the experiment archive, including
   results, protocol, evidence, software checks, and the record template.
+- {source('docs/RESEARCH_DIAGNOSTIC.md')}: how the reusable diagnostic screens
+  current runs and accepts future matched recovery probes.
 - {link('Anchor paper', 'An-Unlearning-Framework-for-Continual-Learning')}: the paper
   used as the reproduction reference.
 """
@@ -117,12 +119,13 @@ Updated {registry['updated']}. This section records completed experiments and nu
 checks. It separates reported measurements, interpretation, and proposed next work.
 
 **Current result:** the full-sequence reproduction failed retention, and none of
-the checkpoint diagnostics E08-E15 passed the joint forgetting/retention screen.
-E15 retained task 0 accuracy but ended at 16.2% on task 3, above the 12% threshold.
+the recorded checkpoint diagnostics passed the joint forgetting/retention screen.
+The latest 30-step run reached 12.6% target accuracy at step 27 while retained
+accuracy had drifted 3.6 points. The target threshold is 12%.
 
 - {link('Experiment index', 'Experiment-index')}: all {len(rows)} archived records.
 - {link('Protocol and decision rules', 'Protocol')}: settings, thresholds, and comparability.
-- {link('Latest result: E15', 'Experiment-E15')}: accuracy and gradient measurements.
+- {link('Latest 30-step result', 'Experiment-forgetting-30step-20260929')}: accuracy and gradient measurements.
 - {link('Evidence and downloadable files', 'Evidence-and-files')}: provenance and source data.
 - {link('Software validation', 'Software-validation')}: checks kept separate from research runs.
 - {link('Record template', 'Record-template')}: how to log the next experiment.
@@ -131,11 +134,14 @@ E15 retained task 0 accuracy but ended at 16.2% on task 3, above the 12% thresho
 Original Drive artifacts are not mirrored here. Measurements transcribed from
 tables retain their reported precision; missing values remain missing. The
 archive includes the full-sequence run, early learning and forgetting probes,
-checkpoint preparation, E08-E15, and two numerical checks. It does not present
+checkpoint preparation, E08-E15, the latest 30-step run, and two numerical checks. It does not present
 planned Fisher attribution or relearning experiments as completed work.
 
 The canonical structured record is {source('docs/experiments/registry.json')}.
 Pages are generated with `python scripts/build_experiment_wiki.py`.
+
+The {source('docs/RESEARCH_DIAGNOSTIC.md')} keeps current forgetting screens
+separate from future matched recovery and component tests.
 """
     pages["Experiment-index.md"] = "# Experiment index\n\n" + registry["identifier_policy"] + "\n\n" + index
     pages["Protocol.md"] = f"""# Protocol and interpretation
@@ -147,7 +153,7 @@ Each task has ten classes. The common intended model is ResNet50 generated in
 Common defaults are intended settings, not verified metadata for every run.
 
 The E08 checkpoint has reported starting accuracies of 26.0% for task 3 and 44.6%
-for task 0. E08-E15 restore that starting state for each diagnostic. Within a
+for task 0. E08 onward restore that starting state for each diagnostic. Within a
 forget request, keep one continuous Adam optimiser and one frozen reference.
 Calling one-step forget requests repeatedly changes the experiment.
 
@@ -167,7 +173,7 @@ Learning-only and numerical checks are not judged by the forgetting screen.
 Accuracies are percentages; drift is in percentage points. Losses, raw-output
 norms, and gradient norms are measured before their named update. Accuracy is
 measured after it. Step 10's raw norm therefore describes the model after nine
-updates. E15 noise-gradient norms already include gamma.
+updates. Reported E15 and 30-step noise-gradient norms already include gamma.
 
 ## Comparison limits
 
@@ -185,24 +191,26 @@ running means and variances are separate stored buffers.
 
 ## Next work, not yet a result
 
-Measure gradient alignment, combined gradients, actual parameter updates, and
-raw/scaled generated-weight changes from the same checkpoint. These are proposed
-diagnostics. No gradient-cancellation finding, relearning advantage, or component
+The new diagnostic code can measure gradient alignment, actual Adam update
+norms, and before/after component changes, but no GPU result from that code has
+been supplied. Combined gradients and raw/scaled generated-weight changes remain
+unmeasured. No gradient-cancellation finding, relearning advantage, or component
 storage attribution has been established by the archived runs.
 """
     files = ["registry.json", "manifest.json", "forgetting_traces.csv", "gradient_norms.csv",
              "raw_output_norms.csv", "e13_sampled_losses.csv", "e15_reported_output.txt",
              "notebook_saved_outputs.txt", "sources/full_sequence_20260921.md",
-             "sources/fisher_sanity_output.txt"]
+             "sources/fisher_sanity_output.txt", "sources/forgetting_30step_20260929.txt"]
     pages["Evidence-and-files.md"] = "# Evidence and files\n\n" + "\n".join(
         "- " + source("docs/experiments/" + filename) for filename in files
     ) + """
 
-The main registry includes every archived experiment. The older manifest covers
-checkpoint diagnostics E08-E15 and records their artifact paths. Together the
-trace files contain 208 accuracy observations, 16 supplied E15 gradient rows,
-and ten supplied E15 raw-output norms. Only steps 1, 2, 5, and 10 have supplied
-gradient measurements. Missing losses are blank, not inferred from norms.
+The main registry includes every archived experiment. The manifest covers
+checkpoint diagnostics and records their reported artifact paths. Together the
+trace files contain {len(traces)} accuracy observations, {len(gradients)} supplied
+gradient rows, and {len(norms)} supplied raw-output norms. The 30-step run has
+supplied gradient norms at steps 1, 2, 5, 10, 20, 25, 27, and 30. Missing
+losses are blank, not inferred from norms.
 
 `e15_reported_output.txt` is a transcription of the user's pasted table, not the
 original runtime JSON. The runtime reported completion and a valid starting
@@ -335,6 +343,7 @@ earlier validation history remains in {source('docs/EXPERIMENT_LOG.md')}.
     pages["_Sidebar.md"] = "\n".join("- " + link(title, slug) for title, slug in [
         ("Home", "Home"), ("Concepts and processes: FAQ", "Concepts-and-processes"),
         ("Run logs explained", "run-logs-explained"),
+        ("Latest 30-step result", "Experiment-forgetting-30step-20260929"),
         ("Anchor paper", "An-Unlearning-Framework-for-Continual-Learning")]) + "\n"
     for name in ["Experiment-index.md", "Protocol.md", "Evidence-and-files.md",
                  "Record-template.md", "Software-validation.md",

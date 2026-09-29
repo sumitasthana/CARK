@@ -9,7 +9,7 @@ Each task has ten classes. The common intended model is ResNet50 generated in
 Common defaults are intended settings, not verified metadata for every run.
 
 The E08 checkpoint has reported starting accuracies of 26.0% for task 3 and 44.6%
-for task 0. E08-E15 restore that starting state for each diagnostic. Within a
+for task 0. E08 onward restore that starting state for each diagnostic. Within a
 forget request, keep one continuous Adam optimiser and one frozen reference.
 Calling one-step forget requests repeatedly changes the experiment.
 
@@ -29,7 +29,7 @@ Learning-only and numerical checks are not judged by the forgetting screen.
 Accuracies are percentages; drift is in percentage points. Losses, raw-output
 norms, and gradient norms are measured before their named update. Accuracy is
 measured after it. Step 10's raw norm therefore describes the model after nine
-updates. E15 noise-gradient norms already include gamma.
+updates. Reported E15 and 30-step noise-gradient norms already include gamma.
 
 ## Comparison limits
 
@@ -47,7 +47,8 @@ running means and variances are separate stored buffers.
 
 ## Next work, not yet a result
 
-Measure gradient alignment, combined gradients, actual parameter updates, and
-raw/scaled generated-weight changes from the same checkpoint. These are proposed
-diagnostics. No gradient-cancellation finding, relearning advantage, or component
+The new diagnostic code can measure gradient alignment, actual Adam update
+norms, and before/after component changes, but no GPU result from that code has
+been supplied. Combined gradients and raw/scaled generated-weight changes remain
+unmeasured. No gradient-cancellation finding, relearning advantage, or component
 storage attribution has been established by the archived runs.

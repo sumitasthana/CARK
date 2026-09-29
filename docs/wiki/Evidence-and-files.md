@@ -12,12 +12,14 @@
 - [notebook_saved_outputs.txt](https://github.com/sumitasthana/CARK/blob/main/docs/experiments/notebook_saved_outputs.txt)
 - [full_sequence_20260921.md](https://github.com/sumitasthana/CARK/blob/main/docs/experiments/sources/full_sequence_20260921.md)
 - [fisher_sanity_output.txt](https://github.com/sumitasthana/CARK/blob/main/docs/experiments/sources/fisher_sanity_output.txt)
+- [forgetting_30step_20260929.txt](https://github.com/sumitasthana/CARK/blob/main/docs/experiments/sources/forgetting_30step_20260929.txt)
 
-The main registry includes every archived experiment. The older manifest covers
-checkpoint diagnostics E08-E15 and records their artifact paths. Together the
-trace files contain 208 accuracy observations, 16 supplied E15 gradient rows,
-and ten supplied E15 raw-output norms. Only steps 1, 2, 5, and 10 have supplied
-gradient measurements. Missing losses are blank, not inferred from norms.
+The main registry includes every archived experiment. The manifest covers
+checkpoint diagnostics and records their reported artifact paths. Together the
+trace files contain {len(traces)} accuracy observations, {len(gradients)} supplied
+gradient rows, and {len(norms)} supplied raw-output norms. The 30-step run has
+supplied gradient norms at steps 1, 2, 5, 10, 20, 25, 27, and 30. Missing
+losses are blank, not inferred from norms.
 
 `e15_reported_output.txt` is a transcription of the user's pasted table, not the
 original runtime JSON. The runtime reported completion and a valid starting

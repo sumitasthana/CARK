@@ -6,10 +6,10 @@ tracks the code, dependencies, checks, and runs needed to carry it out.
 The proposal is currently in the ignored `ops-docs/` directory; the protocol
 below records its requirements for readers of the tracked repository.
 
-Last updated: 2026-09-27.
+Last updated: 2026-09-29.
 
 [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) records the reported GPU experiments
-through E15 and the checkpoint-based diagnostics. No reported
+through E15, the 2026-09-29 30-step run, and the checkpoint-based diagnostics. No reported
 trajectory has passed both the short-run forgetting and retention criteria.
 These are existing observations, not measurements made during this plan update.
 
@@ -249,26 +249,27 @@ alternative noising strategies, and the seven comparison methods.
 
 Every module below states what the repository holds today, then what is
 missing. Status was checked against the code on 2026-09-27, not carried over
-from an earlier plan. Module IDs name a responsibility, not a file; several
+from an earlier plan. Diagnostic updates below were checked on 2026-09-29.
+Module IDs name a responsibility, not a file; several
 already live in one file.
 
 | | Module | Status |
 | --- | --- | --- |
 | M01 | Study configuration | Run configuration built, study configuration missing |
 | M02 | Dataset splits and control task | Task splits built, adaptation reserve and Y missing |
-| M03 | Model component access | Accessors built, named groups and freeze masks missing |
+| M03 | Model component access | Semantic state audit, trainable-role masks, and checked state replacement built for UnCLe |
 | M04 | Learning and forgetting | Built, one switch missing, reproduction unresolved |
 | M05 | Reproduction diagnostics | Built |
 | M06 | Matched reference construction | Not built |
 | M07 | Checkpoint collection and restoration | Built for resuming, stage retention missing |
 | M08 | Relearning probe | Not built, and currently refused by validation |
-| M09 | Component interventions | Not built |
+| M09 | Component interventions | Generic freeze and replacement primitives built; study arms missing |
 | M10 | Experimental controls | Evaluation hygiene built, seven of eight controls missing |
 | M11 | Fisher screening | Not built |
-| M12 | Evaluation and metrics | Four metrics built, six study metrics missing |
+| M12 | Evaluation and metrics | Four reproduction metrics and pure paired-study calculations built; live recovery probes missing |
 | M13 | Statistical analysis | Not built |
 | M14 | Experiment orchestration | Reproduction matrix built, study matrix missing |
-| M15 | Logging and report generation | Run logging built, analysis outputs missing |
+| M15 | Logging and report generation | Run logging and first diagnostic assessment built; recovery reports missing |
 | M16 | Experiment verification | 52 checks built, study checks missing |
 | Conditional | Membership inference | Not built |
 
@@ -310,10 +311,13 @@ every training sequence, and paired runs read identical adaptation examples.
 and `generator_parameters()`, and `UnCLe` holds `task_buffers` and
 `buffer_template`. Every component the study addresses is reachable today.
 
-**Missing.** There is no named grouping over them, no freeze mask, and no check
-that an intervention changed only what it claimed. `forget` freezes by calling
-`requires_grad_(False)` and re-enabling one list, which is right for its two
-fixed cases and does not generalise to seven arms.
+**Partly built.** `uncle/research_diagnostic.py` maps UnCLe's task embedding,
+chunk embeddings, shared layers, output heads, and task buffers to semantic
+roles. The optional checkpoint diagnostic compares those roles before and after
+forgetting. Generic helpers select trainable roles while freezing every other
+model parameter, and replace named tensors while checking shape, type, and
+changes outside the selected roles. They do not run the study arms. `forget`
+still uses its existing two fixed parameter choices.
 
 **Accept** when groups match the live model, parameters and buffers are
 distinguished, and a check proves an intervention moved nothing else.
@@ -340,12 +344,16 @@ data from the forgotten task, and departures from the paper are recorded.
 forgetting loop for a chosen number of steps, evaluates every seen task at step
 zero and after each update, and writes a uniquely named report without touching
 the source checkpoint. `UnCLe.forget(measure=True)` adds each loss term's
-gradient norm per parameter group and the forgotten task's raw output size.
+gradient norm and cosine per parameter group, actual Adam update norm, and the
+forgotten task's raw output size. An optional before/after component audit uses
+semantic roles. The model-neutral screen reads complete JSON reports and the
+tracked historical traces without discarding failed steps.
 That is what separates the two terms: they are computed from different
 quantities, raw output against scaled weights, so their losses are not
 comparable and their gradients are.
 
-**Missing.** Nothing structural. The next step is running it, not building it.
+**Missing.** No GPU result yet uses the new cosine and component audit. The
+recovery study requires the separate modules below.
 
 **Accept** when reports name their starting checkpoint and settings, preserve
 the source state, and separate observations from candidate explanations.
@@ -403,12 +411,12 @@ move. Depends on M02, M03, M07.
 
 ### M09. Component interventions
 
-**Not built.** The arms in section 2 have no implementation, and the grouping
-they need is M03.
+**Partly built.** The component roles, trainable-role masks, and checked state
+replacement exist. The arms in section 2 have no execution path yet.
 
-**To build.** Restricted adaptation per component, embedding replacement, the
-BatchNorm keep-versus-reset comparison, the joint chunk test, and combined
-interventions.
+**To build.** Wire restricted adaptation per component, embedding replacement,
+the BatchNorm keep-versus-reset comparison, the joint chunk test, and combined
+interventions to matched probes.
 
 **Accept** when every arm's trainable set and buffer policy are verified, each
 arm has a reference under the same restriction, and swap donors and
@@ -453,8 +461,12 @@ excluded from the ranking. Depends on M03, M07.
 accuracy, forget accuracy, spill per forget request, and relapse per forgotten
 task, summarised from the run history.
 
-**Missing.** All six study metrics in section 2, held-out log-probabilities,
-adaptation accuracy, and retained-task measurement during adaptation. Keep the
+**Partly built.** Pure calculations for paired recovery advantage, likelihood
+gain, maintenance cost, specificity ratio, component share, and interaction
+residual now exist in `uncle/research_diagnostic.py`. Paired records are matched
+by study identifiers and step-zero baselines. No actual relearning probe has
+produced these observations; held-out log-probabilities, adaptation accuracy,
+and retained-task measurements during adaptation still require M08. Keep the
 four existing metrics unchanged; the study adds to them.
 
 **Accept** when hand-calculated cases agree, paired records cannot be
@@ -498,7 +510,10 @@ forgetting, records seconds per step, peak GPU memory and protected count, and
 writes an environment record with the GPU, torch version and git commit, so a
 number found later can be traced to the code that produced it.
 
-**Missing.** Analysis outputs: recovery curves, likelihood comparisons, X
+**Partly built.** `scripts/research_diagnostic.py` evaluates every archived
+forgetting step and can include original runtime JSON. It keeps the full
+trajectory and source type in an optional JSON assessment. Recovery curves,
+likelihood comparisons, X
 against Y, component effects, interactions and retained-accuracy cost, plus
 split and checkpoint identities in the record.
 

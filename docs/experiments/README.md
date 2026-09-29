@@ -13,16 +13,17 @@ earlier learning runs, decisions, limitations, and code findings.
 
 | File | Contents |
 | --- | --- |
-| [registry.json](registry.json) | All 20 located experiment records: the full sequence, initial probe, direct baseline, E02-E15, checkpoint preparation, and two numerical checks. |
-| [forgetting_traces.csv](forgetting_traces.csv) | All 208 supplied accuracy observations for E08-E15, including each starting row. E08/E09 include supplied losses; E14 includes all 50 loss pairs from saved notebook output. |
-| [gradient_norms.csv](gradient_norms.csv) | The 16 supplied E15 gradient observations: four parameter groups at steps 1, 2, 5, and 10. Noise gradients include gamma. |
-| [raw_output_norms.csv](raw_output_norms.csv) | Ten E15 raw-output norms, measured before updates and retained at printed precision. |
+| [registry.json](registry.json) | All 21 located records, including the 2026-09-29 30-step run. |
+| [forgetting_traces.csv](forgetting_traces.csv) | All 239 supplied accuracy observations for E08-E15 and the 30-step run, including each starting row. E08/E09 include supplied losses; E14 includes all 50 loss pairs from saved notebook output. |
+| [gradient_norms.csv](gradient_norms.csv) | The 48 supplied gradient observations from E15 and the 30-step run. Noise gradients include gamma. |
+| [raw_output_norms.csv](raw_output_norms.csv) | Forty raw-output norms from E15 and the 30-step run, measured before updates and retained at printed precision. |
 | [e15_reported_output.txt](e15_reported_output.txt) | Transcription of the user's E15 table, settings, source commit, status, and report path. |
 | [e13_sampled_losses.csv](e13_sampled_losses.csv) | Six separately supplied E13 loss observations. |
 | [notebook_saved_outputs.txt](notebook_saved_outputs.txt) | Text outputs preserved from notebook commit `4407978`, including E14 loss trace, environment setup and E13 sampled losses. |
 | [manifest.json](manifest.json) | Intended settings, evidence limits, reported artifact locations, and derived screening summaries. |
 | [sources/full_sequence_20260921.md](sources/full_sequence_20260921.md) | Reported measurements from the earlier local full-sequence run note. |
 | [sources/fisher_sanity_output.txt](sources/fisher_sanity_output.txt) | Saved numerical output from the local Fisher check; not a hypernetwork experiment. |
+| [sources/forgetting_30step_20260929.txt](sources/forgetting_30step_20260929.txt) | Transcription of the reported 30-step table and selected gradient norms. |
 
 These files transcribe the conversation tables and the saved notebook outputs.
 The latter corroborate E13/E14 settings and add E14 loss components. The
@@ -40,7 +41,7 @@ components; separately rounded terms can differ from reported totals by 0.01.
 
 `passes_screen` is derived from both initial accuracies being at least 25%,
 target accuracy at most 12%, retained absolute drift strictly below five points,
-and step greater than zero. All eight traces start at 26.0% and 44.6%; none
+and step greater than zero. All nine traces start at 26.0% and 44.6%; none
 passes the joint screen. This is a diagnostic screen, not proof of erasure.
 
 The manifest distinguishes intended settings from independently verified
@@ -51,6 +52,13 @@ The existing local HTML mentoring guide remains under ignored `ops-docs/`.
 E15 reports commit `e3087f0` and uses the independent forgetting-noise stream
 introduced in `4c08f54`. Its GPU and runtime were not supplied. Do not treat it
 as an exact numerical continuation or replay of E14.
+
+The 30-step run reports commit `fcdc1ff`. Its original Drive JSON was not
+opened from this workspace. Use `python scripts/research_diagnostic.py --archive`
+to screen all tracked trajectories, or add `--report PATH` to include an
+original runtime JSON. The [research diagnostic](../RESEARCH_DIAGNOSTIC.md)
+describes the current measurements and the matched recovery controls still to
+build.
 
 ## Maintaining the archive
 

@@ -101,6 +101,20 @@ class DiagnosticTests(unittest.TestCase):
                          json.loads(json.dumps(first)))
         self.assertEqual(hashlib.sha256(self.path.read_bytes()).hexdigest(), digest)
 
+    def test_component_audit_records_model_roles_without_changing_checkpoint(self):
+        digest = hashlib.sha256(self.path.read_bytes()).hexdigest()
+        report = self.diagnose(steps=2, audit_components=True)
+        audit = report["component_audit"]
+        self.assertEqual(set(audit), {"task_embedding", "chunk_embeddings",
+                                      "shared_layers", "output_heads",
+                                      "task_normalization_buffers"})
+        self.assertEqual(audit["task_embedding"]["changed_tensors"], 0)
+        self.assertEqual(audit["chunk_embeddings"]["changed_tensors"], 0)
+        self.assertGreater(audit["shared_layers"]["l2_change"], 0)
+        self.assertGreater(audit["output_heads"]["l2_change"], 0)
+        self.assertFalse(audit["task_normalization_buffers"]["available"])
+        self.assertEqual(hashlib.sha256(self.path.read_bytes()).hexdigest(), digest)
+
     def test_cosine_uses_gradient_directions_and_undefined_zero_norm(self):
         uncle = self.fresh()
         probe = torch.nn.Parameter(torch.tensor([1.0, 2.0]))

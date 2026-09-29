@@ -1,0 +1,78 @@
+Transcription of the user's 30-step Colab output, supplied 2026-09-29.
+Original runtime JSON was not opened from this workspace.
+Reported commit: fcdc1ff
+Reported status: complete
+Reported valid starting point: True
+Reported settings: forgetting_lr=1e-05, gamma=5e-06, steps=30, noise_samples=10
+Reported passing steps: []
+Reported JSON: /content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/E15_gradients/forget_20260929_021642_430512_33bd5249.json
+
+Accuracy and raw norm table. Raw norm is measured before the named update;
+accuracy is measured after it. The drift and pass columns are as printed.
+step,target_pct,retained_pct,absolute_drift_pp,raw_norm_before,passes_screen
+0,26.0,44.6,0.0,,False
+1,23.0,45.0,0.4,1.908e+04,False
+2,22.0,45.6,1.0,1.903e+04,False
+3,21.0,46.0,1.4,1.9e+04,False
+4,19.2,46.2,1.6,1.898e+04,False
+5,18.6,46.4,1.8,1.897e+04,False
+6,18.0,46.4,1.8,1.896e+04,False
+7,17.0,46.0,1.4,1.894e+04,False
+8,16.4,45.8,1.2,1.892e+04,False
+9,16.0,44.6,0.0,1.889e+04,False
+10,16.2,44.6,0.0,1.886e+04,False
+11,16.2,44.8,0.2,1.884e+04,False
+12,16.4,44.6,0.0,1.881e+04,False
+13,17.0,44.4,0.2,1.879e+04,False
+14,16.4,44.2,0.4,1.877e+04,False
+15,16.4,44.4,0.2,1.874e+04,False
+16,16.4,43.8,0.8,1.872e+04,False
+17,15.8,43.6,1.0,1.87e+04,False
+18,15.4,43.4,1.2,1.868e+04,False
+19,15.0,42.4,2.2,1.866e+04,False
+20,14.8,42.8,1.8,1.863e+04,False
+21,14.2,42.8,1.8,1.861e+04,False
+22,13.8,42.2,2.4,1.858e+04,False
+23,13.6,41.8,2.8,1.856e+04,False
+24,13.6,41.4,3.2,1.854e+04,False
+25,13.0,41.2,3.4,1.851e+04,False
+26,12.8,41.4,3.2,1.849e+04,False
+27,12.6,41.0,3.6,1.847e+04,False
+28,12.8,40.6,4.0,1.845e+04,False
+29,13.2,39.8,4.8,1.843e+04,False
+30,13.4,40.0,4.6,1.84e+04,False
+
+Gradient norms before selected updates. The noise gradient includes gamma.
+step,parameter_group,weighted_noise_gradient_norm_before,preservation_gradient_norm_before
+1,heads.batchnorm,2.959,0
+1,heads.residual,16.5,0
+1,heads.weights,128.2,0
+1,trunk,2786,0
+2,heads.batchnorm,2.95,0.1124
+2,heads.residual,16.42,30.51
+2,heads.weights,127.6,153.1
+2,trunk,2771,3493
+5,heads.batchnorm,2.932,0.2842
+5,heads.residual,16.37,16.87
+5,heads.weights,127,134.6
+5,trunk,2756,2928
+10,heads.batchnorm,2.904,0.5428
+10,heads.residual,16.22,15.57
+10,heads.weights,125.9,102.8
+10,trunk,2728,2309
+20,heads.batchnorm,2.851,0.9567
+20,heads.residual,15.92,12.37
+20,heads.weights,123.5,102
+20,trunk,2667,2252
+25,heads.batchnorm,2.824,1.116
+25,heads.residual,15.76,16.08
+25,heads.weights,122.2,111
+25,trunk,2636,2510
+27,heads.batchnorm,2.815,1.167
+27,heads.residual,15.71,14.4
+27,heads.weights,121.8,103.3
+27,trunk,2625,2301
+30,heads.batchnorm,2.801,1.24
+30,heads.residual,15.63,13.26
+30,heads.weights,121.1,100.7
+30,trunk,2608,2204

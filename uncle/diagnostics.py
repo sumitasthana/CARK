@@ -13,6 +13,7 @@ from . import checkpoint as checkpointing
 from .config import Config
 from .data import build_tasks as build_dataset_tasks
 from .hypernet import HyperNetwork, build_target
+from .research_diagnostic import capture_components, compare_components, uncle_components
 from .streams import build_tasks as build_image_tasks
 from .telemetry import environment
 from .tinyimagenet import DEFAULT_ROOT
@@ -27,6 +28,7 @@ def _total(norms: dict) -> float:
 def diagnose_forgetting(
     checkpoint, *, task="3", forgetting_lr=None, gamma=None, steps=10,
     root=None, download=False, output=None, device=None, verbose=True, tasks=None,
+    audit_components=False,
 ):
     """Restore a trusted checkpoint and trace one forget request, starting fresh.
 
@@ -40,8 +42,8 @@ def diagnose_forgetting(
     Loss columns refer to before an update; accuracy columns refer to afterward.
     The initial row is step zero. This reports measurements, not a deletion test.
 
-    Every step also records each loss term's gradient norm per parameter group
-    and the size of the forgotten task's raw output. The two losses are read
+    Every step also records each loss term's gradient norm, their alignment,
+    Adam update size, and the forgotten task's raw output size. The losses are read
     off different quantities, raw against scaled, so their sizes say nothing
     about which one moves the model; the gradients do. This triples the
     backward work per step, which is the point of a diagnostic.
@@ -51,6 +53,9 @@ def diagnose_forgetting(
     checkpoint is never written. tasks optionally supplies matching datasets
     for synthetic checks or custom data; the default builds the saved dataset.
     Tiny ImageNet uses its full validation splits, even if training was capped.
+    audit_components compares named model state before and after the request.
+    It adds a CPU copy of the model parameters and does not claim where task
+    information is stored.
     """
     if not isinstance(steps, int) or isinstance(steps, bool) or steps < 1:
         raise ValueError("steps must be a positive integer.")
@@ -101,6 +106,8 @@ def diagnose_forgetting(
     hypernet = HyperNetwork(target, config)
     uncle = UnCLe(hypernet, config, target, tasks)
     checkpointing.restore(saved, hypernet=hypernet, uncle=uncle)
+    original_components = (capture_components(uncle_components(uncle, task))
+                           if audit_components else None)
 
     protected = [name for name in seen if name != task]
     retained = [name for name in protected if name not in saved["forgotten"]]
@@ -116,7 +123,8 @@ def diagnose_forgetting(
         "task": task, "protected": protected, "retained": retained,
         "training_config": dict(vars(training_config)),
         "settings": {"forgetting_lr": rate, "gamma": config.gamma,
-                     "steps": steps, "noise_samples": config.noise_samples},
+                     "steps": steps, "noise_samples": config.noise_samples,
+                     "audit_components": audit_components},
         "checkpoint_accuracies": dict(saved["previous"]),
         "environment": environment(config, hypernet, tasks),
         "status": "running", "trace": [],
@@ -157,6 +165,9 @@ def diagnose_forgetting(
 
     try:
         uncle.forget(task, protected, burn_in=steps, on_step=observe, measure=True)
+        if original_components is not None:
+            report["component_audit"] = compare_components(
+                original_components, uncle_components(uncle, task))
     except BaseException as error:
         report["status"] = "interrupted" if isinstance(error, KeyboardInterrupt) else "failed"
         report["error"] = f"{type(error).__name__}: {error}"

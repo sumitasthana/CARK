@@ -2,7 +2,7 @@
 
 [Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
 
-E02-E15 retain their existing labels. Descriptive IDs for earlier and numerical records are archive labels, not invented historical E-numbers.
+E02-E15 retain their existing labels. Descriptive IDs for other records, including the 2026-09-29 run, are archive labels rather than invented historical E-numbers.
 
 | Record | Category | Date evidence | Decision |
 | --- | --- | --- | --- |
@@ -24,5 +24,6 @@ E02-E15 retain their existing labels. Descriptive IDs for earlier and numerical 
 | [E13: checkpoint-based forgetting](https://github.com/sumitasthana/CARK/wiki/Experiment-E13) | forgetting diagnostic | 2026-09-23 | No passing step |
 | [E14: checkpoint-based forgetting](https://github.com/sumitasthana/CARK/wiki/Experiment-E14) | forgetting diagnostic | 2026-09-23 | No passing step |
 | [E15: gradient diagnostic](https://github.com/sumitasthana/CARK/wiki/Experiment-E15) | gradient diagnostic | 2026-09-28 | No passing step |
+| [30-step forgetting diagnostic from the saved checkpoint](https://github.com/sumitasthana/CARK/wiki/Experiment-forgetting-30step-20260929) | gradient diagnostic | 2026-09-29 | No passing step; best target accuracy was 12.6% at step 27 while retained drift was 3.6 points. |
 | [Numerical check of the noise objective](https://github.com/sumitasthana/CARK/wiki/Experiment-noise-objective-check) | numerical check | Not recorded | Numerical behavior reported |
 | [Numerical checks of Fisher calculations](https://github.com/sumitasthana/CARK/wiki/Experiment-fisher-sanity-check) | numerical check | Not recorded | Recorded numerical checks passed |

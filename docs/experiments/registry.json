@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-28",
+  "updated": "2026-09-29",
   "repository": "https://github.com/sumitasthana/CARK",
   "scope": "All completed experiment records and numerical checks located in the repository, local run notes, and the supplied conversation. Missing raw artifacts are not reconstructed.",
-  "identifier_policy": "E02-E15 retain their existing labels. Descriptive IDs for earlier and numerical records are archive labels, not invented historical E-numbers.",
+  "identifier_policy": "E02-E15 retain their existing labels. Descriptive IDs for other records, including the 2026-09-29 run, are archive labels rather than invented historical E-numbers.",
   "thresholds": {
     "minimum_initial_accuracy_pct": 25,
     "target_accuracy_at_most_pct": 12,
@@ -993,6 +993,92 @@
         }
       ],
       "next_step": "Measure gradient alignment, combined gradients, and actual update norms before attributing the failure to cancellation."
+    },
+    {
+      "id": "forgetting-30step-20260929",
+      "title": "30-step forgetting diagnostic from the saved checkpoint",
+      "category": "gradient diagnostic",
+      "question": "Does extending the 10-step run to 30 steps reach the joint forgetting and retention screen?",
+      "run_date": "2026-09-29",
+      "date_evidence": "UTC date in the reported JSON filename; original file not opened.",
+      "reported_commit": "fcdc1ff",
+      "hardware": null,
+      "settings": {
+        "forgetting_lr": 1e-05,
+        "gamma": 5e-06,
+        "steps": 30,
+        "noise_samples": 10
+      },
+      "settings_evidence": "Printed settings and status in user-supplied output; original report JSON not inspected.",
+      "initial_state": "Restore the E08 pre-forgetting checkpoint: task 3 = 26.0%, task 0 = 44.6%.",
+      "observations": {
+        "task3_initial_accuracy_pct": 26.0,
+        "task0_initial_accuracy_pct": 44.6,
+        "task3_final_accuracy_pct": 13.4,
+        "task0_final_accuracy_pct": 40.0,
+        "minimum_task3_accuracy_pct": 12.6,
+        "maximum_task0_absolute_drift_pp": 4.8,
+        "first_retention_failure_step": null,
+        "passing_steps": [],
+        "accuracy_observations": 31,
+        "reported_status": "complete",
+        "reported_valid_start": true,
+        "gradient_steps_supplied": [
+          1,
+          2,
+          5,
+          10,
+          20,
+          25,
+          27,
+          30
+        ],
+        "raw_norm_before_step1": 19080,
+        "raw_norm_before_step30": 18400
+      },
+      "decision": "No passing step; best target accuracy was 12.6% at step 27 while retained drift was 3.6 points.",
+      "interpretation": "More updates lowered target accuracy after step 10, but no update reached 12%. Retained accuracy fell later in the run. Gradient norms near step 27 show both terms are active but do not give their directions.",
+      "limitations": [
+        "One reported checkpoint and one run; not multi-seed evidence.",
+        "Original runtime JSON was not inspected from this workspace.",
+        "GPU, runtime, loss components, and full gradient vectors were not supplied.",
+        "Gradient and raw-output norms retain the printed precision only.",
+        "The code that measures gradient cosine and Adam update size was added after this run; those measurements cannot be reconstructed from norms."
+      ],
+      "evidence": [
+        {
+          "kind": "user-pasted notebook output",
+          "path": "docs/experiments/sources/forgetting_30step_20260929.txt",
+          "note": "Transcribed accuracies, raw norms, and selected gradient norms."
+        },
+        {
+          "kind": "transcribed accuracy measurements",
+          "path": "docs/experiments/forgetting_traces.csv",
+          "note": null
+        },
+        {
+          "kind": "transcribed gradient measurements",
+          "path": "docs/experiments/gradient_norms.csv",
+          "note": null
+        },
+        {
+          "kind": "transcribed raw-output measurements",
+          "path": "docs/experiments/raw_output_norms.csv",
+          "note": null
+        },
+        {
+          "kind": "tracked settings and provenance",
+          "path": "docs/experiments/manifest.json",
+          "note": null
+        }
+      ],
+      "reported_artifacts": [
+        {
+          "path": "/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/E15_gradients/forget_20260929_021642_430512_33bd5249.json",
+          "availability": "Reported on Drive; original JSON not opened from this workspace."
+        }
+      ],
+      "next_step": "Run the same setup with gradient cosine, actual Adam update norms, and a component-state audit. Pair recovery against matched controls before making residual-knowledge claims."
     },
     {
       "id": "noise-objective-check",

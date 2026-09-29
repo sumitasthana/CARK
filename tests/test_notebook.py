@@ -199,6 +199,8 @@ class NotebookFlowTests(unittest.TestCase):
         self.assertIn("noise_gradient", report["trace"][1])
         self.assertIn("gradient_cosine", report["trace"][1])
         self.assertIn("adam_update_norm", report["trace"][1])
+        self.assertIn("component_audit", report)
+        self.assertEqual(namespace["assessment"]["source"], "runtime JSON")
         self.assertTrue(Path(report["report_path"]).is_file())
         self.assertEqual(before, hashlib.sha256(fixture.path.read_bytes()).digest())
 

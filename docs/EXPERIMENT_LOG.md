@@ -5,19 +5,19 @@ The GPU experiments were run in Colab; their complete artifacts remain on the
 user's Drive or in earlier runtime-local directories. The tables below transcribe
 results supplied in the conversation. They are not newly reproduced measurements.
 
-Current status: **no recorded diagnostic has passed both criteria. E15 retained
-task 0 accuracy over ten updates, but task 3 ended at 16.2%, above the 12%
-threshold. Gradient magnitudes are now recorded; gradient directions and actual
-update contributions remain unmeasured.**
+Current status: **no recorded diagnostic has passed both criteria. The latest
+30-step run reached 12.6% target accuracy at step 27 while retained drift was
+3.6 points. Gradient directions and actual Adam updates were not measured in
+that run.**
 
 Start the next session with [04_gradient_diagnostics.ipynb](../notebooks/04_gradient_diagnostics.ipynb).
 It restores the existing checkpoint and uses `uncle.diagnose_forgetting`.
 
 ## Reading this record
 
-Last updated: 2026-09-28. This is the narrative record of all results supplied
+Last updated: 2026-09-29. This is the narrative record of all results supplied
 in this conversation, not an archive of every original Colab output file.
-[Structured observations](experiments/README.md) provide CSV traces for E08-E15,
+[Structured observations](experiments/README.md) provide CSV traces for E08-E15 and the 30-step run,
 sampled E13 losses, E15 gradient and raw-output norms, and reported artifact paths.
 The [registry](experiments/registry.json) also includes the earlier full-sequence
 run and numerical checks. The [wiki](https://github.com/sumitasthana/CARK/wiki)
@@ -88,6 +88,7 @@ variation was not established.
 | E13 | Same checkpoint, LR 0.00001 and gamma 0.000003; 50 updates | 26.0% to 13.2%; minimum 13.0% | 44.6% to 43.8% | Fail: retention passes throughout; extra updates do not reach 12%. |
 | E14 | Same checkpoint, intended LR 0.00001 and gamma 0.000005; 50 updates | 26.0% to 12.6%; minimum 12.4% | 44.6% to 37.4% | Fail: retention first breached at step 36; target never passed. |
 | E15 | Same checkpoint; LR 0.00001, gamma 0.000005, ten updates; commit e3087f0; gradient measurement enabled | 26.0% to 16.2%; minimum 16.0% | 44.6% to 44.6%; maximum absolute drift 1.8 points | Fail: retention passed throughout, target remained above 12%. |
+| 2026-09-29 30-step run | Same checkpoint; LR 0.00001, gamma 0.000005, 30 updates; commit fcdc1ff | 26.0% to 13.4%; minimum 12.6% at step 27 | 44.6% to 40.0%; maximum absolute drift 4.8 points | Fail: retention passed throughout, target remained above 12%. |
 
 E06 reused a directory whose label began `E04_first_forget`; the user clarified
 that the hyperparameters changed while the label was reused. We record the gamma
@@ -529,6 +530,32 @@ unreported steps' gradient norms are not reconstructed.
 Reported artifact:
 `/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/E15_gradients/forget_20260928_011538_895545_c81f33b2.json`.
 
+## 2026-09-29: 30-step forgetting diagnostic
+
+The user reported a completed run from the same saved starting checkpoint,
+with commit `fcdc1ff`, forgetting LR 0.00001, gamma 0.000005, 30 updates, and
+ten noise samples. The printed start was task 3 = 26.0% and task 0 = 44.6%.
+Task 3 reached 12.6% at step 27 with task 0 at 41.0%, an absolute drift of
+3.6 points. At step 30 they were 13.4% and 40.0%. Task 0 remained inside the
+five-point retention screen throughout; its largest drift was 4.8 points at
+step 29. No step reached the 12% target threshold.
+
+The supplied late gradient norms show both forgetting and preservation terms
+active near step 27. They do not show whether the gradients oppose each other.
+The original runtime JSON was not opened from this workspace. The [transcribed
+output](experiments/sources/forgetting_30step_20260929.txt) preserves all 31
+accuracy observations, 30 raw-output norms, and the eight selected steps of
+gradient norms supplied by the user. Its descriptive archive ID is
+`forgetting-30step-20260929`; the user did not assign an E-number.
+
+Reported artifact:
+`/content/drive/MyDrive/uncle/E08_forgetting_trace/diagnostics/E15_gradients/forget_20260929_021642_430512_33bd5249.json`.
+
+The [research diagnostic](RESEARCH_DIAGNOSTIC.md) now screens all nine tracked
+checkpoint trajectories together and can inspect the original JSON when it is
+available. New code can audit component changes and gradient directions, but
+those measurements have not yet been reported from a GPU run.
+
 ### Initial code audit: the two terms use different parameter scales
 
 `UnCLe.forget` uses `hypernet.raw_for(task)` for its noise term, before layer
@@ -627,8 +654,9 @@ diagnostic should measure target and retained generated-weight changes by
 parameter group, including their raw and scaled norms, and relate those to
 accuracy. If measuring gradient contributions, distinguish them from losses.
 
-E15 now supplies gradient magnitudes. The next diagnostic should add gradient
-alignment, combined-gradient norms, and actual parameter-update norms while
-preserving optimizer continuity and observational RNG behavior. The scaling
+E15 and the 30-step run supply selected gradient magnitudes. The next GPU
+diagnostic can now measure gradient alignment, actual parameter-update norms,
+and before/after component changes while preserving optimizer continuity and
+observational RNG behavior. Combined-gradient norms remain unmeasured. The scaling
 audit remains a hypothesis to test, not a confirmed root cause. This archive
 update transcribes existing results; it does not run a new GPU experiment.
