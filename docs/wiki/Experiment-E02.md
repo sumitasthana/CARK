@@ -28,7 +28,7 @@ Does a lower learning rate let the hypernetwork learn task 3?
 | dataset | Tiny ImageNet |
 | backbone | ResNet50 |
 | task | 3 |
-| learning_rate | 0.0001 |
+| learning rate | 0.0001 |
 
 Reported or intended settings in the cited record; original configuration JSON not independently inspected.
 
@@ -36,8 +36,8 @@ Reported or intended settings in the cited record; original configuration JSON n
 
 | Measurement | Value |
 | --- | --- |
-| task3_final_accuracy_pct | 32.0 |
-| final_learning_loss | 1.574293 |
+| Task 3 at end (%) | 32.0 |
+| final learning loss | 1.574293 |
 
 
 ## Decision

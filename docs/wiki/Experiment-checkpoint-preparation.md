@@ -35,9 +35,9 @@ Reported or intended settings in the cited record; original configuration JSON n
 
 | Measurement | Value |
 | --- | --- |
-| task3_after_own_learning_pct | 36.4 |
-| task3_saved_accuracy_pct | 26.0 |
-| task0_saved_accuracy_pct | 44.6 |
+| task3 after own learning pct | 36.4 |
+| task3 saved accuracy pct | 26.0 |
+| task0 saved accuracy pct | 44.6 |
 
 
 ## Decision

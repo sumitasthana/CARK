@@ -283,6 +283,112 @@ def compare_components(before, components):
     return results
 
 
+def inspect_components(components):
+    """Read live parameter values and gradients without changing the model.
+
+    This is a per-tensor view. Buffers are reported but have no gradients.
+    A missing gradient means no gradient was recorded, not a zero gradient.
+    """
+    results = {}
+    for role, members in components.items():
+        results[role] = {}
+        for name, tensor in members.items():
+            value = tensor.detach()
+            if value.is_complex():
+                raise ValueError(f"Complex component tensor is unsupported: {role}.{name}")
+            gradient = tensor.grad if isinstance(tensor, torch.nn.Parameter) else None
+            results[role][name] = {
+                "kind": "parameter" if isinstance(tensor, torch.nn.Parameter) else "buffer",
+                "shape": list(value.shape),
+                "count": value.numel(),
+                "value_l2": float(torch.linalg.vector_norm(value.float()).item()),
+                "value_min": float(value.min().item()) if value.numel() else None,
+                "value_max": float(value.max().item()) if value.numel() else None,
+                "gradient_recorded": gradient is not None,
+                "gradient_l2": (float(torch.linalg.vector_norm(gradient.detach().float()).item())
+                                if gradient is not None else None),
+            }
+    return results
+
+
+def diagonal_fisher(model, examples, components, logits_for, kind="empirical"):
+    """Compute per-parameter diagonal Fisher from individual examples.
+
+    examples yields (input, class_index) pairs. logits_for(model, input) must
+    return one vector of class logits. The empirical form uses the true class.
+    The model-predicted form sums over every class with its predicted probability.
+    The full parameter-by-parameter Fisher matrix is not computed. BatchNorm
+    buffers are excluded. The caller chooses and records the example set.
+    """
+    if kind not in {"empirical", "model_predicted"}:
+        raise ValueError("Fisher kind must be empirical or model_predicted")
+    model_parameters = {id(parameter) for parameter in model.parameters()}
+    selected = []
+    names = []
+    seen = set()
+    for role, members in components.items():
+        for name, tensor in members.items():
+            if not isinstance(tensor, torch.nn.Parameter):
+                continue
+            if id(tensor) in seen or id(tensor) not in model_parameters:
+                raise ValueError("Fisher parameter roles must be unique and belong to the model")
+            seen.add(id(tensor))
+            names.append((role, name))
+            selected.append(tensor)
+    if not selected:
+        raise ValueError("No parameters selected for Fisher")
+    requires_grad_flags = [parameter.requires_grad for parameter in selected]
+    totals = [torch.zeros_like(parameter, dtype=torch.float32) for parameter in selected]
+    count = 0
+    training_flags = [(module, module.training) for module in model.modules()]
+    model.eval()
+    try:
+        for parameter in selected:
+            parameter.requires_grad_(True)
+        with torch.enable_grad():
+            for input_value, target in examples:
+                logits = logits_for(model, input_value)
+                if logits.ndim != 1 or logits.numel() < 2:
+                    raise ValueError("Fisher needs one vector with at least two class logits")
+                if not bool(torch.isfinite(logits).all().item()):
+                    raise ValueError("Fisher logits must be finite")
+                target = int(target)
+                if not 0 <= target < logits.numel():
+                    raise ValueError("Target class is outside the logits")
+                log_probabilities = torch.log_softmax(logits, dim=0)
+                probabilities = log_probabilities.detach().exp()
+                classes = [target] if kind == "empirical" else range(logits.numel())
+                for position, class_index in enumerate(classes):
+                    gradients = torch.autograd.grad(
+                        log_probabilities[class_index], selected,
+                        retain_graph=position < len(classes) - 1, allow_unused=True)
+                    weight = (1.0 if kind == "empirical"
+                              else float(probabilities[class_index].item()))
+                    for total, gradient in zip(totals, gradients):
+                        if gradient is not None:
+                            if not bool(torch.isfinite(gradient).all().item()):
+                                raise ValueError("Fisher gradients must be finite")
+                            total.add_(gradient.detach().float().square(), alpha=weight)
+                count += 1
+    finally:
+        for parameter, enabled in zip(selected, requires_grad_flags):
+            parameter.requires_grad_(enabled)
+        for module, training in training_flags:
+            module.training = training
+    if not count:
+        raise ValueError("Fisher needs at least one example")
+    diagonal = {}
+    for (role, name), total in zip(names, totals):
+        diagonal.setdefault(role, {})[name] = (total / count).cpu()
+    scores = {
+        role: sum(tensor.sum().item() for tensor in members.values()) /
+              sum(tensor.numel() for tensor in members.values())
+        for role, members in diagonal.items()
+    }
+    return {"kind": kind, "examples": count, "diagonal": diagonal,
+            "mean_per_parameter": scores}
+
+
 def select_trainable_components(model, components, allowed_roles):
     """Freeze all mapped parameters except the requested semantic roles.
 

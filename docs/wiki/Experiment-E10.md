@@ -25,9 +25,9 @@ Does this setting meet the forgetting and retention screen from the shared check
 
 | Setting | Value |
 | --- | --- |
-| forgetting_lr | 1e-05 |
-| gamma | 1e-05 |
-| steps | 10 |
+| Forgetting learning rate | 1e-05 |
+| Noise scale (gamma) | 1e-05 |
+| Updates | 10 |
 
 original configuration JSON not independently inspected
 
@@ -35,15 +35,15 @@ original configuration JSON not independently inspected
 
 | Measurement | Value |
 | --- | --- |
-| task3_initial_accuracy_pct | 26.0 |
-| task0_initial_accuracy_pct | 44.6 |
-| task3_final_accuracy_pct | 16.0 |
-| task0_final_accuracy_pct | 44.8 |
-| minimum_task3_accuracy_pct | 16.0 |
-| maximum_task0_absolute_drift_pp | 2.0 |
-| first_retention_failure_step | None in supplied trace |
-| passing_steps | [] |
-| accuracy_observations | 11 |
+| Task 3 at start (%) | 26.0 |
+| Task 0 at start (%) | 44.6 |
+| Task 3 at end (%) | 16.0 |
+| Task 0 at end (%) | 44.8 |
+| Lowest task 3 accuracy (%) | 16.0 |
+| Largest task 0 change (points) | 2.0 |
+| First update outside task 0 limit | None in supplied trace |
+| Updates that met both targets | [] |
+| Accuracy measurements | 11 |
 
 
 ## Accuracy trace

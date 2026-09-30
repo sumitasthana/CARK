@@ -4,6 +4,8 @@
 
 [Experiment index](https://github.com/sumitasthana/CARK/wiki/Experiment-index)
 
+Task 3 fell from 26.0% to 12.6% by update 27. That is close, but the target is 12% or lower. Task 0 changed by 3.6 percentage points at that update, within its 5-point limit. No update met both targets. The gradient table shows signal sizes, not whether the signals point in opposite directions.
+
 ## Question
 
 Does extending the 10-step run to 30 steps reach the joint forgetting and retention screen?
@@ -25,10 +27,10 @@ Does extending the 10-step run to 30 steps reach the joint forgetting and retent
 
 | Setting | Value |
 | --- | --- |
-| forgetting_lr | 1e-05 |
-| gamma | 5e-06 |
-| steps | 30 |
-| noise_samples | 10 |
+| Forgetting learning rate | 1e-05 |
+| Noise scale (gamma) | 5e-06 |
+| Updates | 30 |
+| Noise samples | 10 |
 
 Printed settings and status in user-supplied output; original report JSON not inspected.
 
@@ -36,20 +38,20 @@ Printed settings and status in user-supplied output; original report JSON not in
 
 | Measurement | Value |
 | --- | --- |
-| task3_initial_accuracy_pct | 26.0 |
-| task0_initial_accuracy_pct | 44.6 |
-| task3_final_accuracy_pct | 13.4 |
-| task0_final_accuracy_pct | 40.0 |
-| minimum_task3_accuracy_pct | 12.6 |
-| maximum_task0_absolute_drift_pp | 4.8 |
-| first_retention_failure_step | None in supplied trace |
-| passing_steps | [] |
-| accuracy_observations | 31 |
-| reported_status | complete |
-| reported_valid_start | True |
-| gradient_steps_supplied | [1, 2, 5, 10, 20, 25, 27, 30] |
-| raw_norm_before_step1 | 19080 |
-| raw_norm_before_step30 | 18400 |
+| Task 3 at start (%) | 26.0 |
+| Task 0 at start (%) | 44.6 |
+| Task 3 at end (%) | 13.4 |
+| Task 0 at end (%) | 40.0 |
+| Lowest task 3 accuracy (%) | 12.6 |
+| Largest task 0 change (points) | 4.8 |
+| First update outside task 0 limit | None in supplied trace |
+| Updates that met both targets | [] |
+| Accuracy measurements | 31 |
+| Reported run status | complete |
+| Valid starting accuracy reported | True |
+| Updates with reported gradients | [1, 2, 5, 10, 20, 25, 27, 30] |
+| Raw output size before update 1 | 19080 |
+| Raw output size before update 30 | 18400 |
 
 
 ## Accuracy trace

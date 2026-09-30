@@ -29,7 +29,7 @@ Can the target architecture learn task 3 without the hypernetwork?
 | backbone | ResNet50 |
 | task | 3 |
 | epochs | 5 |
-| learning_rate | 0.001 |
+| learning rate | 0.001 |
 | hypernetwork | False |
 
 Reported or intended settings in the cited record; original configuration JSON not independently inspected.
@@ -38,7 +38,7 @@ Reported or intended settings in the cited record; original configuration JSON n
 
 | Measurement | Value |
 | --- | --- |
-| validation_accuracy_pct_by_epoch | [38.4, 24.2, 55.6, 47.0, 53.8] |
+| validation accuracy pct by epoch | [38.4, 24.2, 55.6, 47.0, 53.8] |
 
 
 ## Decision

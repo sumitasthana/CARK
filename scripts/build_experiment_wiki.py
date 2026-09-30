@@ -100,102 +100,97 @@ def render(registry, traces, gradients, norms):
     ])
     pages["Home.md"] = f"""# CARK wiki
 
-- {link('Concepts and processes: FAQ', 'Concepts-and-processes')}: general explanations of
-  hypernetworks, heads and chunks, learning, forgetting, evaluation, and experiment workflow.
-- {link('Run logs explained', 'run-logs-explained')}: the experiment archive, including
-  results, protocol, evidence, software checks, and the record template.
-- {source('docs/RESEARCH_DIAGNOSTIC.md')}: how the reusable diagnostic screens
-  current runs and accepts future matched recovery probes.
-- {link('Anchor paper', 'An-Unlearning-Framework-for-Continual-Learning')}: the paper
-  used as the reproduction reference.
+Start here:
+
+- {link('Concepts and processes', 'Concepts-and-processes')}: what the model does and how to read its results.
+- {link('Model diagnostics', 'Model-diagnostics')}: inspect weights, gradients, and Fisher scores.
+- {link('Run logs', 'run-logs-explained')}: what we ran and what happened.
+- {link('Anchor paper', 'An-Unlearning-Framework-for-Continual-Learning')}: the paper we are reproducing.
 """
+    pages["Model-diagnostics.md"] = (
+        (ROOT / "docs" / "MODEL_DIAGNOSTICS.md").read_text(encoding="utf-8")
+        .replace("(../notebooks/04_gradient_diagnostics.ipynb)",
+                 f"({base}/blob/main/notebooks/04_gradient_diagnostics.ipynb)")
+        .replace("(../uncle/research_diagnostic.py)",
+                 f"({base}/blob/main/uncle/research_diagnostic.py)")
+    )
     pages["Concepts-and-processes.md"] = (ROOT / "docs" / "CONCEPTS.md").read_text(encoding="utf-8")
     pages["An-Unlearning-Framework-for-Continual-Learning.md"] = (
         ROOT / "docs" / "ANCHOR_PAPER.md"
     ).read_text(encoding="utf-8")
     pages["run-logs-explained.md"] = f"""# Run logs explained
 
-Updated {registry['updated']}. This section records completed experiments and numerical
-checks. It separates reported measurements, interpretation, and proposed next work.
+Updated {registry['updated']}. This is a record of runs, including failed runs.
 
-**Current result:** the full-sequence reproduction failed retention, and none of
-the recorded checkpoint diagnostics passed the joint forgetting/retention screen.
-The latest 30-step run reached 12.6% target accuracy at step 27 while retained
-accuracy had drifted 3.6 points. The target threshold is 12%.
+**What have we found?** No recorded checkpoint run meets both targets. The
+latest 30-step run got task 3 down to 12.6% at step 27. We need 12% or lower.
+Task 0 changed by 3.6 percentage points at that step, within its limit.
 
-- {link('Experiment index', 'Experiment-index')}: all {len(rows)} archived records.
-- {link('Protocol and decision rules', 'Protocol')}: settings, thresholds, and comparability.
-- {link('Latest 30-step result', 'Experiment-forgetting-30step-20260929')}: accuracy and gradient measurements.
-- {link('Evidence and downloadable files', 'Evidence-and-files')}: provenance and source data.
-- {link('Software validation', 'Software-validation')}: checks kept separate from research runs.
-- {link('Record template', 'Record-template')}: how to log the next experiment.
-- {link('Anchor paper', 'An-Unlearning-Framework-for-Continual-Learning')}: the reproduction reference.
+- {link('Experiment index', 'Experiment-index')}: all {len(rows)} records.
+- {link('Rules for reading results', 'Protocol')}: what counts as a pass.
+- {link('Latest 30-step run', 'Experiment-forgetting-30step-20260929')}: the full results.
+- {link('Source files', 'Evidence-and-files')}: where the numbers came from.
+- {link('Software checks', 'Software-validation')}: checks of the code.
+- {link('Add a run', 'Record-template')}: how to keep the next record.
 
-Original Drive artifacts are not mirrored here. Measurements transcribed from
-tables retain their reported precision; missing values remain missing. The
-archive includes the full-sequence run, early learning and forgetting probes,
-checkpoint preparation, E08-E15, the latest 30-step run, and two numerical checks. It does not present
-planned Fisher attribution or relearning experiments as completed work.
-
-The canonical structured record is {source('docs/experiments/registry.json')}.
-Pages are generated with `python scripts/build_experiment_wiki.py`.
-
-The {source('docs/RESEARCH_DIAGNOSTIC.md')} keeps current forgetting screens
-separate from future matched recovery and component tests.
+The original files on Drive are not copied into this wiki. Some numbers came
+from tables pasted into the conversation. We keep those numbers as reported and
+leave missing values blank. The {source('docs/experiments/registry.json')} is the
+structured record. The {link('Model diagnostics', 'Model-diagnostics')} page
+explains measurements inside the model.
 """
     pages["Experiment-index.md"] = "# Experiment index\n\n" + registry["identifier_policy"] + "\n\n" + index
-    pages["Protocol.md"] = f"""# Protocol and interpretation
+    pages["Protocol.md"] = f"""# Rules for reading results
 
-The short diagnostic is `L3 L0 U3`: learn task 3, learn task 0, then forget task 3
-while protecting task 0. Tiny ImageNet accuracy uses its labelled validation split.
-Each task has ten classes. The common intended model is ResNet50 generated in
-200 chunks, with hidden widths 128/256/512 and 32-dimensional task/chunk codes.
-Common defaults are intended settings, not verified metadata for every run.
+The short test is `L3 L0 U3`: learn task 3, learn task 0, then try to forget
+task 3 while keeping task 0. Accuracy comes from Tiny ImageNet validation images.
+Each task has ten classes. The intended model is ResNet50 with a hypernetwork
+that generates weights in 200 chunks. These are intended settings; older run
+records do not confirm every setting.
 
-The E08 checkpoint has reported starting accuracies of 26.0% for task 3 and 44.6%
-for task 0. E08 onward restore that starting state for each diagnostic. Within a
-forget request, keep one continuous Adam optimiser and one frozen reference.
-Calling one-step forget requests repeatedly changes the experiment.
+The E08 checkpoint starts at 26.0% on task 3 and 44.6% on task 0. Later
+checkpoint tests restore it before forgetting. Each test makes one continuous
+forget request. Restarting the request after every step would change the test.
 
-## Diagnostic screen
+## What counts as a pass?
 
-- Both initial accuracies must be at least 25%.
-- After an update, target-task accuracy must be at most 12%.
-- Absolute retained-task accuracy drift must be strictly below five percentage points.
-- Step zero is a starting observation, never a passing update.
+- Both tasks must start at 25% accuracy or higher.
+- After at least one update, task 3 must be at 12% or lower.
+- Task 0 must stay within 5 percentage points of its starting accuracy.
 
-The full reproduction has separate criteria in {source('docs/PLAN.md')}. A short
-screen pass would identify a candidate for validation, not establish deletion.
-Learning-only and numerical checks are not judged by the forgetting screen.
+For example, task 0 starts at 44.6%. A result at 41.0% has changed by 3.6
+points and is within the limit. A result at 39.6% has changed by 5 points and
+fails. Passing this short test would only make a run worth studying further.
+It would not prove that task 3's information is gone. The full study has
+separate rules in {source('docs/PLAN.md')}.
 
-## Timing and units
+## When are measurements taken?
 
-Accuracies are percentages; drift is in percentage points. Losses, raw-output
-norms, and gradient norms are measured before their named update. Accuracy is
-measured after it. Step 10's raw norm therefore describes the model after nine
-updates. Reported E15 and 30-step noise-gradient norms already include gamma.
+The loss, raw weight size, and gradient size at a step are measured before its
+update. Accuracy is measured after the update. In the printed tables, the raw
+size at step 10 describes the model after nine updates. The noise gradient
+numbers already include gamma.
 
-## Comparison limits
+## Which runs can we compare?
 
-E04-E07 start from separately trained models. E10 also changes the reported GPU
-and helper relative to E09. E11-E14 requested the same T4 runtime, but lack
-separate per-run hardware evidence. Commit `4c08f54` introduces separate task-code
-and forgetting-noise streams; E15 reports commit `e3087f0`. Matching E14's gamma
-and learning rate therefore does not make E15 an exact replay of its trajectory.
+E04-E07 used separately trained models. E10 also changed the reported GPU and
+helper relative to E09. E11-E14 requested the same T4 runtime, but we lack
+separate hardware records for each run. E15 used code with separate random
+streams for task codes and forgetting noise. Even with the same learning rate
+and gamma, E14 and E15 are not exact replays.
 
-The preservation penalty constrains generated weights, not accuracy directly.
-At the initial snapshot its gradient is zero. Gradient magnitudes do not reveal
-their relative directions or their contributions to an Adam update. Measurements
-for the BatchNorm head concern generated scale and offset parameters; per-task
-running means and variances are separate stored buffers.
+The preservation term tries to hold generated weights near saved values. It
+does not hold accuracy directly. Its gradient is zero at the saved starting
+state. Gradient size alone cannot tell us whether two gradients oppose each
+other or how Adam will update the weights. BatchNorm running statistics are
+stored separately from generated BatchNorm parameters.
 
-## Next work, not yet a result
+## What remains unknown?
 
-The new diagnostic code can measure gradient alignment, actual Adam update
-norms, and before/after component changes, but no GPU result from that code has
-been supplied. Combined gradients and raw/scaled generated-weight changes remain
-unmeasured. No gradient-cancellation finding, relearning advantage, or component
-storage attribution has been established by the archived runs.
+New code can inspect weights, gradients, and diagonal Fisher scores. No GPU
+result from that complete inspection has been reported. These measurements
+do not, by themselves, show that task information was removed or locate where
+it is stored. See {link('Model diagnostics', 'Model-diagnostics')}.
 """
     files = ["registry.json", "manifest.json", "forgetting_traces.csv", "gradient_norms.csv",
              "raw_output_norms.csv", "e13_sampled_losses.csv", "e15_reported_output.txt",
@@ -293,6 +288,28 @@ Source: the recorded review and publication results in the project conversation;
 earlier validation history remains in {source('docs/EXPERIMENT_LOG.md')}.
 """
     sampled_losses = read_csv("e13_sampled_losses.csv")
+    setting_names = {
+        "forgetting_lr": "Forgetting learning rate",
+        "gamma": "Noise scale (gamma)",
+        "steps": "Updates",
+        "noise_samples": "Noise samples",
+    }
+    observation_names = {
+        "task3_initial_accuracy_pct": "Task 3 at start (%)",
+        "task0_initial_accuracy_pct": "Task 0 at start (%)",
+        "task3_final_accuracy_pct": "Task 3 at end (%)",
+        "task0_final_accuracy_pct": "Task 0 at end (%)",
+        "minimum_task3_accuracy_pct": "Lowest task 3 accuracy (%)",
+        "maximum_task0_absolute_drift_pp": "Largest task 0 change (points)",
+        "first_retention_failure_step": "First update outside task 0 limit",
+        "passing_steps": "Updates that met both targets",
+        "accuracy_observations": "Accuracy measurements",
+        "reported_status": "Reported run status",
+        "reported_valid_start": "Valid starting accuracy reported",
+        "gradient_steps_supplied": "Updates with reported gradients",
+        "raw_norm_before_step1": "Raw output size before update 1",
+        "raw_norm_before_step30": "Raw output size before update 30",
+    }
     for experiment in rows:
         identifier = experiment["id"]
         sections = ["# " + experiment["title"],
@@ -304,11 +321,21 @@ earlier validation history remains in {source('docs/EXPERIMENT_LOG.md')}.
                         ["Reported source commit", experiment["reported_commit"]],
                         ["Hardware", experiment["hardware"]], ["Starting state", experiment["initial_state"]],
                     ]),
-                    "## Settings\n\n" + table(["Setting", "Value"], experiment["settings"].items())
+                    "## Settings\n\n" + table(["Setting", "Value"], [
+                        (setting_names.get(key, key.replace("_", " ")), item)
+                        for key, item in experiment["settings"].items()])
                     + "\n" + experiment["settings_evidence"],
                     "## Observations\n\n" + table(["Measurement", "Value"], [
-                        [key, "None in supplied trace" if key == "first_retention_failure_step" and item is None else item]
+                        [observation_names.get(key, key.replace("_", " ")),
+                         "None in supplied trace" if key == "first_retention_failure_step" and item is None else item]
                         for key, item in experiment["observations"].items()])]
+        if identifier == "forgetting-30step-20260929":
+            sections.insert(2, "Task 3 fell from 26.0% to 12.6% by update 27. "
+                            "That is close, but the target is 12% or lower. "
+                            "Task 0 changed by 3.6 percentage points at that update, "
+                            "within its 5-point limit. No update met both targets. "
+                            "The gradient table shows signal sizes, not whether the "
+                            "signals point in opposite directions.")
         accuracy = [row for row in traces if row["run"] == identifier]
         if accuracy:
             norm_map = {row["step"]: row["raw_norm_before"] for row in norms if row["run"] == identifier}
@@ -342,6 +369,7 @@ earlier validation history remains in {source('docs/EXPERIMENT_LOG.md')}.
         pages["Experiment-" + identifier + ".md"] = "\n\n".join(sections) + "\n"
     pages["_Sidebar.md"] = "\n".join("- " + link(title, slug) for title, slug in [
         ("Home", "Home"), ("Concepts and processes: FAQ", "Concepts-and-processes"),
+        ("Model diagnostics", "Model-diagnostics"),
         ("Run logs explained", "run-logs-explained"),
         ("Latest 30-step result", "Experiment-forgetting-30step-20260929"),
         ("Anchor paper", "An-Unlearning-Framework-for-Continual-Learning")]) + "\n"

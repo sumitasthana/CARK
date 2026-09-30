@@ -8,8 +8,10 @@ parts of the model still hold a task after that task has been unlearned.
 The wiki has a [concepts FAQ](https://github.com/sumitasthana/CARK/wiki/Concepts-and-processes)
 and [run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained).
 The structured data and provenance are in [docs/experiments](docs/experiments/README.md).
-The [research diagnostic](docs/RESEARCH_DIAGNOSTIC.md) screens saved runs and
-defines the paired recovery measurements used by the proposed study.
+The [model diagnostics guide](docs/MODEL_DIAGNOSTICS.md) explains how to inspect
+weights, gradients, optimizer updates, and diagonal Fisher scores. The
+[research diagnostic](docs/RESEARCH_DIAGNOSTIC.md) also screens saved runs and
+defines paired recovery measurements for the proposed study.
 
 A note on names, since the two get conflated. *An Unlearning Framework for
 Continual Learning* is the paper. **UnCLe** is the method it introduces, and

@@ -25,10 +25,10 @@ How do noise and preservation gradients compare across parameter groups?
 
 | Setting | Value |
 | --- | --- |
-| forgetting_lr | 1e-05 |
-| gamma | 5e-06 |
-| steps | 10 |
-| noise_samples | 10 |
+| Forgetting learning rate | 1e-05 |
+| Noise scale (gamma) | 5e-06 |
+| Updates | 10 |
+| Noise samples | 10 |
 
 Settings, commit, complete status and valid start were included in the pasted output. Original runtime JSON has not been inspected.
 
@@ -36,20 +36,20 @@ Settings, commit, complete status and valid start were included in the pasted ou
 
 | Measurement | Value |
 | --- | --- |
-| task3_initial_accuracy_pct | 26.0 |
-| task0_initial_accuracy_pct | 44.6 |
-| task3_final_accuracy_pct | 16.2 |
-| task0_final_accuracy_pct | 44.6 |
-| minimum_task3_accuracy_pct | 16.0 |
-| maximum_task0_absolute_drift_pp | 1.8 |
-| first_retention_failure_step | None in supplied trace |
-| passing_steps | [] |
-| accuracy_observations | 11 |
-| reported_status | complete |
-| reported_valid_start | True |
-| gradient_steps_supplied | [1, 2, 5, 10] |
-| raw_norm_before_step1 | 19080 |
-| raw_norm_before_step10 | 18860 |
+| Task 3 at start (%) | 26.0 |
+| Task 0 at start (%) | 44.6 |
+| Task 3 at end (%) | 16.2 |
+| Task 0 at end (%) | 44.6 |
+| Lowest task 3 accuracy (%) | 16.0 |
+| Largest task 0 change (points) | 1.8 |
+| First update outside task 0 limit | None in supplied trace |
+| Updates that met both targets | [] |
+| Accuracy measurements | 11 |
+| Reported run status | complete |
+| Valid starting accuracy reported | True |
+| Updates with reported gradients | [1, 2, 5, 10] |
+| Raw output size before update 1 | 19080 |
+| raw norm before step10 | 18860 |
 
 
 ## Accuracy trace

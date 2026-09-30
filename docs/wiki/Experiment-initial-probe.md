@@ -27,9 +27,9 @@ Was task 3 learned well enough to evaluate forgetting?
 | --- | --- |
 | dataset | Tiny ImageNet |
 | backbone | ResNet50 |
-| shared_learning_rate | 0.001 |
-| gamma | 0.01 |
-| forget_steps | 100 |
+| shared learning rate | 0.001 |
+| Noise scale (gamma) | 0.01 |
+| forget steps | 100 |
 
 Reported or intended settings in the cited record; original configuration JSON not independently inspected.
 
@@ -37,11 +37,11 @@ Reported or intended settings in the cited record; original configuration JSON n
 
 | Measurement | Value |
 | --- | --- |
-| task3_after_own_learning_pct | 14.4 |
-| task3_before_forgetting_pct | 12.2 |
-| task3_after_forgetting_pct | 10.0 |
-| task0_before_forgetting_pct | 36.6 |
-| task0_after_forgetting_pct | 34.8 |
+| task3 after own learning pct | 14.4 |
+| task3 before forgetting pct | 12.2 |
+| task3 after forgetting pct | 10.0 |
+| task0 before forgetting pct | 36.6 |
+| task0 after forgetting pct | 34.8 |
 
 
 ## Decision

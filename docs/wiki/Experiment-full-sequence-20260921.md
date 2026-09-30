@@ -29,20 +29,20 @@ Does the implementation retain tasks while processing the full sequence?
 | backbone | ResNet50 |
 | sequence | 1 |
 | requests | 30 |
-| learn_requests | 18 |
-| forget_requests | 12 |
+| learn requests | 18 |
+| forget requests | 12 |
 | seed | 0 |
-| partition_seed | 42 |
+| partition seed | 42 |
 | chunks | 200 |
 | epochs | 5 |
-| batch_size | 64 |
-| learning_rate | 0.001 |
+| batch size | 64 |
+| learning rate | 0.001 |
 | beta | 0.01 |
-| gamma | 0.01 |
-| noise_samples | 10 |
-| initial_forget_steps | 100 |
-| burn_in_decay | 0.9 |
-| minimum_forget_steps | 20 |
+| Noise scale (gamma) | 0.01 |
+| Noise samples | 10 |
+| initial forget steps | 100 |
+| burn in decay | 0.9 |
+| minimum forget steps | 20 |
 
 Reported or intended settings in the cited record; original configuration JSON not independently inspected.
 
@@ -50,14 +50,14 @@ Reported or intended settings in the cited record; original configuration JSON n
 
 | Measurement | Value |
 | --- | --- |
-| retained_accuracy_pct | 10.0 |
-| forgotten_accuracy_pct | 10.0 |
-| mean_spill | 30.72 |
-| mean_relapse | 0.0 |
-| reported_wall_minutes | 55.9 |
-| reported_peak_gpu_gib | 7.72 |
-| generated_parameters | 23520842 |
-| hypernetwork_parameters | 134015898 |
+| retained accuracy pct | 10.0 |
+| forgotten accuracy pct | 10.0 |
+| mean spill | 30.72 |
+| mean relapse | 0.0 |
+| reported wall minutes | 55.9 |
+| reported peak gpu gib | 7.72 |
+| generated parameters | 23520842 |
+| hypernetwork parameters | 134015898 |
 
 
 ## Decision

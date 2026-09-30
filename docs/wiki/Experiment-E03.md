@@ -28,7 +28,7 @@ Do both tasks remain above the learning screen before forgetting?
 | dataset | Tiny ImageNet |
 | backbone | ResNet50 |
 | requests | ["L3", "L0"] |
-| learning_rate | 0.0001 |
+| learning rate | 0.0001 |
 
 Reported or intended settings in the cited record; original configuration JSON not independently inspected.
 
@@ -36,9 +36,9 @@ Reported or intended settings in the cited record; original configuration JSON n
 
 | Measurement | Value |
 | --- | --- |
-| task3_after_own_learning_pct | 32.0 |
-| task3_after_task0_learning_pct | 30.4 |
-| task0_final_accuracy_pct | 43.8 |
+| task3 after own learning pct | 32.0 |
+| task3 after task0 learning pct | 30.4 |
+| Task 0 at end (%) | 43.8 |
 
 
 ## Decision

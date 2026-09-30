@@ -25,7 +25,7 @@ Do fresh Gaussian targets produce noise-shaped or near-zero outputs?
 
 | Setting | Value |
 | --- | --- |
-| vector_values | 2000 |
+| vector values | 2000 |
 | updates | 3000 |
 | variants | ["average of 10 fresh draws", "one fresh draw", "one fixed draw"] |
 
@@ -35,9 +35,9 @@ Reported or intended settings in the cited record; original configuration JSON n
 
 | Measurement | Value |
 | --- | --- |
-| reported_final_spread_average_10_fresh | 0.04 |
-| reported_final_spread_one_fresh | 0.07 |
-| reported_final_spread_fixed_draw | 0.98 |
+| reported final spread average 10 fresh | 0.04 |
+| reported final spread one fresh | 0.07 |
+| reported final spread fixed draw | 0.98 |
 
 
 ## Decision

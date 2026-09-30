@@ -1,10 +1,12 @@
-# Research diagnostic: first working slice
+# Research diagnostic: current code
 
-The study asks whether a model retains information that helps it relearn a
-forgotten task, and which components make that recovery possible. The
-[proposal](../ops-docs/PROPOSAL.md) defines the experiment. This module keeps
-measurements from different stages in one form without turning a short
-forgetting screen into a claim about information removal.
+The study asks whether a model can relearn a forgotten task faster than a
+matched model that never learned it. It also asks which model parts matter.
+The [proposal](../ops-docs/PROPOSAL.md) defines that test.
+
+The diagnostic means looking inside the model. See the plain-language
+[model diagnostics guide](MODEL_DIAGNOSTICS.md) for weights, gradients, Adam
+updates, and Fisher. The run archive is only one output of this work.
 
 ## What works now
 
@@ -42,6 +44,13 @@ roles and returns those parameters for a fresh optimizer.
 `replace_components` copies named donor tensors after checking their shapes
 and types, then audits every role for unintended changes. These primitives do
 not choose donors or define the study arms.
+
+`inspect_components` reads current weight and gradient sizes by named tensor.
+`diagonal_fisher` computes empirical or model-predicted diagonal Fisher from
+individual examples. It returns values per weight and mean scores per
+component. The caller supplies the model, examples, and a logits function;
+there is no E08 checkpoint runner for it yet. It uses evaluation mode and
+restores the model's prior training flags. It does not alter stored gradients.
 
 The notebook still saves accuracy and loss measurements at every forgetting
 step. It now also records gradient cosine and actual Adam update size by

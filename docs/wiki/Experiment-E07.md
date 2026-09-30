@@ -27,10 +27,10 @@ Can this forgetting setting reduce task 3 accuracy while preserving task 0?
 | --- | --- |
 | dataset | Tiny ImageNet |
 | backbone | ResNet50 |
-| shared_learning_rate | 0.0001 |
-| gamma | 0.0001 |
-| forget_steps | 10 |
-| minimum_forget_steps | 10 |
+| shared learning rate | 0.0001 |
+| Noise scale (gamma) | 0.0001 |
+| forget steps | 10 |
+| minimum forget steps | 10 |
 
 Reported or intended settings in the cited record; original configuration JSON not independently inspected.
 
@@ -38,14 +38,14 @@ Reported or intended settings in the cited record; original configuration JSON n
 
 | Measurement | Value |
 | --- | --- |
-| task3_after_own_learning_pct | 37.0 |
-| task3_before_forgetting_pct | 39.6 |
-| task3_after_forgetting_pct | 10.0 |
-| task0_before_forgetting_pct | 48.8 |
-| task0_after_forgetting_pct | 10.0 |
-| reported_spill_pp | 38.8 |
-| final_forgetting_loss | 36058.9922 |
-| reported_forgetting_seconds | 3.1 |
+| task3 after own learning pct | 37.0 |
+| task3 before forgetting pct | 39.6 |
+| task3 after forgetting pct | 10.0 |
+| task0 before forgetting pct | 48.8 |
+| task0 after forgetting pct | 10.0 |
+| reported spill pp | 38.8 |
+| final forgetting loss | 36058.9922 |
+| reported forgetting seconds | 3.1 |
 
 
 ## Decision

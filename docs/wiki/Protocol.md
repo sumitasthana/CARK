@@ -1,54 +1,53 @@
-# Protocol and interpretation
+# Rules for reading results
 
 [Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
 
-The short diagnostic is `L3 L0 U3`: learn task 3, learn task 0, then forget task 3
-while protecting task 0. Tiny ImageNet accuracy uses its labelled validation split.
-Each task has ten classes. The common intended model is ResNet50 generated in
-200 chunks, with hidden widths 128/256/512 and 32-dimensional task/chunk codes.
-Common defaults are intended settings, not verified metadata for every run.
+The short test is `L3 L0 U3`: learn task 3, learn task 0, then try to forget
+task 3 while keeping task 0. Accuracy comes from Tiny ImageNet validation images.
+Each task has ten classes. The intended model is ResNet50 with a hypernetwork
+that generates weights in 200 chunks. These are intended settings; older run
+records do not confirm every setting.
 
-The E08 checkpoint has reported starting accuracies of 26.0% for task 3 and 44.6%
-for task 0. E08 onward restore that starting state for each diagnostic. Within a
-forget request, keep one continuous Adam optimiser and one frozen reference.
-Calling one-step forget requests repeatedly changes the experiment.
+The E08 checkpoint starts at 26.0% on task 3 and 44.6% on task 0. Later
+checkpoint tests restore it before forgetting. Each test makes one continuous
+forget request. Restarting the request after every step would change the test.
 
-## Diagnostic screen
+## What counts as a pass?
 
-- Both initial accuracies must be at least 25%.
-- After an update, target-task accuracy must be at most 12%.
-- Absolute retained-task accuracy drift must be strictly below five percentage points.
-- Step zero is a starting observation, never a passing update.
+- Both tasks must start at 25% accuracy or higher.
+- After at least one update, task 3 must be at 12% or lower.
+- Task 0 must stay within 5 percentage points of its starting accuracy.
 
-The full reproduction has separate criteria in [PLAN.md](https://github.com/sumitasthana/CARK/blob/main/docs/PLAN.md). A short
-screen pass would identify a candidate for validation, not establish deletion.
-Learning-only and numerical checks are not judged by the forgetting screen.
+For example, task 0 starts at 44.6%. A result at 41.0% has changed by 3.6
+points and is within the limit. A result at 39.6% has changed by 5 points and
+fails. Passing this short test would only make a run worth studying further.
+It would not prove that task 3's information is gone. The full study has
+separate rules in [PLAN.md](https://github.com/sumitasthana/CARK/blob/main/docs/PLAN.md).
 
-## Timing and units
+## When are measurements taken?
 
-Accuracies are percentages; drift is in percentage points. Losses, raw-output
-norms, and gradient norms are measured before their named update. Accuracy is
-measured after it. Step 10's raw norm therefore describes the model after nine
-updates. Reported E15 and 30-step noise-gradient norms already include gamma.
+The loss, raw weight size, and gradient size at a step are measured before its
+update. Accuracy is measured after the update. In the printed tables, the raw
+size at step 10 describes the model after nine updates. The noise gradient
+numbers already include gamma.
 
-## Comparison limits
+## Which runs can we compare?
 
-E04-E07 start from separately trained models. E10 also changes the reported GPU
-and helper relative to E09. E11-E14 requested the same T4 runtime, but lack
-separate per-run hardware evidence. Commit `4c08f54` introduces separate task-code
-and forgetting-noise streams; E15 reports commit `e3087f0`. Matching E14's gamma
-and learning rate therefore does not make E15 an exact replay of its trajectory.
+E04-E07 used separately trained models. E10 also changed the reported GPU and
+helper relative to E09. E11-E14 requested the same T4 runtime, but we lack
+separate hardware records for each run. E15 used code with separate random
+streams for task codes and forgetting noise. Even with the same learning rate
+and gamma, E14 and E15 are not exact replays.
 
-The preservation penalty constrains generated weights, not accuracy directly.
-At the initial snapshot its gradient is zero. Gradient magnitudes do not reveal
-their relative directions or their contributions to an Adam update. Measurements
-for the BatchNorm head concern generated scale and offset parameters; per-task
-running means and variances are separate stored buffers.
+The preservation term tries to hold generated weights near saved values. It
+does not hold accuracy directly. Its gradient is zero at the saved starting
+state. Gradient size alone cannot tell us whether two gradients oppose each
+other or how Adam will update the weights. BatchNorm running statistics are
+stored separately from generated BatchNorm parameters.
 
-## Next work, not yet a result
+## What remains unknown?
 
-The new diagnostic code can measure gradient alignment, actual Adam update
-norms, and before/after component changes, but no GPU result from that code has
-been supplied. Combined gradients and raw/scaled generated-weight changes remain
-unmeasured. No gradient-cancellation finding, relearning advantage, or component
-storage attribution has been established by the archived runs.
+New code can inspect weights, gradients, and diagonal Fisher scores. No GPU
+result from that complete inspection has been reported. These measurements
+do not, by themselves, show that task information was removed or locate where
+it is stored. See [Model diagnostics](https://github.com/sumitasthana/CARK/wiki/Model-diagnostics).

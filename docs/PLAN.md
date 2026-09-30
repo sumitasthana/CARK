@@ -265,7 +265,7 @@ already live in one file.
 | M08 | Relearning probe | Not built, and currently refused by validation |
 | M09 | Component interventions | Generic freeze and replacement primitives built; study arms missing |
 | M10 | Experimental controls | Evaluation hygiene built, seven of eight controls missing |
-| M11 | Fisher screening | Not built |
+| M11 | Fisher screening | Model-neutral diagonal calculation built; E08 checkpoint runner and study examples missing |
 | M12 | Evaluation and metrics | Four reproduction metrics and pure paired-study calculations built; live recovery probes missing |
 | M13 | Statistical analysis | Not built |
 | M14 | Experiment orchestration | Reproduction matrix built, study matrix missing |
@@ -440,14 +440,16 @@ M12, plus M09 for the component controls.
 
 ### M11. Fisher screening
 
-**Not built** in the repository. A sanity script exists outside it, in the
-ignored `ops-docs/` directory, and is not a tested implementation.
+**Partly built.** `diagonal_fisher` computes empirical and model-predicted
+diagonal values from individual examples and averages per component parameter.
+A small exact calculation is tested. It excludes buffers and leaves the model's
+recorded gradients unchanged. No E08 checkpoint runner or study example set
+exists yet. An older sanity script outside the repository is historical only.
 
-**To build.** Diagonal empirical and model-predicted Fisher at the pre-deletion
-checkpoint: square per-example gradients before averaging, take the
-model-predicted expectation exactly over classes, then normalise component
-scores per parameter. This orders the component tests and claims nothing about
-storage. Scores taken at the pre-deletion checkpoint rank components of the
+**To build.** Run both Fisher forms at the pre-deletion checkpoint on a saved,
+identified example set and record timing and memory use. This orders the
+component tests and claims nothing about storage. Scores taken at the
+pre-deletion checkpoint rank components of the
 model that still holds the task, so using them to order tests on the unlearned
 model is an assumption to state rather than assume.
 

@@ -1,9 +1,14 @@
 # Concepts and processes: FAQ
 
-This guide explains the ideas behind hypernetworks, continual learning, and
-machine unlearning. Examples are illustrative. Settings such as head counts,
-chunk budgets, loss coefficients, and success thresholds belong to individual
-methods; they are not universal rules.
+Start with this picture: a hypernetwork makes the weights for a classifier.
+A task code tells it which task's weights to make. Learning changes the
+hypernetwork so the classifier answers better. Forgetting tries to make it
+answer worse on one task while keeping its answers on other tasks.
+
+Lower accuracy on the forgotten task is only one check. The model may still
+hold useful information about that task. This guide explains the parts and
+tests one at a time. Numbers such as chunk counts and success thresholds
+depend on the method being studied.
 
 ## Contents
 

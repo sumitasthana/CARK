@@ -15,8 +15,9 @@ sys.path.insert(0, str(ROOT))
 
 from uncle.research_diagnostic import (
     archived_runs, assess_forgetting, capture_components, compare_components,
-    component_share, interaction_residual, paired_recovery, replace_components,
-    runtime_run, select_trainable_components, specificity_ratio,
+    component_share, diagonal_fisher, inspect_components, interaction_residual,
+    paired_recovery, replace_components, runtime_run, select_trainable_components,
+    specificity_ratio,
 )
 
 
@@ -193,6 +194,34 @@ class ResearchDiagnosticTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Incompatible"):
             replace_components(roles, {"buffers": {"running": torch.tensor([1])}})
         self.assertEqual(model.running.item(), 9)
+
+    def test_live_weight_gradient_view_and_exact_diagonal_fisher(self):
+        model = torch.nn.Module()
+        model.register_parameter("weight", torch.nn.Parameter(torch.tensor(0.0)))
+        model.register_buffer("running", torch.tensor(3.0))
+        model.weight.grad = torch.tensor(7.0)
+        roles = {"weights": {"weight": model.weight},
+                 "batchnorm_buffers": {"running": model.running}}
+        view = inspect_components(roles)
+        self.assertEqual(view["weights"]["weight"]["gradient_l2"], 7)
+        self.assertFalse(view["batchnorm_buffers"]["running"]["gradient_recorded"])
+        self.assertEqual(view["weights"]["weight"]["value_l2"], 0)
+
+        def logits_for(network, x):
+            return torch.stack((network.weight * x, network.weight * 0))
+        examples = [(torch.tensor(2.0), 0), (torch.tensor(1.0), 1)]
+        for kind in ("empirical", "model_predicted"):
+            result = diagonal_fisher(model, examples, roles, logits_for, kind)
+            self.assertEqual(result["examples"], 2)
+            self.assertAlmostEqual(result["diagonal"]["weights"]["weight"].item(), 0.625)
+            self.assertAlmostEqual(result["mean_per_parameter"]["weights"], 0.625)
+            self.assertNotIn("batchnorm_buffers", result["diagonal"])
+            self.assertEqual(model.weight.grad.item(), 7)
+            self.assertTrue(model.training)
+        model.weight.requires_grad_(False)
+        result = diagonal_fisher(model, examples, roles, logits_for)
+        self.assertAlmostEqual(result["mean_per_parameter"]["weights"], 0.625)
+        self.assertFalse(model.weight.requires_grad)
 
 
 if __name__ == "__main__":

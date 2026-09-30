@@ -25,10 +25,10 @@ Do the gradient and Fisher calculations match their definitions on a small model
 
 | Setting | Value |
 | --- | --- |
-| input_features | 4 |
+| input features | 4 |
 | classes | 2 |
 | model | linear |
-| class_expectation | exact |
+| class expectation | exact |
 
 Reported or intended settings in the cited record; original configuration JSON not independently inspected.
 
@@ -36,15 +36,15 @@ Reported or intended settings in the cited record; original configuration JSON n
 
 | Measurement | Value |
 | --- | --- |
-| autograd_gradient | 2.810392324786 |
-| finite_difference_gradient | 2.810392322417 |
-| reported_absolute_difference | 2.369e-09 |
-| empirical_to_model_fisher_ratio_uniform | 1.0 |
-| ratio_confident_correct | 0.01 |
-| ratio_confident_wrong | 99.0 |
-| square_then_average | 0.3681804 |
-| average_then_square | 0.0140179 |
-| reported_ordering_ratio | 26.27 |
+| autograd gradient | 2.810392324786 |
+| finite difference gradient | 2.810392322417 |
+| reported absolute difference | 2.369e-09 |
+| empirical to model fisher ratio uniform | 1.0 |
+| ratio confident correct | 0.01 |
+| ratio confident wrong | 99.0 |
+| square then average | 0.3681804 |
+| average then square | 0.0140179 |
+| reported ordering ratio | 26.27 |
 
 
 ## Decision
