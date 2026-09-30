@@ -113,6 +113,7 @@ Start here:
                  f"({base}/blob/main/notebooks/04_gradient_diagnostics.ipynb)")
         .replace("(../uncle/research_diagnostic.py)",
                  f"({base}/blob/main/uncle/research_diagnostic.py)")
+        .replace("(PLAN.md)", f"({base}/blob/main/docs/PLAN.md)")
     )
     pages["Concepts-and-processes.md"] = (ROOT / "docs" / "CONCEPTS.md").read_text(encoding="utf-8")
     pages["An-Unlearning-Framework-for-Continual-Learning.md"] = (
