@@ -44,6 +44,17 @@ established the claim yet.
 
 ## Inner working
 
+```mermaid
+flowchart TD
+    S1[1 Name the parts: map tensors to roles] --> S2[2 Measure the change: before versus after forgetting]
+    S2 --> S3[3 Measure the update: gradients, alignment, Adam step]
+    S3 --> S4[4 Calculate Fisher scores: one score per weight]
+    S4 --> S5[5 Test recovery: same data, same update budget]
+    S5 --> D{Relearns X faster than the control?}
+    D -->|Yes| A[Something remains: freeze or replace parts, run the Y control]
+    D -->|No| B[Nothing left to find: forgetting looks complete]
+```
+
 1. **Name the parts.** Map the model's tensors to roles such as task embedding,
    shared layers, heads, and BatchNorm statistics.
 2. **Measure the change.** Save each part before forgetting and compare it with
