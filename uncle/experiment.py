@@ -1,6 +1,7 @@
 """Run a whole sequence of learn and forget requests."""
 
 from collections.abc import Callable
+from pathlib import Path
 
 import torch
 
@@ -18,8 +19,10 @@ def run(
     on_start: Callable[[dict], None] | None = None,
     progress: bool = False,
     checkpoint_path=None,
+    starting_checkpoint=None,
     resume: bool = True,
     on_checkpoint: Callable[[dict], None] | None = None,
+    on_saved_checkpoint: Callable[[dict, Path], None] | None = None,
 ) -> list[dict]:
     """Work through config.requests and return one record per request.
 
@@ -40,7 +43,16 @@ def run(
     picks up an existing checkpoint instead of starting over. Resuming skips
     the requests already in the checkpoint's history. `on_checkpoint` is called
     with the state about to be written, so a caller can add its own fields.
+
+    `starting_checkpoint` branches from an earlier request boundary. The saved
+    requests must match the beginning of this run. Only the future forgetting
+    settings and the request list may differ from the source configuration.
+    It is never written by this run.
+    `on_saved_checkpoint` runs after a request's checkpoint has been saved.
     """
+    if starting_checkpoint is not None and checkpoint_path is not None:
+        if Path(starting_checkpoint).resolve() == Path(checkpoint_path).resolve():
+            raise ValueError("The starting checkpoint and output checkpoint must differ")
     torch.manual_seed(config.seed)
 
     tasks = build_tasks(config) if tasks is None else tasks
@@ -60,6 +72,11 @@ def run(
 
     saved = (checkpointing.load(checkpoint_path, config)
              if checkpoint_path is not None and resume else None)
+    if saved is None and starting_checkpoint is not None:
+        saved = checkpointing.load(starting_checkpoint)
+        if saved is None:
+            raise FileNotFoundError(starting_checkpoint)
+        validate_starting_checkpoint(saved, config)
     if saved is not None:
         done = checkpointing.restore(saved, hypernet=hypernet, uncle=uncle)
         history = saved["history"]
@@ -124,5 +141,29 @@ def run(
                 previous=previous, costs=extra["costs"],
                 setup_seconds=extra["setup_seconds"],
             )
+            if on_saved_checkpoint is not None:
+                on_saved_checkpoint(record, Path(checkpoint_path))
 
     return history
+
+
+def validate_starting_checkpoint(saved, config):
+    """Allow a longer request list and new future forgetting settings only."""
+    done = len(saved["history"])
+    source = saved["config"]
+    changed = {"requests", "gamma", "forgetting_learning_rate",
+               "burn_in", "burn_in_decay", "burn_in_min"}
+    mismatches = sorted(
+        key for key in set(source) | set(vars(config))
+        if key not in changed and source.get(key) != vars(config).get(key)
+    )
+    if mismatches:
+        raise ValueError(f"Starting checkpoint changes training settings: {', '.join(mismatches)}")
+    if done < 1 or done >= len(config.requests):
+        raise ValueError("Starting checkpoint must end before the final request")
+    if tuple(source["requests"][:done]) != tuple(config.requests[:done]):
+        raise ValueError("Starting checkpoint request prefix differs")
+    if [(row["action"], row["task"]) for row in saved["history"]] != list(config.requests[:done]):
+        raise ValueError("Starting checkpoint history differs from the request prefix")
+    if any(action == "forget" for action, _ in config.requests[:done]):
+        raise ValueError("Starting checkpoint already includes a forget request")

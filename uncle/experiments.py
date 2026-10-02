@@ -23,12 +23,16 @@ from `config`.
 """
 
 import argparse
+import hashlib
 import json
+import os
 from pathlib import Path
+import shutil
 import time
 
 from .config import Config, dataset_defaults
-from .experiment import run as run_requests
+from . import checkpoint as checkpointing
+from .experiment import run as run_requests, validate_starting_checkpoint
 from .metrics import summary
 from .streams import build_tasks
 from .telemetry import RunLog, environment, learn_steps, progress_bar
@@ -68,7 +72,8 @@ def show(value) -> str:
 def run_experiment(sequence=1, limit_requests=None, max_images=None,
                    root=DEFAULT_ROOT, download=False, output=None,
                    on_request=None, verbose=True, progress=True,
-                   checkpoint=True, resume=True,
+                   checkpoint=True, resume=True, starting_checkpoint=None,
+                   snapshot_after_requests=(),
                    config=None, **overrides) -> dict:
     """Work through a request sequence. Returns history, metrics and costs.
 
@@ -98,18 +103,28 @@ def run_experiment(sequence=1, limit_requests=None, max_images=None,
     overwritten in place, and it is as large as the hypernetwork: about 220 MB
     for ResNet50 at 200 chunks. Pass `checkpoint=False` to skip it, and
     `resume=False` to start over while keeping one.
+
+    `starting_checkpoint` continues from a saved request boundary into a new
+    output directory. The source file is not overwritten. A source hash and the
+    new configuration are recorded so a later resume cannot switch sources.
+    `snapshot_after_requests` keeps named copies of selected request-boundary
+    checkpoints while the resumable checkpoint continues to advance.
     """
     if config is None:
         config = make_config(sequence, limit_requests, **overrides)
     elif overrides:
         raise ValueError("Pass overrides to make_config, or a finished config, not both")
+    snapshots = set(snapshot_after_requests)
+    if snapshots and (output is None or not checkpoint):
+        raise ValueError("Checkpoint snapshots need output and checkpoint=True")
+    if any(not isinstance(index, int) or isinstance(index, bool)
+           or not 0 <= index < len(config.requests) for index in snapshots):
+        raise ValueError("Snapshot request indices must name requests in the run")
 
     # Only the tasks these requests mention, because building one indexes both
     # splits. A full sequence names all twenty anyway.
     needed = sorted({task for _, task in config.requests}, key=int)
     setup_began = time.perf_counter()
-    tasks = build_tasks(config, root=root, include=needed,
-                        max_images=max_images, download=download)
 
     paths = {}
     if output is not None:
@@ -123,6 +138,56 @@ def run_experiment(sequence=1, limit_requests=None, max_images=None,
             "environment": output / f"environment_{stem}.json",
             "checkpoint": output / f"checkpoint_{stem}.pt",
         }
+
+    def snapshot_path(index):
+        action, task = config.requests[index]
+        return output / f"checkpoint_{stem}_after_request{index:02d}_{action}{task}.pt"
+
+    if starting_checkpoint is not None:
+        if not paths or not checkpoint or not resume:
+            raise ValueError("Starting checkpoint needs output, checkpoint=True, and resume=True")
+        source = Path(starting_checkpoint).expanduser().resolve()
+        if not source.is_file():
+            raise FileNotFoundError(source)
+        if source == paths["checkpoint"].resolve():
+            raise ValueError("The starting checkpoint and output checkpoint must differ")
+        saved_start = checkpointing.load(source)
+        validate_starting_checkpoint(saved_start, config)
+        del saved_start
+        digest = hashlib.sha256()
+        with source.open("rb") as stream:
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+        origin = {
+            "starting_checkpoint": str(source),
+            "starting_checkpoint_sha256": digest.hexdigest(),
+            "config": dict(vars(config)),
+        }
+        origin_path = output / f"origin_{stem}.json"
+        if origin_path.exists():
+            if json.loads(origin_path.read_text(encoding="utf-8")) != json.loads(
+                    json.dumps(origin)):
+                raise ValueError("Existing run has a different starting checkpoint or config")
+        else:
+            if paths["checkpoint"].exists() or paths["history"].exists():
+                raise ValueError("Existing run has no starting-checkpoint record")
+            origin_path.write_text(json.dumps(origin, indent=2) + "\n", encoding="utf-8")
+
+    if snapshots and resume and paths["checkpoint"].exists():
+        saved_run = checkpointing.load(paths["checkpoint"], config)
+        completed = len(saved_run["history"])
+        for index in snapshots:
+            snapshot = snapshot_path(index)
+            if index < completed and not snapshot.exists():
+                if index != completed - 1:
+                    raise RuntimeError(f"Missing earlier checkpoint snapshot: {snapshot}")
+                temporary = snapshot.with_suffix(".pt.writing")
+                shutil.copyfile(paths["checkpoint"], temporary)
+                os.replace(temporary, snapshot)
+        del saved_run
+
+    tasks = build_tasks(config, root=root, include=needed,
+                        max_images=max_images, download=download)
 
     log = RunLog(device=config.torch_device)
     facts = {}
@@ -192,11 +257,23 @@ def run_experiment(sequence=1, limit_requests=None, max_images=None,
         extra["costs"] = log.rows
         extra["setup_seconds"] = log.setup_seconds
 
+    def keep_snapshot(record, checkpoint_path):
+        if record["index"] not in snapshots:
+            return
+        snapshot = snapshot_path(record["index"])
+        if snapshot.exists():
+            raise FileExistsError(snapshot)
+        temporary = snapshot.with_suffix(".pt.writing")
+        shutil.copyfile(checkpoint_path, temporary)
+        os.replace(temporary, snapshot)
+
     try:
         run_requests(config, on_request=record_done, tasks=tasks,
                      on_start=record_environment, progress=progress,
                      checkpoint_path=paths.get("checkpoint") if checkpoint else None,
-                     resume=resume, on_checkpoint=collect_state)
+                     starting_checkpoint=starting_checkpoint,
+                     resume=resume, on_checkpoint=collect_state,
+                     on_saved_checkpoint=keep_snapshot if snapshots else None)
     finally:
         bar.close()
 
