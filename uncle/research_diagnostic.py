@@ -1,8 +1,8 @@
-"""Model-neutral measurements for forgetting and paired recovery studies.
+"""Model-neutral measurements for forgetting diagnostics.
 
 This module separates observations from scientific conclusions. Existing
-forgetting traces can be screened now. Paired recovery records use the same
-schema regardless of the model that produced them.
+forgetting traces can be screened and model components can be inspected now.
+Matched recovery records and calculations belong with the future probe runner.
 """
 
 from collections import defaultdict
@@ -139,104 +139,8 @@ def archived_runs(registry_path, traces_path):
         }
 
 
-def paired_recovery(observations):
-    """Calculate matched recovery gaps, with controls visible in every result.
-
-    One record describes one condition at one adaptation budget and step.
-    Records require pair_id, task, seed, sequence, split_id, budget, step,
-    intervention, condition, heldout_accuracy_pct, adaptation_accuracy_pct,
-    retained_accuracy_pct, and correct_class_log_probability. Pairing rejects
-    mismatches rather than comparing unrelated model runs.
-    """
-    required = ("pair_id", "task", "seed", "sequence", "split_id", "budget",
-                "step", "intervention", "condition", "heldout_accuracy_pct",
-                "adaptation_accuracy_pct", "retained_accuracy_pct",
-                "correct_class_log_probability")
-    groups = defaultdict(dict)
-    for row in observations:
-        missing = [key for key in required if key not in row]
-        if missing:
-            raise ValueError(f"Probe observation missing {missing}")
-        if row["condition"] not in {"unlearned", "never_learned", "pre_deletion",
-                                    "never_forgotten"}:
-            raise ValueError("Unknown probe condition")
-        if int(row["budget"]) < 0 or int(row["step"]) < 0:
-            raise ValueError("Budget and step must be nonnegative")
-        key = tuple(row[field] for field in required[:5]) + (
-            int(row["budget"]), int(row["step"]), row["intervention"])
-        if row["condition"] in groups[key]:
-            raise ValueError("Duplicate condition at the same probe point")
-        groups[key][row["condition"]] = row
-    results = []
-    for key, conditions in sorted(groups.items(), key=lambda item: str(item[0])):
-        if not {"unlearned", "never_learned"} <= conditions.keys():
-            raise ValueError(f"Missing paired unlearned or never-learned condition: {key}")
-        unlearned = conditions["unlearned"]
-        reference = conditions["never_learned"]
-        baseline_key = (*key[:6], 0, key[7])
-        baseline = groups.get(baseline_key, {})
-        if not {"unlearned", "never_learned"} <= baseline.keys():
-            raise ValueError(f"Missing step-zero baseline for paired probe: {key}")
-        accuracy = (_number(unlearned["heldout_accuracy_pct"], "heldout accuracy")
-                    - _number(reference["heldout_accuracy_pct"], "reference heldout accuracy"))
-        likelihood = (_number(unlearned["correct_class_log_probability"], "log probability")
-                      - _number(reference["correct_class_log_probability"], "reference log probability"))
-        results.append({
-            **dict(zip(required[:8], key)),
-            "recovery_advantage_pp": accuracy,
-            "likelihood_gain": likelihood,
-            "adaptation_accuracy_pct": {
-                name: _number(row["adaptation_accuracy_pct"], "adaptation accuracy")
-                for name, row in conditions.items()},
-            "retained_accuracy_pct": {
-                name: _number(row["retained_accuracy_pct"], "retained accuracy")
-                for name, row in conditions.items()},
-            "maintenance_cost_pp": {
-                name: (_number(row["retained_accuracy_pct"], "retained accuracy")
-                       - _number(baseline[name]["retained_accuracy_pct"], "baseline retained accuracy"))
-                for name, row in conditions.items() if name in baseline},
-            "pre_deletion_control_present": "pre_deletion" in conditions,
-            "never_forgotten_control_present": "never_forgotten" in conditions,
-            "pre_deletion_recovery_advantage_pp": (
-                _number(conditions["pre_deletion"]["heldout_accuracy_pct"],
-                        "pre-deletion heldout accuracy")
-                - _number(reference["heldout_accuracy_pct"], "reference heldout accuracy")
-                if "pre_deletion" in conditions else None),
-            "probe_sensitivity_decision": None,
-        })
-    return results
-
-
-def specificity_ratio(target_advantage, control_advantage):
-    """Return S with its operands; zero denominators are explicitly undefined."""
-    numerator = _number(target_advantage, "target advantage")
-    denominator = _number(control_advantage, "control advantage")
-    return {"numerator": numerator, "denominator": denominator,
-            "ratio": numerator / denominator if denominator != 0 else None}
-
-
-def component_share(full_advantage, intervened_advantage):
-    """Return p(c) for a specified reset or swap and its matched reference."""
-    full = _number(full_advantage, "full advantage")
-    changed = _number(intervened_advantage, "intervened advantage")
-    return {"numerator": full - changed, "denominator": full,
-            "ratio": (full - changed) / full if full != 0 else None}
-
-
-def interaction_residual(full_advantage, individual_advantages, combined_advantage):
-    """Compare the combined effect with the sum of separate effects."""
-    full = _number(full_advantage, "full advantage")
-    combined = _number(combined_advantage, "combined advantage")
-    singles = [_number(value, "individual advantage") for value in individual_advantages]
-    combined_effect = full - combined
-    individual_effects = [full - value for value in singles]
-    return {"combined_effect": combined_effect,
-            "individual_effects": individual_effects,
-            "interaction_residual": combined_effect - sum(individual_effects)}
-
-
 def capture_components(components: Mapping[str, Mapping[str, object]]):
-    """Copy named tensors for a model-neutral component intervention audit."""
+    """Copy named tensors for a model-neutral before/after audit."""
     return {
         role: {name: tensor.detach().cpu().clone() for name, tensor in members.items()}
         for role, members in components.items()
@@ -261,20 +165,12 @@ def compare_components(before, components):
                 raise ValueError(f"Tensor shape or dtype changed for {role}.{name}")
             if old.is_complex():
                 raise ValueError(f"Complex component tensor is unsupported: {role}.{name}")
-            if not old.is_floating_point():
-                if not old.equal(current):
-                    changed += 1
-                    delta = current.float() - old.float()
-                    squared += delta.square().sum().item()
-                    max_change = max(max_change, delta.abs().max().item())
+            if torch.equal(old, current):
                 continue
-            delta = current - old
-            nonzero = bool(delta.count_nonzero().item())
-            if nonzero:
-                changed += 1
+            changed += 1
+            delta = current.to(torch.float64) - old.to(torch.float64)
             squared += delta.square().sum().item()
-            if nonzero:
-                max_change = max(max_change, delta.abs().max().item())
+            max_change = max(max_change, delta.abs().max().item())
         results[role] = {
             "tensors": len(old_members), "changed_tensors": changed,
             "l2_change": squared ** 0.5, "maximum_absolute_change": max_change,
@@ -387,76 +283,6 @@ def diagonal_fisher(model, examples, components, logits_for, kind="empirical"):
     }
     return {"kind": kind, "examples": count, "diagonal": diagonal,
             "mean_per_parameter": scores}
-
-
-def select_trainable_components(model, components, allowed_roles):
-    """Freeze all mapped parameters except the requested semantic roles.
-
-    Buffers are never optimizer parameters. Every parameter in the supplied
-    model is frozen first, including parameters outside the named roles. Return
-    the selected parameters for a fresh optimizer.
-    """
-    allowed = set(allowed_roles)
-    unknown = allowed - set(components)
-    if unknown:
-        raise ValueError(f"Unknown trainable component roles: {sorted(unknown)}")
-    model_parameters = list(model.parameters())
-    model_ids = {id(parameter) for parameter in model_parameters}
-    selected = []
-    seen = set()
-    for role, members in components.items():
-        for tensor in members.values():
-            if not isinstance(tensor, torch.nn.Parameter):
-                continue
-            if id(tensor) in seen:
-                raise ValueError("Parameter appears in more than one component role")
-            if id(tensor) not in model_ids:
-                raise ValueError("Mapped parameter does not belong to the model")
-            seen.add(id(tensor))
-            if role in allowed:
-                selected.append(tensor)
-    if not selected:
-        raise ValueError("No trainable parameters selected")
-    for parameter in model_parameters:
-        parameter.requires_grad_(False)
-    for parameter in selected:
-        parameter.requires_grad_(True)
-    return selected
-
-
-def replace_components(components, replacements):
-    """Copy exact named donor tensors and audit the affected roles.
-
-    The caller chooses the donor and its scientific meaning. Shape and dtype
-    are checked before any write. A model-specific adapter remains responsible
-    for making sure donor states are comparable.
-    """
-    if not replacements or not set(replacements) <= set(components):
-        raise ValueError("Replacements must name known component roles")
-    for role, members in replacements.items():
-        if not members or set(members) != set(components[role]):
-            raise ValueError(f"Replacement needs every named tensor in {role}")
-        for name, donor in members.items():
-            current = components[role][name]
-            if current.shape != donor.shape or current.dtype != donor.dtype:
-                raise ValueError(f"Incompatible replacement for {role}.{name}")
-    before = capture_components(components)
-    try:
-        with torch.no_grad():
-            for role, members in replacements.items():
-                for name, donor in members.items():
-                    components[role][name].copy_(donor)
-        audit = compare_components(before, components)
-        if any(item["changed_tensors"] for role, item in audit.items()
-               if role not in replacements):
-            raise RuntimeError("An unselected component changed")
-        return audit
-    except BaseException:
-        with torch.no_grad():
-            for role, members in before.items():
-                for name, value in members.items():
-                    components[role][name].copy_(value)
-        raise
 
 
 def uncle_components(uncle, task):

@@ -15,9 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 from uncle.research_diagnostic import (
     archived_runs, assess_forgetting, capture_components, compare_components,
-    component_share, diagonal_fisher, inspect_components, interaction_residual,
-    paired_recovery, replace_components, runtime_run, select_trainable_components,
-    specificity_ratio,
+    diagonal_fisher, inspect_components, runtime_run,
 )
 
 
@@ -107,48 +105,6 @@ class ResearchDiagnosticTests(unittest.TestCase):
                          {"shared": -0.8})
         self.assertEqual(report, before)
 
-    def test_matched_recovery_requires_baselines_and_exposes_controls(self):
-        def row(condition, step, heldout, retained):
-            return {
-                "pair_id": "seed0-seq1-X", "task": "X", "seed": 0,
-                "sequence": 1, "split_id": "sha256:example", "budget": 5,
-                "step": step, "intervention": "full", "condition": condition,
-                "heldout_accuracy_pct": heldout,
-                "adaptation_accuracy_pct": heldout + 1,
-                "retained_accuracy_pct": retained,
-                "correct_class_log_probability": -2 + heldout / 100,
-            }
-        observations = [row("unlearned", 0, 10, 45),
-                        row("never_learned", 0, 9, 46),
-                        row("unlearned", 20, 25, 43),
-                        row("never_learned", 20, 15, 45)]
-        result = paired_recovery(observations)
-        late = next(item for item in result if item["step"] == 20)
-        self.assertEqual(late["recovery_advantage_pp"], 10)
-        self.assertAlmostEqual(late["likelihood_gain"], 0.1)
-        self.assertEqual(late["maintenance_cost_pp"],
-                         {"unlearned": -2, "never_learned": -1})
-        self.assertIsNone(late["pre_deletion_recovery_advantage_pp"])
-        observations += [row("pre_deletion", 0, 40, 45),
-                         row("pre_deletion", 20, 60, 43)]
-        result = paired_recovery(observations)
-        self.assertEqual(next(item for item in result if item["step"] == 20)
-                         ["pre_deletion_recovery_advantage_pp"], 45)
-        self.assertTrue(all(item["probe_sensitivity_decision"] is None for item in result))
-        with self.assertRaisesRegex(ValueError, "Missing step-zero"):
-            paired_recovery([row("unlearned", 20, 25, 43),
-                             row("never_learned", 20, 15, 45)])
-        observations[-1]["split_id"] = "different-split"
-        with self.assertRaisesRegex(ValueError, "Missing paired"):
-            paired_recovery(observations)
-
-    def test_ratios_keep_denominators_and_undefined_values(self):
-        self.assertIsNone(specificity_ratio(5, 0)["ratio"])
-        self.assertEqual(specificity_ratio(6, 2)["ratio"], 3)
-        self.assertIsNone(component_share(0, -1)["ratio"])
-        self.assertEqual(component_share(10, 4)["ratio"], 0.6)
-        self.assertEqual(interaction_residual(10, [8, 7], 3)["interaction_residual"], 2)
-
     def test_component_audit_detects_only_changed_roles(self):
         components = {
             "task_state": {"code": torch.tensor([1.0, 2.0])},
@@ -166,34 +122,19 @@ class ResearchDiagnosticTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Tensor names changed"):
             compare_components(before, components)
 
-    def test_component_intervention_freezes_all_other_parameters(self):
-        model = torch.nn.Module()
-        model.register_parameter("task_code", torch.nn.Parameter(torch.tensor([1.0])))
-        model.register_parameter("shared", torch.nn.Parameter(torch.tensor([2.0])))
-        model.register_parameter("unmapped", torch.nn.Parameter(torch.tensor([3.0])))
-        model.register_buffer("running", torch.tensor([4.0]))
-        roles = {
-            "task_embedding": {"task_code": model.task_code},
-            "shared_layers": {"shared": model.shared},
-            "buffers": {"running": model.running},
-        }
-        selected = select_trainable_components(model, roles, {"task_embedding"})
-        self.assertEqual(selected, [model.task_code])
-        self.assertTrue(model.task_code.requires_grad)
-        self.assertFalse(model.shared.requires_grad)
-        self.assertFalse(model.unmapped.requires_grad)
-        with self.assertRaisesRegex(ValueError, "No trainable"):
-            select_trainable_components(model, roles, {"buffers"})
-
-        before = capture_components(roles)
-        audit = replace_components(roles, {"buffers": {"running": torch.tensor([9.0])}})
-        self.assertEqual(audit["buffers"]["l2_change"], 5)
-        self.assertEqual(audit["task_embedding"]["changed_tensors"], 0)
-        self.assertEqual(audit["shared_layers"]["changed_tensors"], 0)
-        self.assertTrue(torch.equal(model.task_code.detach(), before["task_embedding"]["task_code"]))
-        with self.assertRaisesRegex(ValueError, "Incompatible"):
-            replace_components(roles, {"buffers": {"running": torch.tensor([1])}})
-        self.assertEqual(model.running.item(), 9)
+    def test_component_audit_detects_small_float64_change(self):
+        value = torch.tensor([1.0], dtype=torch.float64)
+        counter = torch.tensor([3], dtype=torch.int64)
+        components = {"shared": {"weight": value}, "buffers": {"counter": counter}}
+        before = capture_components(components)
+        value.add_(1e-10)
+        counter.add_(2)
+        audit = compare_components(before, components)["shared"]
+        self.assertEqual(audit["changed_tensors"], 1)
+        self.assertGreater(audit["l2_change"], 0)
+        buffer_audit = compare_components(before, components)["buffers"]
+        self.assertEqual(buffer_audit["changed_tensors"], 1)
+        self.assertEqual(buffer_audit["l2_change"], 2)
 
     def test_live_weight_gradient_view_and_exact_diagonal_fisher(self):
         model = torch.nn.Module()

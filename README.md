@@ -10,8 +10,8 @@ and [run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-expl
 The structured data and provenance are in [docs/experiments](docs/experiments/README.md).
 The [model diagnostics guide](docs/MODEL_DIAGNOSTICS.md) explains how to inspect
 weights, gradients, optimizer updates, and diagonal Fisher scores. The
-[research diagnostic](docs/RESEARCH_DIAGNOSTIC.md) also screens saved runs and
-defines paired recovery measurements for the proposed study.
+[research diagnostic](docs/RESEARCH_DIAGNOSTIC.md) screens saved forgetting
+runs. The proposed recovery measurements still need an experiment runner.
 
 A note on names, since the two get conflated. *An Unlearning Framework for
 Continual Learning* is the paper. **UnCLe** is the method it introduces, and

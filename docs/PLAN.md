@@ -249,7 +249,7 @@ alternative noising strategies, and the seven comparison methods.
 
 Every module below states what the repository holds today, then what is
 missing. Status was checked against the code on 2026-09-27, not carried over
-from an earlier plan. Diagnostic updates below were checked on 2026-09-29.
+from an earlier plan. Diagnostic updates below were checked on 2026-10-01.
 Module IDs name a responsibility, not a file; several
 already live in one file.
 
@@ -257,16 +257,16 @@ already live in one file.
 | --- | --- | --- |
 | M01 | Study configuration | Run configuration built, study configuration missing |
 | M02 | Dataset splits and control task | Task splits built, adaptation reserve and Y missing |
-| M03 | Model component access | Semantic state audit, trainable-role masks, and checked state replacement built for UnCLe |
+| M03 | Model component access | Semantic state inspection and before/after audit built for UnCLe; intervention controls missing |
 | M04 | Learning and forgetting | Built, one switch missing, reproduction unresolved |
 | M05 | Reproduction diagnostics | Built |
 | M06 | Matched reference construction | Not built |
 | M07 | Checkpoint collection and restoration | Built for resuming, stage retention missing |
 | M08 | Relearning probe | Not built, and currently refused by validation |
-| M09 | Component interventions | Generic freeze and replacement primitives built; study arms missing |
+| M09 | Component interventions | Not built |
 | M10 | Experimental controls | Evaluation hygiene built, seven of eight controls missing |
 | M11 | Fisher screening | Model-neutral diagonal calculation built; E08 checkpoint runner and study examples missing |
-| M12 | Evaluation and metrics | Four reproduction metrics and pure paired-study calculations built; live recovery probes missing |
+| M12 | Evaluation and metrics | Four reproduction metrics built; recovery metrics need the probe runner |
 | M13 | Statistical analysis | Not built |
 | M14 | Experiment orchestration | Reproduction matrix built, study matrix missing |
 | M15 | Logging and report generation | Run logging and first diagnostic assessment built; recovery reports missing |
@@ -314,10 +314,9 @@ and `generator_parameters()`, and `UnCLe` holds `task_buffers` and
 **Partly built.** `uncle/research_diagnostic.py` maps UnCLe's task embedding,
 chunk embeddings, shared layers, output heads, and task buffers to semantic
 roles. The optional checkpoint diagnostic compares those roles before and after
-forgetting. Generic helpers select trainable roles while freezing every other
-model parameter, and replace named tensors while checking shape, type, and
-changes outside the selected roles. They do not run the study arms. `forget`
-still uses its existing two fixed parameter choices.
+forgetting. Live inspection reads weight and gradient summaries. The study's
+trainable-role masks and state replacement still need to be built with the
+intervention runner. `forget` uses its existing two fixed parameter choices.
 
 **Accept** when groups match the live model, parameters and buffers are
 distinguished, and a check proves an intervention moved nothing else.
@@ -411,12 +410,12 @@ move. Depends on M02, M03, M07.
 
 ### M09. Component interventions
 
-**Partly built.** The component roles, trainable-role masks, and checked state
-replacement exist. The arms in section 2 have no execution path yet.
+**Not built.** The component roles are named, but the arms in section 2 have
+no execution path, trainable-role masks, or state replacement.
 
-**To build.** Wire restricted adaptation per component, embedding replacement,
-the BatchNorm keep-versus-reset comparison, the joint chunk test, and combined
-interventions to matched probes.
+**To build.** Implement restricted adaptation per component, embedding
+replacement, the BatchNorm keep-versus-reset comparison, the joint chunk test,
+and combined interventions with matched probes.
 
 **Accept** when every arm's trainable set and buffer policy are verified, each
 arm has a reference under the same restriction, and swap donors and
@@ -463,13 +462,11 @@ excluded from the ranking. Depends on M03, M07.
 accuracy, forget accuracy, spill per forget request, and relapse per forgotten
 task, summarised from the run history.
 
-**Partly built.** Pure calculations for paired recovery advantage, likelihood
-gain, maintenance cost, specificity ratio, component share, and interaction
-residual now exist in `uncle/research_diagnostic.py`. Paired records are matched
-by study identifiers and step-zero baselines. No actual relearning probe has
-produced these observations; held-out log-probabilities, adaptation accuracy,
-and retained-task measurements during adaptation still require M08. Keep the
-four existing metrics unchanged; the study adds to them.
+**Missing.** Recovery advantage, likelihood gain, maintenance cost,
+specificity ratio, component share, and interaction residual need records from
+the relearning probe. Pairing rules, held-out log-probabilities, adaptation
+accuracy, and retained-task measurements belong with that runner. Keep the
+four existing reproduction metrics unchanged; the study adds to them.
 
 **Accept** when hand-calculated cases agree, paired records cannot be
 mismatched, and zero-denominator ratios are reported as undefined. Depends on

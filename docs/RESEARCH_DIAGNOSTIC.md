@@ -38,13 +38,6 @@ roles to named tensors. A role without tensors is marked unavailable. An
 unchanged role is a state observation, not proof that it contains or lacks
 task information.
 
-The same component mapping supports two intervention primitives.
-`select_trainable_components` freezes all model parameters except the chosen
-roles and returns those parameters for a fresh optimizer.
-`replace_components` copies named donor tensors after checking their shapes
-and types, then audits every role for unintended changes. These primitives do
-not choose donors or define the study arms.
-
 `inspect_components` reads current weight and gradient sizes by named tensor.
 `diagonal_fisher` computes empirical or model-predicted diagonal Fisher from
 individual examples. It returns values per weight and mean scores per
@@ -60,25 +53,12 @@ alone explains the effect on accuracy.
 
 ## How future probes fit
 
-`paired_recovery` accepts model-neutral observations keyed by pair, task,
-seed, sequence, split identity, adaptation budget, step, and intervention. It
-rejects missing unlearned or never-learned conditions, duplicate conditions,
-and missing step-zero baselines. It computes paired recovery advantage `A`,
-correct-class log-probability gain `G`, and retained-task maintenance cost `M`
-at matching points. It exposes whether pre-deletion and never-forgotten controls
-are present and the pre-deletion recovery gap. It leaves probe sensitivity
-undecided until an explicit decision rule is set.
-
-The separate `specificity_ratio`, `component_share`, and
-`interaction_residual` functions implement `S`, `p(c)`, and `D` once matched
-X/Y and component interventions exist. Zero denominators produce an undefined
-ratio with both operands retained. The near-zero policy remains open in the
-plan and should be fixed before the main analysis.
-
-An adapter for another model needs to expose semantic state roles and produce
-the same probe observations. The analysis does not assume ResNet, BatchNorm,
-three output heads, or a 200-chunk generator. The UnCLe adapter is the first
-implementation, not a requirement of the study protocol.
+The proposed recovery test still needs a runner that creates matched
+observations. Build pairing checks, recovery calculations, and component
+interventions alongside that runner so their inputs match the records it
+actually writes. The near-zero denominator rule for the planned ratios is
+still open in the plan. An adapter for another model can expose the same
+semantic state roles without using ResNet or UnCLe's three output heads.
 
 ## What is still required for the proposed result
 
@@ -88,10 +68,10 @@ reference, pre-deletion recovery probe, Y control, or component intervention.
 They are reproduction diagnostics only.
 
 Next, build the reserved split and Y control, then a separate adaptation entry
-point with a fresh optimizer and matched reference checkpoints. Wire the
-component primitives into restricted adaptation, embedding replacement,
-BatchNorm keep/reset, and combined study arms. Only matched probe results can
-support a recovery or component claim. Fisher ranking and statistical analysis
-remain later modules. The
-protocol's combination is a proposed contribution whose novelty requires the
+point with a fresh optimizer and matched reference checkpoints. Build the
+restricted adaptation, embedding replacement, BatchNorm keep/reset, and
+combined arms with that entry point. Only matched probe results can support
+a recovery or component claim. Running Fisher on the study checkpoint and
+statistical analysis remain later work. The protocol's combination is a
+proposed contribution whose novelty requires the
 literature review noted in the proposal; this software does not establish it.
