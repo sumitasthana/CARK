@@ -186,6 +186,13 @@ def run_experiment(sequence=1, limit_requests=None, max_images=None,
                 os.replace(temporary, snapshot)
         del saved_run
 
+    original_environment = None
+    if (resume and checkpoint and paths.get("checkpoint")
+            and paths["checkpoint"].is_file()
+            and paths["environment"].is_file()):
+        original_environment = json.loads(
+            paths["environment"].read_text(encoding="utf-8"))
+
     tasks = build_tasks(config, root=root, include=needed,
                         max_images=max_images, download=download)
 
@@ -209,18 +216,29 @@ def run_experiment(sequence=1, limit_requests=None, max_images=None,
                 print(f"resuming after {built['resumed_after']} completed "
                       f"requests, from {paths['checkpoint'].name}")
 
-        facts.update(environment(config, built["hypernet"], built["tasks"]))
+        current_environment = environment(config, built["hypernet"], built["tasks"])
+        facts.update(original_environment if original_environment is not None
+                     else current_environment)
         if verbose:
             print(f"sequence {sequence}: {len(config.requests)} requests over "
                   f"{len(needed)} tasks, backbone {config.backbone}, "
                   f"{config.chunks} chunks, beta {config.beta}, gamma {config.gamma}")
-            print(f"  {facts['hypernetwork_parameters']:,} hypernetwork parameters "
-                  f"generating {facts['generated_parameters']:,}")
-            print(f"  device {facts['device']}"
-                  + (f", {facts['gpu']}, "
-                     f"{facts['gpu_total_bytes'] / 2 ** 30:.1f} GiB" if facts["gpu"] else "")
-                  + f", torch {facts['torch']}, commit {facts['git_commit']}")
+            print(f"  {current_environment['hypernetwork_parameters']:,} hypernetwork parameters "
+                  f"generating {current_environment['generated_parameters']:,}")
+            print(f"  device {current_environment['device']}"
+                  + (f", {current_environment['gpu']}, "
+                     f"{current_environment['gpu_total_bytes'] / 2 ** 30:.1f} GiB"
+                     if current_environment["gpu"] else "")
+                  + f", torch {current_environment['torch']}, commit {current_environment['git_commit']}")
         if paths:
+            if original_environment is not None:
+                if "resumed_after" not in built:
+                    return
+                original_environment.setdefault("resume_sessions", []).append({
+                    "after_requests": built["resumed_after"],
+                    "environment": current_environment,
+                })
+                facts.update(original_environment)
             paths["environment"].write_text(
                 json.dumps(facts, indent=2, default=str) + "\n", encoding="utf-8")
 

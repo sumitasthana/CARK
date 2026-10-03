@@ -17,6 +17,7 @@ from torch.utils.data import TensorDataset
 from uncle.config import Config
 from uncle import checkpoint as checkpointing
 from uncle.experiments import run_experiment
+from uncle.telemetry import environment
 
 
 class FullSequenceCandidateTests(unittest.TestCase):
@@ -87,6 +88,18 @@ class FullSequenceCandidateTests(unittest.TestCase):
         resumed = self.run_case(self.full, "branch", starting_checkpoint=source_path,
                                 snapshot_after_requests=(2,))
         self.assertEqual(resumed["history"], branch["history"])
+
+        environment_path = self.root / "branch" / "environment_seq1_cnn_seed0.json"
+        original_environment = json.loads(environment_path.read_text())
+        with patch("uncle.experiments.environment",
+                   return_value={**environment(self.full), "git_commit": "later-session",
+                                 "hypernetwork_parameters": 1, "generated_parameters": 1}):
+            self.run_case(self.full, "branch", starting_checkpoint=source_path)
+        after_resume = json.loads(environment_path.read_text())
+        self.assertEqual(after_resume["git_commit"], original_environment["git_commit"])
+        self.assertEqual(after_resume["resume_sessions"][-1]["after_requests"], 4)
+        self.assertEqual(after_resume["resume_sessions"][-1]["environment"]["git_commit"],
+                         "later-session")
 
     def test_branch_rejects_changed_training_and_request_history(self):
         self.run_case(self.prefix, "source")
