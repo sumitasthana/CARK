@@ -52,6 +52,11 @@ class FullSequenceCandidateTests(unittest.TestCase):
         source_path = self.root / "source" / "checkpoint_seq1_cnn_seed0.pt"
         digest = hashlib.sha256(source_path.read_bytes()).hexdigest()
         whole = self.run_case(self.full, "whole")
+        without_forget = replace(
+            self.full, requests=(("learn", "3"), ("learn", "0"), ("learn", "9")))
+        control = self.run_case(without_forget, "control", starting_checkpoint=source_path)
+        self.assertEqual(control["history"],
+                         self.run_case(without_forget, "control_whole")["history"])
         branch = self.run_case(self.full, "branch", starting_checkpoint=source_path,
                                snapshot_after_requests=(2,))
         self.assertEqual(branch["history"], whole["history"])
@@ -66,6 +71,19 @@ class FullSequenceCandidateTests(unittest.TestCase):
             self.root / "branch" / "checkpoint_seq1_cnn_seed0.pt")["history"]), 4)
         origin = json.loads((self.root / "branch" / "origin_seq1_cnn_seed0.json").read_text())
         self.assertEqual(origin["starting_checkpoint_sha256"], digest)
+        post_forget = self.run_case(self.full, "post_forget_branch",
+                                    starting_checkpoint=snapshot)
+        self.assertEqual(post_forget["history"], whole["history"])
+        longer = replace(self.full, requests=(*self.full.requests, ("forget", "9")))
+        self.run_case(longer, "longer_source", snapshot_after_requests=(2,))
+        long_snapshot = (self.root / "longer_source" /
+                         "checkpoint_seq1_cnn_seed0_after_request02_forget3.pt")
+        short_branch = self.run_case(self.full, "short_branch",
+                                     starting_checkpoint=long_snapshot)
+        self.assertEqual(short_branch["history"], whole["history"])
+        with self.assertRaisesRegex(ValueError, "forgetting settings must match"):
+            self.run_case(replace(self.full, gamma=1e-4), "changed_past_forget",
+                          starting_checkpoint=snapshot)
         resumed = self.run_case(self.full, "branch", starting_checkpoint=source_path,
                                 snapshot_after_requests=(2,))
         self.assertEqual(resumed["history"], branch["history"])

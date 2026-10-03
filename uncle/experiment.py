@@ -166,4 +166,13 @@ def validate_starting_checkpoint(saved, config):
     if [(row["action"], row["task"]) for row in saved["history"]] != list(config.requests[:done]):
         raise ValueError("Starting checkpoint history differs from the request prefix")
     if any(action == "forget" for action, _ in config.requests[:done]):
-        raise ValueError("Starting checkpoint already includes a forget request")
+        forgetting_settings = changed - {"requests"}
+        mismatches = sorted(
+            key for key in forgetting_settings
+            if source.get(key) != vars(config).get(key)
+        )
+        if mismatches:
+            raise ValueError(
+                "Starting checkpoint already includes a forget request; "
+                f"its forgetting settings must match: {', '.join(mismatches)}"
+            )
