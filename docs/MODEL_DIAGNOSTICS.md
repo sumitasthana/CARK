@@ -51,8 +51,8 @@ flowchart TD
     S3 --> S4[4 Fisher scores]
     S4 --> S5[5 Test recovery]
     S5 --> D{Relearns X faster?}
-    D -->|Yes| A[Something remains]
-    D -->|No| B[Forgetting looks complete]
+    D -->|Yes| A[Recovery advantage to investigate]
+    D -->|No| B[Check the positive control and test sensitivity]
 ```
 
 1. **Name the parts.** Map the model's tensors to roles such as task embedding,

@@ -12,6 +12,8 @@ The [model diagnostics guide](docs/MODEL_DIAGNOSTICS.md) explains how to inspect
 weights, gradients, optimizer updates, and diagonal Fisher scores. The
 [research diagnostic](docs/RESEARCH_DIAGNOSTIC.md) screens saved forgetting
 runs. The proposed recovery measurements still need an experiment runner.
+The [notebook guide](notebooks/README.md) separates current experiments, CPU
+reports, and historical notebooks.
 
 A note on names, since the two get conflated. *An Unlearning Framework for
 Continual Learning* is the paper. **UnCLe** is the method it introduces, and
@@ -81,7 +83,7 @@ default setting, so those are the numbers to check against.
 | `uncle/baseline.py` | One task, ordinary backprop, no hypernetwork |
 | `main.py` | Command line for Permuted MNIST and Tiny ImageNet |
 | `scripts/` | `run.py`, `baseline.py`, and the dataset exploration scripts |
-| `notebooks/` | Dataset and task exploration, plus the original Colab notebook |
+| `notebooks/` | [Current workflows and historical notebook guide](notebooks/README.md) |
 | `docs/PLAN.md` | Reproduction plan and status |
 | `reference/uncle_minimal.py` | The same method in one flat file, for reading |
 | `tests/` | `test_uncle.py`, `test_tasks.py`, `test_experiments.py`, `test_diagnostics.py` |
@@ -128,8 +130,8 @@ generator's state. Start the same run again and it continues from the last
 finished request, making the same draws it would have made had it never
 stopped. Pass `checkpoint=False` to skip it, or `resume=False` to start over.
 
-The Colab walkthrough, kept outside the repository, has the setup cells,
-worked examples, and every experiment in the paper with what to look for.
+The [notebook guide](notebooks/README.md) lists the current Colab workflows
+and separates them from historical notebooks.
 
 ## The four numbers
 

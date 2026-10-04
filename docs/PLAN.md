@@ -6,7 +6,7 @@ tracks the code, dependencies, checks, and runs needed to carry it out.
 The proposal is currently in the ignored `ops-docs/` directory; the protocol
 below records its requirements for readers of the tracked repository.
 
-Last updated: 2026-10-02.
+Last updated: 2026-10-04.
 
 [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) records the reported GPU experiments
 through E15, the 2026-09-29 30-step run, and the checkpoint-based diagnostics. No reported
@@ -551,9 +551,9 @@ chance-level accuracy on a forgotten task. Depends on M02, M06, M07, M15.
 
 ### Weeks 1 and 2: reproduction and study foundations
 
-The objective and scaling question **T0.2** remains open. The user chose to
-check the 27-update candidate in a full sequence before doing more objective
-diagnostics. Pause further gamma and step sweeps. The existing
+The objective and scaling question **T0.2** remains open. The 27-update
+candidate was checked in a full sequence before more objective diagnostics.
+Pause further gamma and step sweeps. The existing
 [diagnostic notebook](../notebooks/04_gradient_diagnostics.ipynb) can address
 T0.2 later without changing the current checkpoint.
 
@@ -565,12 +565,15 @@ Passing it still requires full-sequence validation.
 For an exploratory check, the user accepted task X accuracy at or below 13%
 with the same five-point retained-task limit. The reported step 27 (task 3 at
 12.6%, task 0 at 41.0%) is the candidate. This does not replace the 12% short
-screen or the paper reproduction target. The next run continues sequence 1
-from the E08 pre-forgetting checkpoint with 27 updates per forget request,
-forgetting LR `1e-5`, and gamma `5e-6`. It keeps a post-`U3` checkpoint and
-measures the full-sequence metrics. The run has one seed and uses the old
-all-images training split, so it remains a reproduction check, not a study
-checkpoint. Use [notebook 05](../notebooks/05_full_sequence_candidate.ipynb).
+screen or the paper reproduction target. The full-sequence run continued
+sequence 1 from the E08 pre-forgetting checkpoint with 27 updates per forget
+request, forgetting LR `1e-5`, and gamma `5e-6`. It saved a post-`U3`
+checkpoint. The reported full-sequence retained accuracy was 22.4% and mean
+spill was 18.98, so it did not pass the recovery-entry check. The run had one
+seed and used the old all-images training split, so it remains a reproduction
+check, not a study checkpoint. [Notebook 05](../notebooks/05_full_sequence_candidate.ipynb)
+is the historical record of that specific run; use the
+[notebook guide](../notebooks/README.md) to choose a current workflow.
 
 In parallel with that code work, implement M01-M03 and M07 and resolve the data
 split. Historical unsplit checkpoints remain diagnostic-only.

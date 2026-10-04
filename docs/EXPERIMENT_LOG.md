@@ -5,13 +5,15 @@ The GPU experiments were run in Colab; their complete artifacts remain on the
 user's Drive or in earlier runtime-local directories. The tables below transcribe
 results supplied in the conversation. They are not newly reproduced measurements.
 
-Current status: **no recorded diagnostic has passed both criteria. The latest
-30-step run reached 12.6% target accuracy at step 27 while retained drift was
-3.6 points. Gradient directions and actual Adam updates were not measured in
-that run.**
+Status of the short-run archive through 2026-09-29: **no recorded diagnostic
+passed both original criteria. The 30-step run reached 12.6% target accuracy
+at step 27 while retained drift was 3.6 points. Gradient directions and actual
+Adam updates were not measured in that run.** Later full-sequence and paired L9
+artifacts are on Drive and are not part of this earlier narrative log.
 
-Start the next session with [04_gradient_diagnostics.ipynb](../notebooks/04_gradient_diagnostics.ipynb).
-It restores the existing checkpoint and uses `uncle.diagnose_forgetting`.
+Choose a current workflow from the [notebook guide](../notebooks/README.md).
+The [gradient diagnostic](../notebooks/04_gradient_diagnostics.ipynb) restores
+the existing checkpoint when another forgetting run is needed.
 
 ## Reading this record
 

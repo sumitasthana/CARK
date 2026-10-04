@@ -44,6 +44,17 @@ established the claim yet.
 
 ## Inner working
 
+```mermaid
+flowchart TD
+    S1[1 Name the parts] --> S2[2 Measure the change]
+    S2 --> S3[3 Measure the update]
+    S3 --> S4[4 Fisher scores]
+    S4 --> S5[5 Test recovery]
+    S5 --> D{Relearns X faster?}
+    D -->|Yes| A[Recovery advantage to investigate]
+    D -->|No| B[Check the positive control and test sensitivity]
+```
+
 1. **Name the parts.** Map the model's tensors to roles such as task embedding,
    shared layers, heads, and BatchNorm statistics.
 2. **Measure the change.** Save each part before forgetting and compare it with

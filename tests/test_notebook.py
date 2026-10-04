@@ -9,8 +9,9 @@ import json
 from pathlib import Path
 import sys
 import tempfile
+from types import ModuleType
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -155,7 +156,7 @@ class SetupTests(unittest.TestCase):
 
 
 class NotebookFlowTests(unittest.TestCase):
-    def test_all_five_cells_with_a_local_cpu_checkpoint(self):
+    def test_diagnostic_cells_with_a_local_cpu_checkpoint(self):
         # Adapt only Colab services, paths, and compute size. Execute the exact
         # notebook cell text against the real checkpoint and diagnostic APIs.
         import test_diagnostics
@@ -168,6 +169,7 @@ class NotebookFlowTests(unittest.TestCase):
         notebook = Path(__file__).resolve().parents[1] / "notebooks" / "04_gradient_diagnostics.ipynb"
         cells = ["".join(c["source"]) for c in json.loads(notebook.read_text(encoding="utf-8"))["cells"]
                  if c["cell_type"] == "code"]
+        self.assertEqual(len(cells), 6)
         namespace = {}
 
         def local_prepare(checkpoint, **kwargs):
@@ -189,7 +191,8 @@ class NotebookFlowTests(unittest.TestCase):
                 EXPECTED=dict(expected_history=[("learn", "3"), ("learn", "0")],
                               expected_config={"backbone": "cnn"}),
             )
-            for i, code in enumerate(cells[2:], 2):
+            # The final cell flushes Colab Drive and releases its GPU.
+            for i, code in enumerate(cells[2:5], 2):
                 exec(compile(code, f"cell_{i}", "exec"), namespace)
 
         report = namespace["report"]
@@ -203,6 +206,41 @@ class NotebookFlowTests(unittest.TestCase):
         self.assertEqual(namespace["assessment"]["source"], "runtime JSON")
         self.assertTrue(Path(report["report_path"]).is_file())
         self.assertEqual(before, hashlib.sha256(fixture.path.read_bytes()).digest())
+
+    def test_finish_cell_flushes_before_releasing_gpu(self):
+        notebook = Path(__file__).resolve().parents[1] / "notebooks" / "04_gradient_diagnostics.ipynb"
+        cells = ["".join(c["source"]) for c in json.loads(notebook.read_text(encoding="utf-8"))["cells"]
+                 if c["cell_type"] == "code"]
+        with tempfile.TemporaryDirectory() as directory:
+            report_path = Path(directory) / "report.json"
+            report = {
+                "report_path": str(report_path), "status": "complete",
+                "settings": {"steps": 2}, "trace": [{"step": 0}, {"step": 1}],
+                "component_audit": {"weights": {"changed_tensors": 1}},
+            }
+            report_path.write_text(json.dumps(report), encoding="utf-8")
+            google = ModuleType("google")
+            colab = ModuleType("google.colab")
+            drive = Mock()
+            runtime = Mock()
+            colab.drive = drive
+            colab.runtime = runtime
+            with patch.dict(sys.modules, {"google": google, "google.colab": colab}), \
+                 contextlib.redirect_stdout(io.StringIO()):
+                exec(compile(cells[-1], "finish_cell", "exec"),
+                     {"Path": Path, "report": report})
+            drive.flush_and_unmount.assert_called_once_with(timeout_ms=600000)
+            runtime.unassign.assert_called_once_with()
+
+            report["status"] = "interrupted"
+            drive.reset_mock()
+            runtime.reset_mock()
+            with patch.dict(sys.modules, {"google": google, "google.colab": colab}):
+                with self.assertRaises(AssertionError):
+                    exec(compile(cells[-1], "finish_cell", "exec"),
+                         {"Path": Path, "report": report})
+            drive.flush_and_unmount.assert_not_called()
+            runtime.unassign.assert_not_called()
 
 
 if __name__ == "__main__":
