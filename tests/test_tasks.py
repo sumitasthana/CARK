@@ -70,26 +70,25 @@ class TaskTests(unittest.TestCase):
                 load_partition(root, path)
 
 
-class GuideTests(unittest.TestCase):
-    """The guide's code has to at least parse. Running it is check_guide.py."""
+class NotebookSourceTests(unittest.TestCase):
+    """Code cells in shared notebooks must be valid Python."""
 
-    def test_every_python_block_in_the_guide_parses(self):
+    def test_code_cells_parse(self):
         import ast
-        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-        from check_guide import DEFAULT_GUIDE, guide_blocks, is_shell
-
-        blocks = guide_blocks()
-        if not blocks:
-            self.skipTest(f"No guide at {DEFAULT_GUIDE}; it is not committed")
-        self.assertGreater(len(blocks), 15)
+        notebooks = Path(__file__).resolve().parents[1] / "notebooks"
         checked = 0
-        for index, block in enumerate(blocks):
-            if block is None or is_shell(block):
-                continue
-            with self.subTest(block=index):
-                ast.parse(block)      # Colab-only blocks are valid Python too
-            checked += 1
-        self.assertGreater(checked, 15)
+        for path in sorted(notebooks.glob("*.ipynb")):
+            cells = json.loads(path.read_text(encoding="utf-8"))["cells"]
+            for index, cell in enumerate(cells):
+                if cell["cell_type"] != "code":
+                    continue
+                code = "".join(cell["source"])
+                if code.lstrip().startswith(("%", "!")):
+                    continue
+                with self.subTest(notebook=path.name, cell=index):
+                    ast.parse(code)
+                checked += 1
+        self.assertGreater(checked, 20)
 
 
 class IndexingTests(unittest.TestCase):

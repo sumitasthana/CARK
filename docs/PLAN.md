@@ -521,9 +521,10 @@ be rebuilt without retraining. Depends on M12 to M14; log support starts at M01.
 
 ### M16. Experiment verification
 
-**Built.** 52 checks across `tests/test_uncle.py`, `tests/test_tasks.py`,
-`tests/test_experiments.py` and `tests/test_diagnostics.py`, plus
-`scripts/check_guide.py`, which executes the guide's code blocks. They cover
+**Built.** Checks across `tests/test_uncle.py`, `tests/test_tasks.py`,
+`tests/test_experiments.py`, `tests/test_diagnostics.py`, and
+`tests/test_artifacts.py`. Notebook code cells are checked for Python syntax.
+These checks cover
 the paper's stated values, the partition, resume equivalence, evaluation
 hygiene, and that the preserve term has no gradient at the first forget step.
 
@@ -647,11 +648,11 @@ python tests/test_uncle.py
 python tests/test_tasks.py
 python tests/test_experiments.py
 python -m unittest discover -s tests -p test_diagnostics.py
-python scripts/check_guide.py
+python -m unittest tests.test_artifacts
 ```
 
-Some checks require the Tiny ImageNet data or the local Colab guide. Record
-missing prerequisites or skipped checks explicitly. All applicable checks must
+Some checks require the Tiny ImageNet data. Record missing prerequisites or
+skipped checks explicitly. All applicable checks must
 pass before committing implementation changes. Update this list as the new
 study modules receive tests; avoid fixed test counts that become stale.
 

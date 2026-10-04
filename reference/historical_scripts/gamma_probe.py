@@ -12,8 +12,8 @@ learn 3, learn 0, forget 3. Task 3 is the target, task 0 is the bystander, and
 the question is whether any gamma drives the first to chance without dragging
 the second down with it.
 
-    python scripts/gamma_probe.py --check     # validate, run nothing
-    python scripts/gamma_probe.py             # the probe itself
+    python reference/historical_scripts/gamma_probe.py --check     # validate, run nothing
+    python reference/historical_scripts/gamma_probe.py             # the probe itself
 
 Reading the result, per PLAN.md:
 
@@ -32,7 +32,7 @@ from pathlib import Path
 import sys
 import time
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from uncle.experiments import make_config, run_experiment
 from uncle.tinyimagenet import DEFAULT_ROOT

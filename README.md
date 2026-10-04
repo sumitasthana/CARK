@@ -26,44 +26,37 @@ which needs no data at all.
 
 ## Run it
 
-The defaults are the paper's Permuted-MNIST setting: ResNet18 generated in 200
-chunks, 10 tasks, and request sequence 1 from Table 4. That wants a GPU.
+`uncle-run` runs the Tiny ImageNet request sequences. Its defaults use ResNet50,
+200 chunks, and sequence 1. Install the package to add the command.
 
 ```bash
 pip install -e .                   # or: pip install -r requirements.txt
-python main.py                     # the paper's setting
-python main.py --sequence 2        # sequences 1, 2 and 3 are all from Table 4
+uncle-run --download               # Tiny ImageNet, sequence 1
+uncle-run --sequence 2 --download  # sequence 2
 ```
 
 For a quick check without a GPU, swap in the small stand-in network:
 
 ```bash
-python main.py --backbone cnn --chunks 32 --epochs 1
+uncle-run --backbone cnn --chunks 4 --epochs 1 --limit-requests 2 --max-images 32 --download
 python tests/test_uncle.py         # seventeen checks, seconds, no download
-python tests/test_tasks.py         # eight checks on the partition and the guide
+python tests/test_tasks.py         # checks the partition, data reader, and notebook syntax
 python tests/test_experiments.py   # eighteen checks, a couple of minutes, needs the images
 python tests/test_diagnostics.py   # nine checks on the checkpoint diagnostic
-python scripts/check_guide.py      # runs every code block in the Colab guide
+python -m unittest tests.test_artifacts     # checks saved-run JSON reading
 ```
 
-When a run collapses to 10% on every task, start here. It varies gamma over the
-first three requests and reports whether the damage is tuning or structural:
+The `--download` flag fetches Tiny ImageNet if it is missing. Full ResNet50
+runs need a GPU. The sequences contain 30 requests over 20 tasks, with beta
+0.01:
 
 ```bash
-python scripts/gamma_probe.py --check   # validate the setup, train nothing
-python scripts/gamma_probe.py           # about ten minutes on an A100
+uncle-run --backbone resnet50 --download
+uncle-run --sequence 3 --download
 ```
 
-Tiny ImageNet downloads itself on first use (about 240 MB) and wants a GPU. It
-runs the paper's 30-request sequences over 20 tasks, with beta 0.01:
-
-```bash
-python main.py --dataset tiny_imagenet --backbone resnet50
-python main.py --dataset tiny_imagenet --sequence 3
-```
-
-The paper reports 96.87% retain accuracy and 10.00% forget accuracy for the
-default setting, so those are the numbers to check against.
+The paper's 96.87% retain accuracy and 10.00% forget accuracy are for its
+Permuted MNIST setting. They are not targets for the Tiny ImageNet command above.
 
 ## What is where
 
@@ -81,8 +74,10 @@ default setting, so those are the numbers to check against.
 | `uncle/experiments.py` | The callable front door: one run, or a sweep of them |
 | `uncle/telemetry.py` | What a run cost: time, peak GPU memory, sizes |
 | `uncle/baseline.py` | One task, ordinary backprop, no hypernetwork |
-| `main.py` | Command line for Permuted MNIST and Tiny ImageNet |
-| `scripts/` | `run.py`, `baseline.py`, and the dataset exploration scripts |
+| `uncle-run` | Installed command for experiment sequences |
+| `main.py` | Older command line kept for compatibility |
+| `scripts/` | Setup, dataset exploration, diagnostics, archive export, and compatibility commands |
+| `uncle/artifacts.py` | Reads and checks saved run JSON for CPU reports |
 | `notebooks/` | [Current workflows and historical notebook guide](notebooks/README.md) |
 | `docs/PLAN.md` | Reproduction plan and status |
 | `reference/uncle_minimal.py` | The same method in one flat file, for reading |
@@ -116,7 +111,7 @@ results = run_sequences(sequences=(1, 2, 3), seeds=(0, 1, 2),
 Or from the command line:
 
 ```bash
-python scripts/run.py --sequence 1 2 3 --seed 0 1 2 --backbone resnet50
+uncle-run --sequence 1 2 3 --seed 0 1 2 --backbone resnet50
 ```
 
 Each run writes four JSON files named after the sequence, backbone and seed:
