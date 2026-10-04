@@ -4,6 +4,7 @@ import argparse
 import csv
 import json
 import math
+import shutil
 from pathlib import Path
 
 
@@ -102,11 +103,17 @@ def render(registry, traces, gradients, norms):
 
 Start here:
 
+- {link('Experiment trajectory', 'Experiment-trajectory')}: every run so far, in order, with figures.
 - {link('Concepts and processes', 'Concepts-and-processes')}: what the model does and how to read its results.
 - {link('Model diagnostics', 'Model-diagnostics')}: inspect weights, gradients, and Fisher scores.
 - {link('Run logs', 'run-logs-explained')}: what we ran and what happened.
 - {link('Anchor paper', 'An-Unlearning-Framework-for-Continual-Learning')}: the paper we are reproducing.
 """
+    # The trajectory report keeps its figures beside it in the wiki repository,
+    # so its relative image paths resolve there without rewriting.
+    pages["Experiment-trajectory.md"] = (
+        ROOT / "docs" / "EXPERIMENT_TRAJECTORY.md"
+    ).read_text(encoding="utf-8")
     pages["Model-diagnostics.md"] = (
         (ROOT / "docs" / "MODEL_DIAGNOSTICS.md").read_text(encoding="utf-8")
         .replace("(../notebooks/04_gradient_diagnostics.ipynb)",
@@ -369,7 +376,8 @@ earlier validation history remains in {source('docs/EXPERIMENT_LOG.md')}.
                 f"- `{item['path']}`: {item['availability']}" for item in experiment["reported_artifacts"]))
         pages["Experiment-" + identifier + ".md"] = "\n\n".join(sections) + "\n"
     pages["_Sidebar.md"] = "\n".join("- " + link(title, slug) for title, slug in [
-        ("Home", "Home"), ("Concepts and processes: FAQ", "Concepts-and-processes"),
+        ("Home", "Home"), ("Experiment trajectory", "Experiment-trajectory"),
+        ("Concepts and processes: FAQ", "Concepts-and-processes"),
         ("Model diagnostics", "Model-diagnostics"),
         ("Run logs explained", "run-logs-explained"),
         ("Latest 30-step result", "Experiment-forgetting-30step-20260929"),
@@ -402,6 +410,14 @@ def main():
         else:
             args.output.mkdir(parents=True, exist_ok=True)
             destination.write_text(text, encoding="utf-8")
+    # The trajectory page links its figures relatively, so they travel with it.
+    figures = ROOT / "docs" / "figures" / "trajectory"
+    if not args.check:
+        shutil.copytree(figures, args.output / "figures" / "trajectory",
+                        dirs_exist_ok=True)
+    elif any(not (args.output / "figures" / "trajectory" / f.name).is_file()
+             for f in figures.glob("*.svg")):
+        raise ValueError(f"Trajectory figures missing from {args.output}")
     print(f"Validated {len(registry['experiments'])} records and {len(traces)} accuracy observations; "
           f"{'checked' if args.check else 'generated'} {len(pages)} wiki pages.")
 

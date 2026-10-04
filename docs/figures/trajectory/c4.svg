@@ -1,0 +1,82 @@
+<svg viewBox="0 0 760 300" width="760" height="300" role="img" aria-label="Spill at each unlearn request" xmlns="http://www.w3.org/2000/svg">
+<style>
+  svg{--bg:#ffffff;--ink:#1b2027;--muted:#5e6878;--line:#d5dae2;--soft:#e6eaf0;--target:#4a63b5;--retain:#2f7f72;--fail:#9c4a3c;--bandr:#2f7f7219;--bandp:#2f7f4f17}
+  @media (prefers-color-scheme:dark){svg{--bg:#1a1f26;--ink:#e4e8ee;--muted:#9aa5b5;--line:#333c49;--soft:#28303a;--target:#8ba0e0;--retain:#58b7a6;--fail:#dd8b78;--bandr:#58b7a61f;--bandp:#6cc48d1c}}
+
+  svg{font-family:ui-monospace,Consolas,monospace}
+  text{fill:var(--muted);font-size:12px}
+  .ct{fill:var(--ink);font-family:system-ui,sans-serif;font-weight:600}
+  .sub{fill:var(--muted);font-family:system-ui,sans-serif}
+  .grid{stroke:var(--soft);stroke-width:1}
+  .axis{stroke:var(--line);stroke-width:1}
+  .chance{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 3;opacity:.7}
+  .target-line{stroke:var(--target);stroke-width:1.4;stroke-dasharray:5 4}
+  .band-retain{fill:var(--bandr)} .band-pass{fill:var(--bandp)}
+  .ln-target{stroke:var(--target);stroke-width:2.2;fill:none}
+  .ln-retain{stroke:var(--retain);stroke-width:2.2;fill:none}
+  .dot-target{fill:var(--target)} .dot-retain{fill:var(--retain)}
+  .bar-target{fill:var(--target);opacity:.85}
+  .lbl-target{fill:var(--target)} .lbl-retain{fill:var(--retain)}
+  .lbl-chance{fill:var(--muted)} .lbl-fail{fill:var(--fail)}
+  .bar-learn{fill:var(--retain);opacity:.8}
+  .bar-before{fill:var(--fail);opacity:.8}
+  .bar-spill{fill:var(--fail);opacity:.8}
+  .stem{stroke:var(--line);stroke-width:1.5}
+  .val{fill:var(--ink)} .val-sm{fill:var(--muted)}
+</style>
+<rect width="760" height="300" fill="var(--bg)"/>
+<text x="0.0" y="16.0" text-anchor="start" font-size="14" class="ct">Spill at each unlearn request</text>
+<text x="0.0" y="34.0" text-anchor="start" font-size="12" class="sub">total accuracy change across all other tasks, in percentage points</text>
+<line x1="46" y1="244.0" x2="748" y2="244.0" class="grid"/>
+<text x="39.0" y="248.0" text-anchor="end" font-size="12" class="ax">0</text>
+<line x1="46" y1="208.7" x2="748" y2="208.7" class="grid"/>
+<text x="39.0" y="212.7" text-anchor="end" font-size="12" class="ax">10</text>
+<line x1="46" y1="173.5" x2="748" y2="173.5" class="grid"/>
+<text x="39.0" y="177.5" text-anchor="end" font-size="12" class="ax">20</text>
+<line x1="46" y1="138.2" x2="748" y2="138.2" class="grid"/>
+<text x="39.0" y="142.2" text-anchor="end" font-size="12" class="ax">30</text>
+<line x1="46" y1="102.9" x2="748" y2="102.9" class="grid"/>
+<text x="39.0" y="106.9" text-anchor="end" font-size="12" class="ax">40</text>
+<line x1="46" y1="67.6" x2="748" y2="67.6" class="grid"/>
+<text x="39.0" y="71.6" text-anchor="end" font-size="12" class="ax">50</text>
+<rect x="60.2" y="231.3" width="30" height="12.7" rx="2" class="bar-spill"/>
+<text x="75.2" y="225.3" text-anchor="middle" font-size="11" class="val-sm">3.6</text>
+<text x="75.2" y="262.0" text-anchor="middle" font-size="12" class="ax">U3</text>
+<rect x="118.8" y="125.5" width="30" height="118.5" rx="2" class="bar-spill"/>
+<text x="133.8" y="119.5" text-anchor="middle" font-size="11" class="val-sm">33.6</text>
+<text x="133.8" y="262.0" text-anchor="middle" font-size="12" class="ax">U17</text>
+<rect x="177.2" y="68.3" width="30" height="175.7" rx="2" class="bar-spill"/>
+<text x="192.2" y="62.3" text-anchor="middle" font-size="11" class="val-sm">49.8</text>
+<text x="192.2" y="262.0" text-anchor="middle" font-size="12" class="ax">U7</text>
+<rect x="235.8" y="193.2" width="30" height="50.8" rx="2" class="bar-spill"/>
+<text x="250.8" y="187.2" text-anchor="middle" font-size="11" class="val-sm">14.4</text>
+<text x="250.8" y="262.0" text-anchor="middle" font-size="12" class="ax">U15</text>
+<rect x="294.2" y="129.0" width="30" height="115.0" rx="2" class="bar-spill"/>
+<text x="309.2" y="123.0" text-anchor="middle" font-size="11" class="val-sm">32.6</text>
+<text x="309.2" y="262.0" text-anchor="middle" font-size="12" class="ax">U9</text>
+<rect x="352.8" y="167.8" width="30" height="76.2" rx="2" class="bar-spill"/>
+<text x="367.8" y="161.8" text-anchor="middle" font-size="11" class="val-sm">21.6</text>
+<text x="367.8" y="262.0" text-anchor="middle" font-size="12" class="ax">U5</text>
+<rect x="411.2" y="162.9" width="30" height="81.1" rx="2" class="bar-spill"/>
+<text x="426.2" y="156.9" text-anchor="middle" font-size="11" class="val-sm">23.0</text>
+<text x="426.2" y="262.0" text-anchor="middle" font-size="12" class="ax">U4</text>
+<rect x="469.8" y="148.1" width="30" height="95.9" rx="2" class="bar-spill"/>
+<text x="484.8" y="142.1" text-anchor="middle" font-size="11" class="val-sm">27.2</text>
+<text x="484.8" y="262.0" text-anchor="middle" font-size="12" class="ax">U6</text>
+<rect x="528.2" y="201.7" width="30" height="42.3" rx="2" class="bar-spill"/>
+<text x="543.2" y="195.7" text-anchor="middle" font-size="11" class="val-sm">12.0</text>
+<text x="543.2" y="262.0" text-anchor="middle" font-size="12" class="ax">U0</text>
+<rect x="586.8" y="222.1" width="30" height="21.9" rx="2" class="bar-spill"/>
+<text x="601.8" y="216.1" text-anchor="middle" font-size="11" class="val-sm">6.2</text>
+<text x="601.8" y="262.0" text-anchor="middle" font-size="12" class="ax">U1</text>
+<rect x="645.2" y="239.1" width="30" height="4.9" rx="2" class="bar-spill"/>
+<text x="660.2" y="233.1" text-anchor="middle" font-size="11" class="val-sm">1.4</text>
+<text x="660.2" y="262.0" text-anchor="middle" font-size="12" class="ax">U14</text>
+<rect x="703.8" y="235.5" width="30" height="8.5" rx="2" class="bar-spill"/>
+<text x="718.8" y="229.5" text-anchor="middle" font-size="11" class="val-sm">2.4</text>
+<text x="718.8" y="262.0" text-anchor="middle" font-size="12" class="ax">U12</text>
+<line x1="46" y1="233.4" x2="748" y2="233.4" class="target-line"/>
+<text x="748.0" y="227.4" text-anchor="end" font-size="12" class="lbl-target">criterion: under 3 points</text>
+<line x1="46" y1="244.0" x2="748" y2="244.0" class="axis"/>
+<text x="0.0" y="40.0" text-anchor="start" font-size="12" class="ax">points</text>
+</svg>

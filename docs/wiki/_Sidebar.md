@@ -1,4 +1,5 @@
 - [Home](https://github.com/sumitasthana/CARK/wiki/Home)
+- [Experiment trajectory](https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory)
 - [Concepts and processes: FAQ](https://github.com/sumitasthana/CARK/wiki/Concepts-and-processes)
 - [Model diagnostics](https://github.com/sumitasthana/CARK/wiki/Model-diagnostics)
 - [Run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained)
