@@ -13,6 +13,7 @@ that followed.
 ## Contents
 
 - [Summary](#summary)
+- [Paper settings and our first full run](#paper-settings-and-our-first-full-run)
 - [Definitions and evaluation criteria](#definitions-and-evaluation-criteria)
 - [Stage 1. Initial full-sequence reproduction](#stage-1-initial-full-sequence-reproduction)
 - [Stage 2. Isolating the learning failure](#stage-2-isolating-the-learning-failure)
@@ -56,6 +57,34 @@ that followed.
   parallel, find the cause of the cross-session variance, and measure continual
   learning on its own with no unlearn requests.
 
+## Paper settings and our first full run
+
+This compares the paper's Tiny ImageNet Sequence 1 with our first full run on
+21 September. The paper's results average three seeds. Our result is one
+reported run with seed 0.
+
+| Setting or result | Paper | Our first full run |
+| --- | ---: | ---: |
+| Backbone | ResNet50 | ResNet50 |
+| Generated-weight chunks | 200 | 200 |
+| Learning rate | 0.001 | 0.001 |
+| Learning regularization (beta) | 0.01 | 0.01 |
+| Unlearning weight (gamma) | 0.01 | 0.01 |
+| Noise samples per update | 10 | 10 |
+| Unlearning updates | 100 initially; then 10% fewer per unlearn request, minimum 20 | 100 initially; 10% decay and minimum 20 were intended but not checked in the original config |
+| Request sequence | Sequence 1, 30 requests | Sequence 1, 30 requests |
+| Retained-task accuracy | 55.24% | 10.00% |
+| Forgotten-task accuracy | 10.00% | 10.00% |
+| Mean spill per unlearn request | 0.722 points | 30.72 points |
+
+The matching settings above are *reported settings*, not proof that every
+implementation detail matched. Our original run configuration and result JSON
+were not inspected for this archive. At 10% retained accuracy, our 10% forgotten
+accuracy does not show selective forgetting. Paper values come from its
+[implementation, Appendix C and Tables 1 and 2](https://arxiv.org/html/2509.17530).
+Our values come from the
+[transcribed run note](https://github.com/sumitasthana/CARK/blob/main/docs/experiments/sources/full_sequence_20260921.md).
+
 ## Definitions and evaluation criteria
 
 | Term | Definition |
@@ -85,8 +114,8 @@ later recovers.
 ## Stage 1. Initial full-sequence reproduction
 
 On 21 September the complete sequence was run end to end: 30 requests, 18 learn and
-12 unlearn, on one A100 in 56 minutes. Settings were learning rate 0.001, gamma
-0.01, and 100 unlearning updates per request.
+12 unlearn, on one A100 in 56 minutes. The initial unlearning budget was 100
+updates, with learning rate 0.001 and gamma 0.01.
 
 | Measure | Result | Intended | Reading |
 | --- | ---: | ---: | --- |
@@ -145,7 +174,8 @@ Nine runs varied the unlearning learning rate, gamma, and update count.
 
 ![E08 accuracy trace over ten unlearning updates](figures/2026-10-04/c1a.svg)
 
-E08 used the original settings. Task 0 fell from 44.6% to 23.4% on the first
+E08 used a diagnostic learning rate of 0.0001 and gamma 1e-4, rather than the
+paper's 0.001 and 0.01. Task 0 fell from 44.6% to 23.4% on the first
 update. By update 10 both tasks were at 10%.
 
 ![30-step run accuracy trace](figures/2026-10-04/c1b.svg)
