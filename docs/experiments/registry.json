@@ -1114,8 +1114,8 @@
       "evidence": [
         {
           "kind": "reported numerical result",
-          "path": "README.md",
-          "note": "Section: What the noise objective actually does."
+          "path": "docs/reports/trajectory/2026-10-04.md",
+          "note": "Section: Numerical checks. Previously recorded in the README."
         }
       ],
       "reported_artifacts": [],
