@@ -85,7 +85,23 @@ def data_manifest(tasks):
     return result
 
 
-def run_replay(checkpoint, tasks, output, contract_path, *, label, new_task="9", focus_task="0"):
+def check_gpu_model(required_gpu, *, first_run_gpu=None):
+    """Stop a controlled pair before training if its GPU model differs."""
+    if not torch.cuda.is_available():
+        raise RuntimeError("Training needs a GPU. Choose a GPU in Colab's runtime settings.")
+    actual = torch.cuda.get_device_name(torch.cuda.current_device())
+    expected = first_run_gpu if first_run_gpu is not None else required_gpu
+    if actual != expected:
+        raise ValueError(
+            f"This experiment needs {expected}, but Colab provided {actual}. "
+            "No training has started. Start a new session with the required GPU model.")
+    if required_gpu != expected:
+        raise ValueError("Keep REQUIRED_GPU unchanged between run A and run B.")
+    return actual
+
+
+def run_replay(checkpoint, tasks, output, contract_path, *, label, new_task="9", focus_task="0",
+               required_gpu=None):
     """Run one learn request. Output directories are never reused.
 
     Session A creates a contract; session B verifies the same contract.
@@ -99,6 +115,14 @@ def run_replay(checkpoint, tasks, output, contract_path, *, label, new_task="9",
         raise FileNotFoundError("Session B needs the saved session A contract")
     if label == "A" and contract_path.exists():
         raise FileExistsError("Use a new experiment ID for a new session A")
+    gpu = None
+    if required_gpu is not None:
+        first_gpu = None
+        if label == "B":
+            first_gpu = json.loads(contract_path.read_text(encoding="utf-8")).get("gpu_model")
+            if first_gpu is None:
+                raise ValueError("Run A did not require a matching GPU. Start a new experiment pair.")
+        gpu = check_gpu_model(required_gpu, first_run_gpu=first_gpu)
     saved = checkpointing.load(checkpoint)
     if saved is None:
         raise FileNotFoundError(checkpoint)
@@ -120,6 +144,12 @@ def run_replay(checkpoint, tasks, output, contract_path, *, label, new_task="9",
         "settings": runtime_settings(), "new_task": new_task, "focus_task": focus_task,
         "rng_policy": "checkpoint PyTorch CPU/CUDA; Python and NumPy reset to config.seed",
     }
+    if required_gpu is not None:
+        contract.update({"required_gpu": required_gpu, "gpu_model": gpu,
+                         "software": {"torch": torch.__version__, "cuda": torch.version.cuda,
+                                      "cudnn": torch.backends.cudnn.version(),
+                                      "torchvision": torchvision.__version__,
+                                      "numpy": np.__version__, "pillow": pillow_version}})
     if label == "B":
         frozen = json.loads(contract_path.read_text(encoding="utf-8"))
         differences = [key for key in contract if frozen.get(key) != contract[key]]

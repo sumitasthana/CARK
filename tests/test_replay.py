@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import torch
 from torch.utils.data import TensorDataset
@@ -14,7 +15,7 @@ from torch.utils.data import TensorDataset
 from uncle.config import Config
 from uncle.hypernet import HyperNetwork, build_target
 from uncle.trainer import UnCLe
-from uncle.replay import compare_replays, file_hash, tensor_hash, write_json
+from uncle.replay import check_gpu_model, compare_replays, file_hash, tensor_hash, write_json
 
 
 @contextmanager
@@ -32,6 +33,20 @@ def temporary_folder():
 
 
 class ReplayTests(unittest.TestCase):
+    def test_gpu_check_accepts_matching_model_and_rejects_different_model(self):
+        with patch("torch.cuda.is_available", return_value=True), \
+             patch("torch.cuda.current_device", return_value=0), \
+             patch("torch.cuda.get_device_name", return_value="A100"):
+            self.assertEqual(check_gpu_model("A100"), "A100")
+            self.assertEqual(check_gpu_model("A100", first_run_gpu="A100"), "A100")
+            with self.assertRaisesRegex(ValueError, "No training has started"):
+                check_gpu_model("Blackwell")
+            with self.assertRaisesRegex(ValueError, "Keep REQUIRED_GPU unchanged"):
+                check_gpu_model("Blackwell", first_run_gpu="A100")
+        with patch("torch.cuda.is_available", return_value=False):
+            with self.assertRaisesRegex(RuntimeError, "Training needs a GPU"):
+                check_gpu_model("A100")
+
     def test_observer_preserves_updates_order_and_rng(self):
         config = Config(tasks=("A",), requests=(("learn", "A"),), backbone="cnn",
                         chunks=4, hidden=(8,), code_dim=4, epochs=2, batch_size=2, device="cpu")

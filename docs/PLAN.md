@@ -28,6 +28,24 @@ observations; today's replay has not yet run.
 Workflow: [notebook 11](../notebooks/11_L9_session_replay.ipynb), with session A,
 session B in a fresh GPU runtime, and comparison in a fresh CPU runtime.
 
+### Follow-up: use the same GPU model in both runs
+
+The user supplied a comparison for `20261005_L9_replay_01`. It reports task 0
+accuracy of 29.2% in A and 36.4% in B, and task 9 accuracy of 43.8% and 42.2%.
+The first recorded difference was at update 1 in loss, model parameters, and
+task buffers. A used an RTX PRO 6000 Blackwell; B used an A100-SXM4-40GB.
+These observations come from the supplied report, not a local GPU measurement.
+Different GPU models are a hypothesis to test, not a confirmed cause of this
+pair's final accuracy gap or the historical spread.
+
+Next, run a new pair named `20261005_L9_same_gpu_01`, with an A100-SXM4-40GB in
+both fresh sessions. Notebook 11 checks the GPU model before downloading data
+or starting training, and checks the recorded training-software versions before
+B trains. Keep the same checkpoint, seed, training settings, and images. Save the
+new pair separately. Compare its first recorded divergence and final accuracy
+gaps with the earlier pair. A closer match would support further hardware
+investigation; a single matching pair does not establish a cause.
+
 ### Steps
 
 1. Fix the checkpoint, source commit, resolved settings, task partition, data
