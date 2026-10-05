@@ -260,8 +260,18 @@ settings printed or stored by the actual run. Use null for unavailable metadata.
 5. Run `python scripts/build_experiment_wiki.py`, then
    `python scripts/build_experiment_wiki.py --check`. Update the narrative log
    with the result and next question. Commit source data and generated pages.
-6. Copy the generated `docs/wiki/*.md` files into the wiki checkout and push its
-   default branch. Preserve any existing pages outside the generated set.
+6. Copy the generated `docs/wiki/*.md` files and the `figures` folder into the
+   wiki checkout and push its default branch. The build removes pages it no
+   longer generates, so delete those in the checkout too.
+
+## Adding a trajectory report edition
+
+1. Write `docs/reports/trajectory/<date>.md`, starting with a dated heading.
+   Link figures relatively, as `figures/<date>/c1a.svg`.
+2. Run `python scripts/build_trajectory_figures.py --date <date>` to draw them,
+   then `--check` to confirm they match the archive they cite.
+3. Run the wiki build. The edition becomes its own page and the trajectory
+   landing page lists it as the latest. Earlier editions stay as they were.
 
 ## Entry outline
 
