@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "docs" / "experiments"
+REPORTS = ROOT / "docs" / "reports" / "trajectory"
 
 
 def read_csv(name):
@@ -95,10 +96,6 @@ def render(registry, traces, gradients, norms):
     source = lambda path: f"[{Path(path).name}]({base}/blob/main/{path})"
     pages = {}
     rows = registry["experiments"]
-    index = table(["Record", "Category", "Date evidence", "Decision"], [
-        [link(row["title"], "Experiment-" + row["id"]), row["category"],
-         row["run_date"] or "Not recorded", row["decision"]] for row in rows
-    ])
     pages["Home.md"] = f"""# CARK wiki
 
 Start here:
@@ -109,11 +106,27 @@ Start here:
 - {link('Run logs', 'run-logs-explained')}: what we ran and what happened.
 - {link('Anchor paper', 'An-Unlearning-Framework-for-Continual-Learning')}: the paper we are reproducing.
 """
-    # The trajectory report keeps its figures beside it in the wiki repository,
-    # so its relative image paths resolve there without rewriting.
+    # Trajectory reports are dated snapshots, one file per edition. Each keeps
+    # its figures beside it in the wiki repository, so the relative image paths
+    # in the source resolve there without rewriting. "Experiment-trajectory" is
+    # the stable landing page listing every edition, newest first.
+    editions = []
+    for report in sorted(REPORTS.glob("20*.md"), reverse=True):
+        text = report.read_text(encoding="utf-8")
+        pages[f"Experiment-trajectory-{report.stem}.md"] = text
+        editions.append((report.stem, text.split("\n", 1)[0].lstrip("# ").strip()))
+    if not editions:
+        raise ValueError(f"No trajectory reports found in {REPORTS}")
     pages["Experiment-trajectory.md"] = (
-        ROOT / "docs" / "EXPERIMENT_TRAJECTORY.md"
-    ).read_text(encoding="utf-8")
+        "# Experiment trajectory\n\n"
+        "Each edition is a snapshot of every run recorded up to its date. "
+        "Editions are kept rather than replaced, so an earlier reading of the "
+        "evidence stays available.\n\n"
+        + table(["Date", "Edition", "Status"], [
+            [date, link(title, f"Experiment-trajectory-{date}"),
+             "Latest" if index == 0 else "Superseded"]
+            for index, (date, title) in enumerate(editions)])
+        + f"\n\nSource files live in {source('docs/reports/trajectory')}.\n")
     pages["Model-diagnostics.md"] = (
         (ROOT / "docs" / "MODEL_DIAGNOSTICS.md").read_text(encoding="utf-8")
         .replace("(../notebooks/04_gradient_diagnostics.ipynb)",
@@ -134,9 +147,8 @@ Updated {registry['updated']}. This is a record of runs, including failed runs.
 latest 30-step run got task 3 down to 12.6% at step 27. We need 12% or lower.
 Task 0 changed by 3.6 percentage points at that step, within its limit.
 
-- {link('Experiment index', 'Experiment-index')}: all {len(rows)} records.
+- {link('Experiment trajectory', 'Experiment-trajectory')}: all {len(rows)} records, told in order.
 - {link('Rules for reading results', 'Protocol')}: what counts as a pass.
-- {link('Latest 30-step run', 'Experiment-forgetting-30step-20260929')}: the full results.
 - {link('Source files', 'Evidence-and-files')}: where the numbers came from.
 - {link('Software checks', 'Software-validation')}: checks of the code.
 - {link('Add a run', 'Record-template')}: how to keep the next record.
@@ -147,7 +159,6 @@ leave missing values blank. The {source('docs/experiments/registry.json')} is th
 structured record. The {link('Model diagnostics', 'Model-diagnostics')} page
 explains measurements inside the model.
 """
-    pages["Experiment-index.md"] = "# Experiment index\n\n" + registry["identifier_policy"] + "\n\n" + index
     pages["Protocol.md"] = f"""# Rules for reading results
 
 The short test is `L3 L0 U3`: learn task 3, learn task 0, then try to forget
@@ -295,96 +306,14 @@ not validated by the CPU tests.
 Source: the recorded review and publication results in the project conversation;
 earlier validation history remains in {source('docs/EXPERIMENT_LOG.md')}.
 """
-    sampled_losses = read_csv("e13_sampled_losses.csv")
-    setting_names = {
-        "forgetting_lr": "Forgetting learning rate",
-        "gamma": "Noise scale (gamma)",
-        "steps": "Updates",
-        "noise_samples": "Noise samples",
-    }
-    observation_names = {
-        "task3_initial_accuracy_pct": "Task 3 at start (%)",
-        "task0_initial_accuracy_pct": "Task 0 at start (%)",
-        "task3_final_accuracy_pct": "Task 3 at end (%)",
-        "task0_final_accuracy_pct": "Task 0 at end (%)",
-        "minimum_task3_accuracy_pct": "Lowest task 3 accuracy (%)",
-        "maximum_task0_absolute_drift_pp": "Largest task 0 change (points)",
-        "first_retention_failure_step": "First update outside task 0 limit",
-        "passing_steps": "Updates that met both targets",
-        "accuracy_observations": "Accuracy measurements",
-        "reported_status": "Reported run status",
-        "reported_valid_start": "Valid starting accuracy reported",
-        "gradient_steps_supplied": "Updates with reported gradients",
-        "raw_norm_before_step1": "Raw output size before update 1",
-        "raw_norm_before_step30": "Raw output size before update 30",
-    }
-    for experiment in rows:
-        identifier = experiment["id"]
-        sections = ["# " + experiment["title"],
-                    link("Experiment index", "Experiment-index"),
-                    "## Question\n\n" + experiment["question"],
-                    "## Record\n\n" + table(["Field", "Value"], [
-                        ["Identifier", identifier], ["Category", experiment["category"]],
-                        ["Date", experiment["run_date"]], ["Date evidence", experiment["date_evidence"]],
-                        ["Reported source commit", experiment["reported_commit"]],
-                        ["Hardware", experiment["hardware"]], ["Starting state", experiment["initial_state"]],
-                    ]),
-                    "## Settings\n\n" + table(["Setting", "Value"], [
-                        (setting_names.get(key, key.replace("_", " ")), item)
-                        for key, item in experiment["settings"].items()])
-                    + "\n" + experiment["settings_evidence"],
-                    "## Observations\n\n" + table(["Measurement", "Value"], [
-                        [observation_names.get(key, key.replace("_", " ")),
-                         "None in supplied trace" if key == "first_retention_failure_step" and item is None else item]
-                        for key, item in experiment["observations"].items()])]
-        if identifier == "forgetting-30step-20260929":
-            sections.insert(2, "Task 3 fell from 26.0% to 12.6% by update 27. "
-                            "That is close, but the target is 12% or lower. "
-                            "Task 0 changed by 3.6 percentage points at that update, "
-                            "within its 5-point limit. No update met both targets. "
-                            "The gradient table shows signal sizes, not whether the "
-                            "signals point in opposite directions.")
-        accuracy = [row for row in traces if row["run"] == identifier]
-        if accuracy:
-            norm_map = {row["step"]: row["raw_norm_before"] for row in norms if row["run"] == identifier}
-            sections.append("## Accuracy trace\n\n" + table(
-                ["Step", "Task 3 %", "Task 0 %", "Absolute drift (pp)", "Passes screen", "Raw norm before"],
-                [[r["step"], r["task3_accuracy_pct"], r["task0_accuracy_pct"], r["task0_absolute_drift_pp"],
-                  r["passes_screen"], norm_map.get(r["step"], "Not supplied")] for r in accuracy]))
-            losses = [r for r in accuracy if r["weighted_noise_before"] or r["preserve_before"]]
-            losses += [r for r in sampled_losses if r["run"] == identifier]
-            if losses:
-                sections.append("## Supplied losses before updates\n\n" + table(
-                    ["Step", "Weighted noise", "Preservation", "Total"],
-                    [[r["step"], r["weighted_noise_before"] or "Not supplied", r["preserve_before"] or "Not supplied",
-                      r["total_loss_before"] or "Not supplied"] for r in losses]))
-        group_rows = [row for row in gradients if row["run"] == identifier]
-        if group_rows:
-            sections.append("## Supplied gradient norms before updates\n\nNoise includes gamma. Values retain printed precision.\n\n" + table(
-                ["Step", "Group", "Weighted noise gradient", "Preservation gradient"],
-                [[r["step"], r["parameter_group"], r["weighted_noise_gradient_norm_before"], r["preservation_gradient_norm_before"]] for r in group_rows]))
-        sections.extend([
-            "## Decision\n\n" + experiment["decision"],
-            "## Interpretation\n\n" + experiment["interpretation"],
-            "## Limitations\n\n" + "\n".join("- " + item for item in experiment["limitations"]),
-            "## Next step\n\n" + (experiment["next_step"] or "No separate next step was recorded."),
-            "## Evidence\n\n" + "\n".join("- " + source(item["path"]) + ": " + item["kind"]
-                + (". " + item["note"] if item["note"] else "") for item in experiment["evidence"]),
-        ])
-        if experiment["reported_artifacts"]:
-            sections.append("## Reported artifact locations\n\n" + "\n".join(
-                f"- `{item['path']}`: {item['availability']}" for item in experiment["reported_artifacts"]))
-        pages["Experiment-" + identifier + ".md"] = "\n\n".join(sections) + "\n"
     pages["_Sidebar.md"] = "\n".join("- " + link(title, slug) for title, slug in [
         ("Home", "Home"), ("Experiment trajectory", "Experiment-trajectory"),
         ("Concepts and processes: FAQ", "Concepts-and-processes"),
         ("Model diagnostics", "Model-diagnostics"),
         ("Run logs explained", "run-logs-explained"),
-        ("Latest 30-step result", "Experiment-forgetting-30step-20260929"),
         ("Anchor paper", "An-Unlearning-Framework-for-Continual-Learning")]) + "\n"
-    for name in ["Experiment-index.md", "Protocol.md", "Evidence-and-files.md",
-                 "Record-template.md", "Software-validation.md",
-                 *["Experiment-" + row["id"] + ".md" for row in rows]]:
+    for name in ["Protocol.md", "Evidence-and-files.md",
+                 "Record-template.md", "Software-validation.md"]:
         title, body = pages[name].split("\n", 1)
         pages[name] = title + "\n\n" + link("Run logs explained", "run-logs-explained") + "\n" + body
     return pages
@@ -410,13 +339,23 @@ def main():
         else:
             args.output.mkdir(parents=True, exist_ok=True)
             destination.write_text(text, encoding="utf-8")
-    # The trajectory page links its figures relatively, so they travel with it.
-    figures = ROOT / "docs" / "figures" / "trajectory"
+    # A page that is no longer generated has to leave the output directory too,
+    # or it survives as an orphan that nothing links to and nobody updates.
+    stale = sorted(path for path in args.output.glob("*.md") if path.name not in pages)
+    if stale and args.check:
+        raise ValueError("Pages no longer generated: "
+                         + ", ".join(path.name for path in stale))
+    for path in stale:
+        path.unlink()
+        print(f"removed {path.name}")
+
+    # Trajectory pages link their figures relatively, so the figures travel
+    # with them into the wiki repository.
+    figures = REPORTS / "figures"
     if not args.check:
-        shutil.copytree(figures, args.output / "figures" / "trajectory",
-                        dirs_exist_ok=True)
-    elif any(not (args.output / "figures" / "trajectory" / f.name).is_file()
-             for f in figures.glob("*.svg")):
+        shutil.copytree(figures, args.output / "figures", dirs_exist_ok=True)
+    elif any(not (args.output / "figures" / f.relative_to(figures)).is_file()
+             for f in figures.rglob("*.svg")):
         raise ValueError(f"Trajectory figures missing from {args.output}")
     print(f"Validated {len(registry['experiments'])} records and {len(traces)} accuracy observations; "
           f"{'checked' if args.check else 'generated'} {len(pages)} wiki pages.")

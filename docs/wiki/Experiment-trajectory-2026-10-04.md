@@ -1,6 +1,8 @@
-# Experiment Trajectory
+# Experiment trajectory, 4 October 2026
 
-**Status report, 4 October 2026.** Tiny ImageNet, ResNet50 backbone, Colab T4 and
+*Reporting period: project start to 4 October 2026. Earlier editions are listed on the [Experiment trajectory](https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory) index.*
+
+**Status report.** Tiny ImageNet, ResNet50 backbone, Colab T4 and
 A100. All figures are drawn from the evidence bundle `asof_20261004`, exported at
 commit `489c9e8`.
 
@@ -19,6 +21,7 @@ that followed.
 - [Stage 5. Full sequence with the selected setting](#stage-5-full-sequence-with-the-selected-setting)
 - [Stage 6. Paired task-9 comparison and replay variance](#stage-6-paired-task-9-comparison-and-replay-variance)
 - [Stage 7. Component-level weight audit](#stage-7-component-level-weight-audit)
+- [Numerical checks](#numerical-checks)
 - [Current status](#current-status)
 - [Provenance and limitations](#provenance-and-limitations)
 
@@ -125,12 +128,12 @@ settings rather than variation during training.
 With a fixed starting state, the unlearning step could be studied systematically.
 Nine runs varied the unlearning learning rate, gamma, and update count.
 
-![E08 accuracy trace over ten unlearning updates](figures/trajectory/c1a.svg)
+![E08 accuracy trace over ten unlearning updates](figures/2026-10-04/c1a.svg)
 
 E08 used the original settings. Task 0 fell from 44.6% to 23.4% on the first
 update. By update 10 both tasks were at 10%.
 
-![30-step run accuracy trace](figures/trajectory/c1b.svg)
+![30-step run accuracy trace](figures/2026-10-04/c1b.svg)
 
 The 30-step run is the best result obtained. Task 0 held near 44% for 15 updates.
 Task 3 reached 12.6% at update 27, then rose again.
@@ -159,7 +162,7 @@ leave task 3 near 16%. Configurations that reduce task 3 further degrade task 0.
 figure below applies both criteria jointly: for each run it reports the lowest task
 3 accuracy reached at any update where task 0 remained within five points.
 
-![Lowest task 3 accuracy per run within the retention limit](figures/trajectory/c2.svg)
+![Lowest task 3 accuracy per run within the retention limit](figures/2026-10-04/c2.svg)
 
 The shaded region on the left is the passing range. No run entered it. The two
 closest runs, E14 and the 30-step run, both stopped at 12.6%.
@@ -186,7 +189,7 @@ The third figure does not indicate successful removal. The request history recor
 each task's accuracy before every request, and shows that the tasks had already
 decayed.
 
-![Task accuracy after learning and immediately before its unlearn request](figures/trajectory/c3.svg)
+![Task accuracy after learning and immediately before its unlearn request](figures/2026-10-04/c3.svg)
 
 Green bars show each task's accuracy immediately after it was learned. Red bars show
 the same task immediately before its unlearn request. Nine of the twelve tasks were
@@ -202,7 +205,7 @@ already at 10% cannot be evaluated. It also indicates that the continual-learnin
 component is failing before the unlearning component is tested. Adjusting the
 unlearning step alone will not correct the sequence.
 
-![Spill at each unlearn request](figures/trajectory/c4.svg)
+![Spill at each unlearn request](figures/2026-10-04/c4.svg)
 
 Degradation extends well beyond the target task. Three individual unlearn requests
 cost more than 30 points across the other tasks. The later requests appear small
@@ -223,7 +226,7 @@ loses more accuracy on task 0, the unlearn request left a measurable effect.
 Both attempts point in the same direction, but the magnitude moved by 3 points
 between them. The measurement noise proved larger than the effect.
 
-![Task 0 accuracy after learning task 9, across repeated runs](figures/trajectory/c5.svg)
+![Task 0 accuracy after learning task 9, across repeated runs](figures/2026-10-04/c5.svg)
 
 All five runs restored the identical checkpoint, with matching file hashes, matching
 settings, and the same recorded GPU and library versions. Across sessions the
@@ -260,6 +263,31 @@ The two copies moved by nearly the same total amount, yet one lost 6.0 points of
 accuracy and the other lost 10.2. If the accuracy difference is real, it is not
 explained by a larger magnitude of movement. It would have to arise from *which*
 weights moved, which a total-distance measure cannot resolve.
+
+## Numerical checks
+
+Two records in the archive are calculation checks rather than model runs. They
+test whether the code computes what its definition says. Neither measures
+whether the model forgets a task.
+
+| Check | What was tested | Result |
+| --- | --- | --- |
+| noise-objective-check | Whether fresh Gaussian targets drive outputs toward noise or toward zero. 2000 values, 3000 updates. | Averaging 10 fresh draws left a spread of 0.04, one fresh draw 0.07, one fixed draw 0.98. |
+| fisher-sanity-check | Gradients against finite differences, and two definitions of the Fisher information, on a small linear model. | Autograd and finite-difference gradients agreed to 2.4e-09. Squaring before averaging differed from averaging before squaring by a factor of 26.27. |
+
+The first result is consistent with the squared-error objective being minimised
+at zero when the targets are fresh and zero-mean. In other words, the term that
+is supposed to push a task toward noise may instead be pushing its outputs
+toward zero. That is worth testing directly against the loss-term imbalance
+described in Stage 4.
+
+The second confirms the gradient and Fisher code matches its definitions on a
+constructed example. It does not validate Fisher attribution on the
+hypernetwork, which has not been implemented.
+
+Both records carry limitations. For the noise check, only summary values
+survive: the definition of spread, the seed, and the optimiser were not
+archived. For the Fisher check, no date or source commit was recorded.
 
 ## Current status
 
@@ -318,4 +346,4 @@ them would not establish that a task was genuinely removed.
 | Per-step accuracy traces | `docs/experiments/forgetting_traces.csv` |
 | Full-sequence request history | `ops-docs/experiment_evidence/asof_20261004/drive/full_sequence_27step_candidate/` |
 | Paired task-9 runs and audits | `ops-docs/experiment_evidence/asof_20261004/drive/paired_L9_probe/` |
-| Figure sources | `docs/figures/trajectory/` |
+| Figure sources | `docs/figures/2026-10-04/` |
