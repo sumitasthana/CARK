@@ -6,12 +6,59 @@ tracks the code, dependencies, checks, and runs needed to carry it out.
 The proposal is currently in the ignored `ops-docs/` directory; the protocol
 below records its requirements for readers of the tracked repository.
 
-Last updated: 2026-10-04.
+Last updated: 2026-10-05.
 
 [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) records the reported GPU experiments
 through E15, the 2026-09-29 30-step run, and the checkpoint-based diagnostics. No reported
 trajectory has passed both the short-run forgetting and retention criteria.
 These are existing observations, not measurements made during this plan update.
+
+## Target for 2026-10-05: explain cross-session L9 replay variance
+
+**Target.** Locate the earliest recorded divergence when learning task 9 (L9)
+from the same saved post-U3 checkpoint in two fresh Colab GPU sessions, and
+use the evidence to narrow the cause.
+
+[Stage 6 of the trajectory](reports/trajectory/2026-10-04.md#stage-6-paired-task-9-comparison-and-replay-variance)
+reports an 11-percentage-point spread in final task 0 accuracy across sessions,
+versus 0.4 points within one session. The paired effect remains inconclusive.
+Earlier resumes overwrote some environment records. These are historical
+observations; today's replay has not yet run.
+
+Workflow: [notebook 11](../notebooks/11_L9_session_replay.ipynb), with session A,
+session B in a fresh GPU runtime, and comparison in a fresh CPU runtime.
+
+### Steps
+
+1. Fix the checkpoint, source commit, resolved settings, task partition, data
+   contents, preprocessing, and RNG restoration policy. Prepare identical
+   trace logging for both runs. Hold gamma tuning today.
+2. Run L9 in a fresh Colab GPU session. Save the starting checkpoint SHA-256,
+   runtime versions, GPU, deterministic settings, RNG states at the training
+   boundary, task-9 embedding hash, and starting task 0 and task 9 accuracies.
+   Record batch order with sample identifiers and input-batch hashes,
+   first-update loss, per-update losses and parameter hashes, and final task 0
+   and task 9 accuracies. Logging must not consume training RNG or change
+   model state.
+3. Save artifacts to a unique Drive directory, verify persistence, then release
+   the GPU. Preserve the original environment record when resuming a run.
+4. Repeat in a second fresh GPU session with the same code, checkpoint, settings,
+   and data. Save separately, verify persistence, and release the GPU.
+5. Compare provenance and starting state, then batches, losses, and parameter
+   hashes in update order. Report the earliest recorded mismatch with run IDs
+   and update index. Separate observations from hypotheses about the cause.
+
+### Completion criteria and next experiment
+
+Deliver a saved comparison with final accuracies and either the first recorded
+mismatch or agreement at all recorded points. A mismatch should identify the
+next targeted check needed to explain it. If both runs agree, report that the
+historical spread was not reproduced; two matching runs do not resolve its
+cause. Finding the first divergence may narrow the cause without proving it.
+
+After the replay difference is explained, run a learning-only sequence with no
+unlearn requests, recording older-task accuracy after every learn request.
+This will test the retention failure described in Stage 5.
 
 ## 1. Study question and scope
 

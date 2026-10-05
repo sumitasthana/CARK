@@ -19,6 +19,20 @@ from .hypernet import HyperNetwork
 from .telemetry import progress_bar
 
 
+class _IndexedDataset(Dataset):
+    """Attach dataset indices without changing item access or sampling."""
+
+    def __init__(self, dataset):
+        self.dataset = dataset
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, index):
+        images, labels = self.dataset[index]
+        return images, labels, index
+
+
 class UnCLe:
     """Runs learn and forget requests against one hypernetwork."""
 
@@ -95,8 +109,13 @@ class UnCLe:
 
     # -- learn ---------------------------------------------------------------
 
-    def learn(self, task: str, protected: list[str]) -> list[float]:
-        """Teach the hypernetwork to classify one task. Returns loss per epoch."""
+    def learn(self, task: str, protected: list[str], *, on_step=None) -> list[float]:
+        """Teach one task, returning epoch losses.
+
+        Optional on_step observes step zero and each completed update. Batch
+        tensors and dataset indices are supplied only when tracing is enabled.
+        Callback PyTorch RNG consumption and module modes are isolated.
+        """
         snapshot = self.hypernet.snapshot()
         self._reference = {}
         code = self.hypernet.add_task(task)
@@ -119,7 +138,8 @@ class UnCLe:
 
         optimizer = torch.optim.Adam(trainable, lr=self.config.learning_rate)
         loader = DataLoader(
-            self.tasks[task]["train"],
+            (_IndexedDataset(self.tasks[task]["train"]) if on_step is not None
+             else self.tasks[task]["train"]),
             batch_size=self.config.batch_size,
             shuffle=True,
             generator=torch.Generator().manual_seed(self.config.seed),
@@ -128,6 +148,8 @@ class UnCLe:
         self.hypernet.train()
         self.target.train()
         epoch_losses = []
+        step = 0
+        self._notify_forget_step(on_step, {"step": 0})
 
         bar = progress_bar(self.config.epochs * len(loader),
                            f"learn {task}", self.progress, leave=False)
@@ -135,7 +157,8 @@ class UnCLe:
         for epoch in range(self.config.epochs):
             running, batches = 0.0, 0
 
-            for images, labels in loader:
+            for batch in loader:
+                images, labels = batch[:2]
                 weights = self.hypernet.weights_for(task)
                 # Passing this task's buffers lets BatchNorm update them here,
                 # and only here.
@@ -152,6 +175,13 @@ class UnCLe:
                 optimizer.zero_grad(set_to_none=True)
                 loss.backward()
                 optimizer.step()
+                step += 1
+                if on_step is not None:
+                    self._notify_forget_step(on_step, {
+                        "step": step, "epoch": epoch + 1,
+                        "loss": loss.item(), "indices": batch[2],
+                        "images": images, "labels": labels,
+                    })
 
                 running += loss.item()
                 batches += 1
