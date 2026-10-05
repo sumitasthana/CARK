@@ -5,19 +5,11 @@ in *An Unlearning Framework for Continual Learning* (Adhikari et al., 2025,
 [arXiv:2509.17530](https://arxiv.org/abs/2509.17530)), and a study of which
 parts of the model still hold a task after that task has been unlearned.
 
-The wiki has a [concepts FAQ](https://github.com/sumitasthana/CARK/wiki/Concepts-and-processes)
-and [run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained).
-The structured data and provenance are in [docs/experiments](docs/experiments/README.md).
-The [model diagnostics guide](docs/MODEL_DIAGNOSTICS.md) explains how to inspect
-weights, gradients, optimizer updates, and diagonal Fisher scores. The
-[research diagnostic](docs/RESEARCH_DIAGNOSTIC.md) screens saved forgetting
-runs. The proposed recovery measurements still need an experiment runner.
-The [notebook guide](notebooks/README.md) separates current experiments, CPU
-reports, and historical notebooks.
-
 A note on names, since the two get conflated. *An Unlearning Framework for
 Continual Learning* is the paper. **UnCLe** is the method it introduces, and
 what this repository implements. There is no paper called UnCLe.
+
+## How the method works
 
 One hypernetwork produces the weights of a target network from a short code,
 one code per task. Learning a task trains the hypernetwork to classify it.
@@ -29,13 +21,34 @@ which needs no data at all.
 Accuracy alone hides what goes wrong when unlearning happens inside continual
 learning, so the paper reports four.
 
-- **RA**, retain accuracy. Average over tasks still held at the end. Higher is better.
-- **FA**, forget accuracy. Average over forgotten tasks. Should sit at chance, 10%.
-- **Spill**, how much a forget request disturbed every *other* task. Lower is better.
-- **Relapse**, how much a forgotten task crept back as later tasks were learned. Lower is better.
+| Number | What it measures | Wanted |
+| --- | --- | --- |
+| **RA**, retain accuracy | Average over tasks still held at the end | as high as possible |
+| **FA**, forget accuracy | Average over forgotten tasks | chance, which is 10% |
+| **Spill** | How much a forget request disturbed every *other* task | as low as possible |
+| **Relapse** | How much a forgotten task crept back as later tasks were learned | as low as possible |
+
+Forget accuracy is the one that reads backwards. We want it at chance, not at
+zero, because a task that has been removed should leave the model guessing
+rather than confidently wrong.
 
 Spill and relapse are the two failure modes the paper identifies in existing
 unlearning methods. Neither shows up in accuracy at the end of a run.
+
+## Where to look
+
+- **Results so far:** the [experiment trajectory](https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory),
+  every recorded run in order, with figures.
+- **Background:** the [concepts FAQ](https://github.com/sumitasthana/CARK/wiki/Concepts-and-processes)
+  and [run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained).
+- **Measurements and provenance:** [docs/experiments](docs/experiments/README.md).
+- **Inspecting a trained model:** the [model diagnostics guide](docs/MODEL_DIAGNOSTICS.md)
+  covers weights, gradients, optimizer updates, and diagonal Fisher scores.
+- **Screening a saved forgetting run:** the [research diagnostic](docs/RESEARCH_DIAGNOSTIC.md).
+- **Notebooks:** the [notebook guide](notebooks/README.md) separates current
+  experiments, CPU reports, and historical notebooks.
+
+The proposed recovery measurements still need an experiment runner.
 
 ## Citation
 
