@@ -27,19 +27,34 @@ that followed.
 
 ## Summary
 
-The objective is to remove one task from a trained model without degrading the
-remaining tasks. Across twenty-one runs, no configuration has met the evaluation
-criteria. The closest result reduced the target task to 12.6%, against a criterion
-of 12% or lower, while the protected task moved by 3.6 points.
+- **Goal.** Remove one task from a trained model without degrading the tasks we
+  keep.
 
-A more fundamental issue emerged during the full thirty-request sequence. Most
-tasks had already fallen to chance accuracy *before* their unlearn request was
-issued. The model loses earlier tasks while learning later ones. The unlearning
-step is therefore being evaluated on tasks that retain almost nothing.
+- **Result after 21 runs.** No configuration has met the criteria. The best
+  attempt reached 12.6% on the target task, against a criterion of 12% or lower,
+  while the protected task moved 3.6 points.
 
-A second issue blocks the follow-up study. The same experiment, restored from the
-same checkpoint with identical settings, produced results 11 points apart in
-different sessions. Effects smaller than that spread cannot currently be measured.
+- **Main finding.** In the full sequence, most tasks had already fallen to chance
+  accuracy of 10% *before* their unlearn request ran. The model loses earlier
+  tasks while learning later ones. Unlearning is therefore being tested on tasks
+  that hold almost nothing. This is a continual-learning failure, not an
+  unlearning failure, and it has to be fixed first.
+
+- **Measurement is blocked.** Reruns from the same checkpoint, with identical
+  settings, differ by 11 points across sessions. Any effect smaller than that
+  cannot be measured today.
+
+- **Best lead.** The loss term that protects retained tasks is roughly 0.5% of
+  the total, 8.2 against 1823.6. It is too small to steer the update. A related
+  numerical check suggests the unlearning term may drive outputs toward zero
+  rather than toward noise.
+
+- **What works.** The experimental pipeline. Checkpoints restore exactly, file
+  hashes match, and every run records its settings, code commit, and runtime.
+
+- **Next.** Rebalance the two loss terms and repeat the 30-step diagnostic. In
+  parallel, find the cause of the cross-session variance, and measure continual
+  learning on its own with no unlearn requests.
 
 ## Definitions and evaluation criteria
 
