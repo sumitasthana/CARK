@@ -134,7 +134,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         }
       ],
@@ -177,7 +177,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         }
       ],
@@ -213,7 +213,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         }
       ],
@@ -253,7 +253,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         }
       ],
@@ -296,7 +296,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         }
       ],
@@ -339,7 +339,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         }
       ],
@@ -383,7 +383,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         }
       ],
@@ -427,7 +427,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         }
       ],
@@ -466,7 +466,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         }
       ],
@@ -514,7 +514,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         },
         {
@@ -572,7 +572,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         },
         {
@@ -631,7 +631,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         },
         {
@@ -690,7 +690,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         },
         {
@@ -749,7 +749,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         },
         {
@@ -809,7 +809,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         },
         {
@@ -879,7 +879,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         },
         {
@@ -957,7 +957,7 @@
       "evidence": [
         {
           "kind": "reported GPU results",
-          "path": "docs/EXPERIMENT_LOG.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Historical user reports transcribed in the experiment log; not rerun for this archive."
         },
         {
@@ -1114,7 +1114,7 @@
       "evidence": [
         {
           "kind": "reported numerical result",
-          "path": "docs/reports/trajectory/2026-10-04.md",
+          "path": "docs/wiki/Experiment-trajectory.md",
           "note": "Section: Numerical checks. Previously recorded in the README."
         }
       ],

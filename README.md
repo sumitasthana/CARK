@@ -40,8 +40,7 @@ unlearning methods. Neither shows up in accuracy at the end of a run.
 - **Results so far:** the [experiment trajectory](https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory),
   every recorded run in order, with figures.
 - **Background:** the [concepts FAQ](https://github.com/sumitasthana/CARK/wiki/Concepts-and-processes)
-  and [run logs explained](https://github.com/sumitasthana/CARK/wiki/run-logs-explained).
-- **Measurements and provenance:** [docs/experiments](docs/experiments/README.md).
+  explains the method and how to read its results.
 - **Inspecting a trained model:** the [model diagnostics guide](docs/MODEL_DIAGNOSTICS.md)
   covers weights, gradients, optimizer updates, and diagonal Fisher scores.
 - **Screening a saved forgetting run:** the [research diagnostic](docs/RESEARCH_DIAGNOSTIC.md).

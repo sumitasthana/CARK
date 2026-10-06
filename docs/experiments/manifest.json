@@ -18,7 +18,7 @@
   "runs": [
     {
       "run": "E08",
-      "source": "user-pasted table, transcribed in ../EXPERIMENT_LOG.md",
+      "source": "user-pasted table, transcribed in ../wiki/Experiment-trajectory.md",
       "intended_settings": {
         "forgetting_lr": 0.0001,
         "gamma": 0.0001,
@@ -34,7 +34,7 @@
     },
     {
       "run": "E09",
-      "source": "user-pasted table, transcribed in ../EXPERIMENT_LOG.md",
+      "source": "user-pasted table, transcribed in ../wiki/Experiment-trajectory.md",
       "intended_settings": {
         "forgetting_lr": 1e-05,
         "gamma": 0.0001,
@@ -50,7 +50,7 @@
     },
     {
       "run": "E10",
-      "source": "user-pasted table, transcribed in ../EXPERIMENT_LOG.md",
+      "source": "user-pasted table, transcribed in ../wiki/Experiment-trajectory.md",
       "intended_settings": {
         "forgetting_lr": 1e-05,
         "gamma": 1e-05,
@@ -66,7 +66,7 @@
     },
     {
       "run": "E11",
-      "source": "user-pasted table, transcribed in ../EXPERIMENT_LOG.md",
+      "source": "user-pasted table, transcribed in ../wiki/Experiment-trajectory.md",
       "intended_settings": {
         "forgetting_lr": 1e-05,
         "gamma": 1e-05,
@@ -82,7 +82,7 @@
     },
     {
       "run": "E12",
-      "source": "user-pasted table, transcribed in ../EXPERIMENT_LOG.md",
+      "source": "user-pasted table, transcribed in ../wiki/Experiment-trajectory.md",
       "intended_settings": {
         "forgetting_lr": 1e-05,
         "gamma": 3e-06,
@@ -98,7 +98,7 @@
     },
     {
       "run": "E13",
-      "source": "user-pasted table, transcribed in ../EXPERIMENT_LOG.md",
+      "source": "user-pasted table, transcribed in ../wiki/Experiment-trajectory.md",
       "intended_settings": {
         "forgetting_lr": 1e-05,
         "gamma": 3e-06,
@@ -120,7 +120,7 @@
     },
     {
       "run": "E14",
-      "source": "user-pasted table, transcribed in ../EXPERIMENT_LOG.md",
+      "source": "user-pasted table, transcribed in ../wiki/Experiment-trajectory.md",
       "intended_settings": {
         "forgetting_lr": 1e-05,
         "gamma": 5e-06,

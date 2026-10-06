@@ -86,7 +86,7 @@ def readable_index(repo: Path, manifest: dict) -> str:
     lines += [
         "", "## Where to look", "",
         "- `repository/docs/experiments/`: archived tables, traces, and original transcriptions.",
-        "- `repository/docs/EXPERIMENT_LOG.md`: explanations and limits for earlier runs.",
+        "- `repository/docs/wiki/Experiment-trajectory.md`: explanations and limits for earlier runs.",
         "- `repository/notebooks/`: experiment and reporting notebooks.",
         "- `drive/`: saved run JSON, diagnostics, plots, and optional checkpoints.",
         "- `manifest.json`: file names, sizes, SHA-256 hashes, and exclusions.",

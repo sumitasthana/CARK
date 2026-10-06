@@ -36,6 +36,6 @@ These remain readable for provenance. Do not run them as instructions for a new 
 
 ## Use and share results
 
-Notebook 15 saves to R2; earlier GPU experiment notebooks save to Drive before releasing the runtime. CPU notebooks read saved files in a fresh session; do not expect Python variables to survive a Colab disconnect. The archive under [`docs/experiments`](../docs/experiments/README.md) contains earlier reported or transcribed results. Original experiment files are preferable when available.
+Notebook 15 saves to R2; earlier GPU experiment notebooks save to Drive before releasing the runtime. CPU notebooks read saved files in a fresh session; do not expect Python variables to survive a Colab disconnect. Record experiment results in the [Experiment trajectory](https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory). Original experiment files are preferable when available.
 
 Share the ZIP from notebook 10 when another person needs the evidence. It includes the tracked code version and file hashes, but it cannot recreate unsaved Colab output. Start with notebook 09 when the person only needs an explained visual overview. Every chart should be read with its source and limits, especially when comparing one seed or one paired run.
