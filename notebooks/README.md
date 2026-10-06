@@ -1,6 +1,6 @@
 # Notebook guide
 
-Start here when sharing the repository or opening it in Colab. Notebook numbers show when a notebook was added, not a sequence to run from 01 to 11. Choose the notebook for the job. Historical notebooks stay at their original paths because experiment records and earlier links cite them.
+Start here when sharing the repository or opening it in Colab. Notebook numbers show when a notebook was added, not a sequence to run from 01 to 12. Choose the notebook for the job. Historical notebooks stay at their original paths because experiment records and earlier links cite them.
 
 Open the main workflows directly in Colab: [04: gradient diagnostic](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/04_gradient_diagnostics.ipynb), [07: paired L9 probe](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/07_paired_L9_probe.ipynb), [08: paired report](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/08_paired_L9_reporting.ipynb), [09: experiment overview](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/09_experiment_overview.ipynb), or [10: evidence export](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/10_export_experiment_evidence.ipynb).
 
@@ -10,6 +10,7 @@ Open the main workflows directly in Colab: [04: gradient diagnostic](https://col
 | --- | --- | --- | --- |
 | Inspect Tiny ImageNet files and labels | [01: dataset walkthrough](01_tiny_imagenet.ipynb) | CPU | Reads the dataset; no experiment result. |
 | Inspect one task and its batches | [02: task walkthrough](02_task1.ipynb) | CPU | Reads the dataset and fixed class partition; no experiment result. |
+| Test whether learning damages older tasks | [12: learning-only retention](12_learning_only_retention.ipynb) | One A100 session | Starts before U3; learns 9, 5, and 17 without forgetting; saves an accuracy table and can continue after completed tasks. |
 | Diagnose L9 differences across fresh sessions | [11: L9 session replay](11_L9_session_replay.ipynb) | Two fresh GPU sessions, then CPU | Freezes A's checkpoint, code, settings, and data for B; saves per-update traces and the first recorded mismatch. |
 | Measure one forgetting run from a saved checkpoint | [04: gradient diagnostic](04_gradient_diagnostics.ipynb) | GPU | Edit the configuration cell. Saves a per-step JSON report, checks it, then flushes Drive and releases the GPU. Its default is the E08 checkpoint and task 3. |
 | Compare L9 with and without U3, then inspect task 0 weights | [07: paired L9 probe](07_paired_L9_probe.ipynb) | GPU for a new pair; CPU for saved-pair diagnostics | Set `RUN_TRAINING` and `PAIR_ID` in `SETUP-02`. Saves both arms, a comparison, and component changes. This is a specific control experiment, not a general sequence runner. |
