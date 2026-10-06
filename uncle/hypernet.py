@@ -118,23 +118,13 @@ class HyperNetwork(nn.Module):
 
         modules = dict(target.named_modules())
 
-        # Where each weight tensor sits inside its head's output, and how much
-        # to shrink it. The shrink factors turn unit-spread raw numbers into a
-        # textbook He initialization, so the generated network starts out
-        # correctly scaled.
-        #
-        # The classifier is the exception, and it has to be. He is derived for
-        # a hidden layer feeding a ReLU, where preserving the signal's scale is
-        # the point. The last layer's outputs are logits, and He there gives
-        # them a spread of about sqrt(2 x feature scale), which on the
-        # normalization-free `cnn` stand-in means a first-epoch loss near 6.7
-        # against ln(10) = 2.30. The early Adam steps overshoot, every input
-        # ends up with identical logits, and the loss then sits at ln(10)
-        # forever. One over fan-in instead starts the logits near zero, so
-        # every class begins at equal probability with gradients that still
-        # carry the labels' signal.
+        # The legacy recipe must remain available for historical checkpoints.
+        # Hyperfan-in uses Table 1 of Chang et al., arXiv:2312.08399.
+        # A unit-second-moment raw head plus these scales implements its
+        # effective output-weight variance, including the generated-bias term.
         self.layout: dict[str, tuple[str, int, torch.Size]] = {}
         self.scales: dict[str, float] = {}
+        self.offsets: dict[str, float] = {}
         sizes: dict[str, int] = {}
         self.classifier = classifier_name(target)
 
@@ -147,7 +137,24 @@ class HyperNetwork(nn.Module):
             sizes[group] = start + parameter.numel()
 
             fan_in = parameter[0].numel() if parameter.dim() > 1 else 1
-            if parameter.dim() == 1:
+            self.offsets[name] = 0.0
+            if config.initialization == "hyperfan_in":
+                if isinstance(modules[module_name], BATCHNORM):
+                    # BatchNorm is outside Hyperfan's affine-layer derivation.
+                    # Start gamma at one and beta at zero; the zero-initialized
+                    # BN head remains trainable, with unit output scale.
+                    self.scales[name] = 1.0
+                    self.offsets[name] = 1.0 if name.endswith("weight") else 0.0
+                else:
+                    module = modules[module_name]
+                    gain_squared = 1.0 if module_name == self.classifier else 2.0
+                    has_bias = getattr(module, "bias", None) is not None
+                    if name.endswith("bias"):
+                        self.scales[name] = math.sqrt(gain_squared / 2)
+                    else:
+                        self.scales[name] = math.sqrt(
+                            gain_squared / ((2 if has_bias else 1) * fan_in))
+            elif parameter.dim() == 1:
                 self.scales[name] = 0.01
             elif module_name == self.classifier:
                 self.scales[name] = 1 / fan_in
@@ -192,6 +199,8 @@ class HyperNetwork(nn.Module):
         for head in self.heads.values():
             nn.init.normal_(head.weight, std=widths[-1] ** -0.5)
             nn.init.zeros_(head.bias)
+        if config.initialization == "hyperfan_in" and "batchnorm" in self.heads:
+            nn.init.zeros_(self.heads["batchnorm"].weight)
 
         self.chunk_codes = nn.Parameter(
             torch.randn(config.chunks, config.code_dim, device=config.torch_device)
@@ -244,12 +253,12 @@ class HyperNetwork(nn.Module):
     def weights_from_code(self, code: torch.Tensor) -> dict[str, torch.Tensor]:
         """One task code in, a full set of target weights out: theta = H(e; phi)."""
         generated = self._raw_groups(code)
-        # This multiplication converts raw outputs to classifier weights.
-        # Prediction and the preservation penalty use this scaled path;
+        # Convert raw outputs to target parameters, including BatchNorm offsets.
+        # Prediction and the preservation penalty use this same path;
         # the forgetting noise loss uses raw_for(), which bypasses it.
         return {
             name: generated[group][start:start + shape.numel()].reshape(shape)
-                  * self.scales[name]
+                  * self.scales[name] + self.offsets[name]
             for name, (group, start, shape) in self.layout.items()
         }
 

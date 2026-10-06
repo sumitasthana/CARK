@@ -1,0 +1,41 @@
+{
+  "device": "cpu",
+  "torch": "2.12.0+cpu",
+  "seed": 0,
+  "initialization": "hyperfan_in",
+  "architecture": "resnet50",
+  "chunks": 200,
+  "hidden": [
+    128,
+    256,
+    512
+  ],
+  "generated_parameters": {
+    "conv1.weight": {
+      "mean": -0.004056662321090698,
+      "std": 0.1949985772371292
+    },
+    "bn1.weight": {
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "bn1.bias": {
+      "mean": 0.0,
+      "std": 0.0
+    },
+    "fc.weight": {
+      "mean": 1.8849368643714115e-05,
+      "std": 0.014344788156449795
+    },
+    "fc.bias": {
+      "mean": 0.36850404739379883,
+      "std": 0.8474606275558472
+    }
+  },
+  "synthetic_batch_loss": 2.8180091381073,
+  "all_generated_values_finite": true,
+  "logits_finite": true,
+  "gradients_finite": true,
+  "batchnorm_head_gradient_nonzero": true,
+  "note": "Synthetic random images, not dataset accuracy or GPU training."
+}

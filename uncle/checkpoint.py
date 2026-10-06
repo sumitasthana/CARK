@@ -87,9 +87,10 @@ def load(path, config=None):
             f"{path} was written in format {payload.get('format')}, "
             f"this code reads {FORMAT}. Delete it to start over.")
 
-    # Older checkpoints predate the optional forgetting-only learning rate.
-    # None preserves their original behavior and is the only migrated default.
+    # Defaults for fields absent from historical checkpoint configurations.
+    # These preserve the old optimizer and generated-weight interpretation.
     payload["config"].setdefault("forgetting_learning_rate", None)
+    payload["config"].setdefault("initialization", "legacy")
     if config is None:
         return payload
 
@@ -114,6 +115,10 @@ def restore(payload, *, hypernet, uncle) -> int:
     are a ParameterDict that starts empty and grows one entry per learned
     task.
     """
+    saved_initialization = payload["config"].get("initialization", "legacy")
+    if saved_initialization != hypernet.config.initialization:
+        raise ValueError("Checkpoint initialization differs from the model. "
+                         "Use its original initialization or start a fresh model.")
     cpu_rng = _rng_state(payload["rng"], "CPU")
     cuda_rng = payload["cuda_rng"]
     if cuda_rng is not None and torch.cuda.is_available():

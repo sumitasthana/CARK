@@ -128,6 +128,7 @@ class Config:
 
     backbone: str = "resnet18"        # "resnet18", "resnet50", or "cnn"
     seed: int = 0
+    initialization: str = "legacy"   # old checkpoints keep their output scales
     epochs: int = 5
     batch_size: int = 64
     eval_batch_size: int = 256
@@ -152,6 +153,8 @@ class Config:
     device: str = field(default_factory=_default_device)
 
     def __post_init__(self) -> None:
+        if self.initialization not in ("legacy", "hyperfan_in"):
+            raise ValueError("initialization must be legacy or hyperfan_in")
         if self.forgetting_learning_rate is not None and (
             not math.isfinite(self.forgetting_learning_rate)
             or self.forgetting_learning_rate <= 0
