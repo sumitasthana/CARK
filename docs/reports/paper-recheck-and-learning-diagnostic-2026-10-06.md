@@ -64,3 +64,33 @@ This continuation sweep tests beta only for the new lesson. It cannot reproduce 
 ## Validation and publication
 
 Training revision: `6a59648a5512724f94917ed9b97a12807c68809b`. The targeted CPU regression set passed 29 tests; one CUDA RNG test was skipped because this machine has no CUDA runtime. Notebook code cells compile, and the written prose was checked for the repository style constraint. No Colab GPU training or inspection of the user's actual Drive checkpoint files was performed locally.
+
+## Reported continuation result: beta 0.01
+
+The user supplied notebook 14's five-epoch output for teaching task 17 from the selected checkpoint after tasks 3, 0, 9, and 5. Source scores below are from the user's earlier checkpoint inspection. The Drive report, source hash, and gradient samples have not been inspected locally. The notebook's final file-check and GPU-release cell was still pending in the supplied output.
+
+Source: `/content/drive/MyDrive/uncle/learning_initialization/20261006_hyperfan_L3_L0_L9_seed0_02/checkpoint_seq1_resnet50_seed0.pt`.
+
+Result: `/content/drive/MyDrive/uncle/learning_loss_diagnostic/20261006_learning_loss_01/beta_0_01/checkpoint.pt`.
+
+| Task | Saved starting score (%) | After learning 17 (%) | Change (percentage points) |
+| --- | --- | --- | --- |
+| 3 | 27.0 | 24.6 | -2.4 |
+| 0 | 31.2 | 28.0 | -3.2 |
+| 9 | 48.4 | 32.6 | -15.8 |
+| 5 | 54.8 | 51.2 | -3.6 |
+| 17 | Not supplied | 53.4 | Not calculated |
+
+| Epoch | New-task loss | Beta times protection | Task 3 (%) | Task 0 (%) | Task 9 (%) | Task 5 (%) | Task 17 (%) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 1.8112 | 0.8174 | 19.2 | 26.6 | 50.0 | 50.0 | 35.8 |
+| 2 | 1.4661 | 0.4982 | 26.2 | 40.8 | 43.8 | 49.2 | 43.8 |
+| 3 | 1.3163 | 0.4087 | 24.8 | 29.6 | 37.8 | 50.6 | 45.4 |
+| 4 | 1.1408 | 0.3998 | 25.6 | 27.0 | 43.8 | 47.0 | 50.8 |
+| 5 | 1.0235 | 0.4102 | 24.6 | 28.0 | 32.6 | 51.2 | 53.4 |
+
+The mean old-task score fell from 40.35% to 34.10%, a loss of 6.25 percentage points. The notebook displayed this as -6.2 points. Task 9 had the largest final drop. Old-task scores fluctuated across epochs, so the decline was not monotonic.
+
+The positive protection term shows that protection contributed to the objective. Its scalar value does not establish the strength or direction of its gradient, or prove that increasing beta will improve retention. This run confirms older-task degradation during the new lesson under these settings; it does not identify the full cause or establish a result across seeds.
+
+The next bounded check is beta 0.1 for task 17 from the same original source, with all other training settings fixed. Use notebook 14 in a fresh A100 session with `MODE = "RUN"`, the same `EXPERIMENT_ID = "20261006_learning_loss_01"`, and `BETAS = (0.01, 0.1)`. The completed beta-0.01 report is reused without training it again, and beta 0.1 gets its own folder. Keeping both values includes both results in the comparison file. Do not use the model that has already learned 17 as the source. Compare task-17 score, mean old-task change, and largest old-task drop before expanding the search.
