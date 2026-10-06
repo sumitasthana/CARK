@@ -1,6 +1,6 @@
 # Notebook guide
 
-Start here when sharing the repository or opening it in Colab. Notebook numbers show when a notebook was added, not a sequence to run from 01 to 14. Choose the notebook for the job. Historical notebooks stay at their original paths because experiment records and earlier links cite them.
+Start here when sharing the repository or opening it in Colab. Notebook numbers show when a notebook was added, not a sequence to run from 01 to 15. Choose the notebook for the job. Historical notebooks stay at their original paths because experiment records and earlier links cite them.
 
 Open the main workflows directly in Colab: [04: gradient diagnostic](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/04_gradient_diagnostics.ipynb), [07: paired L9 probe](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/07_paired_L9_probe.ipynb), [08: paired report](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/08_paired_L9_reporting.ipynb), [09: experiment overview](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/09_experiment_overview.ipynb), or [10: evidence export](https://colab.research.google.com/github/sumitasthana/CARK/blob/main/notebooks/10_export_experiment_evidence.ipynb).
 
@@ -8,6 +8,7 @@ Open the main workflows directly in Colab: [04: gradient diagnostic](https://col
 
 | Task | Notebook | Runtime | What it reads and saves |
 | --- | --- | --- | --- |
+| Store files in R2 and continue the learning diagnostic | [15: R2 learning-loss diagnostic](15_R2_learning_loss.ipynb) | CPU copy, then one A100 session | Copies and verifies Drive files once; loads the confirmed model after task 5; teaches only task 17; uploads epoch reports and the final model automatically. See [R2 setup](../docs/R2_STORAGE.md). |
 | Inspect Tiny ImageNet files and labels | [01: dataset walkthrough](01_tiny_imagenet.ipynb) | CPU | Reads the dataset; no experiment result. |
 | Inspect one task and its batches | [02: task walkthrough](02_task1.ipynb) | CPU | Reads the dataset and fixed class partition; no experiment result. |
 | Continue a saved model and measure protection | [14: learning-loss diagnostic](14_learning_loss_diagnostic.ipynb) | CPU selection, then one A100 session | Selects a checkpoint after learning 9 or 5; teaches only the next task; saves separate losses, sampled gradients, and scores after each epoch. Optional beta trials each restart from the same source. |
@@ -35,6 +36,6 @@ These remain readable for provenance. Do not run them as instructions for a new 
 
 ## Use and share results
 
-GPU experiment notebooks save their results to Drive before releasing the runtime. CPU notebooks read those files in a fresh session; do not expect Python variables to survive a Colab disconnect. The archive under [`docs/experiments`](../docs/experiments/README.md) contains earlier reported or transcribed results. Original Drive files are preferable when available.
+Notebook 15 saves to R2; earlier GPU experiment notebooks save to Drive before releasing the runtime. CPU notebooks read saved files in a fresh session; do not expect Python variables to survive a Colab disconnect. The archive under [`docs/experiments`](../docs/experiments/README.md) contains earlier reported or transcribed results. Original experiment files are preferable when available.
 
 Share the ZIP from notebook 10 when another person needs the evidence. It includes the tracked code version and file hashes, but it cannot recreate unsaved Colab output. Start with notebook 09 when the person only needs an explained visual overview. Every chart should be read with its source and limits, especially when comparing one seed or one paired run.
