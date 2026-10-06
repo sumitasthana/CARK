@@ -109,13 +109,21 @@ class UnCLe:
 
     # -- learn ---------------------------------------------------------------
 
-    def learn(self, task: str, protected: list[str], *, on_step=None) -> list[float]:
+    def learn(self, task: str, protected: list[str], *, on_step=None,
+              on_epoch=None, gradient_steps=()) -> list[float]:
         """Teach one task, returning epoch losses.
 
         Optional on_step observes step zero and each completed update. Batch
         tensors and dataset indices are supplied only when tracing is enabled.
+        on_epoch observes completed epochs with separate batch-mean losses.
+        gradient_steps selects pre-update shared-generator gradient samples.
         Callback PyTorch RNG consumption and module modes are isolated.
         """
+        gradient_steps = set(gradient_steps)
+        if any(not isinstance(step, int) or step < 1 for step in gradient_steps):
+            raise ValueError("gradient_steps must contain positive update numbers")
+        if gradient_steps and on_step is None:
+            raise ValueError("gradient_steps requires on_step to record the measurements")
         snapshot = self.hypernet.snapshot()
         self._reference = {}
         code = self.hypernet.add_task(task)
@@ -156,6 +164,7 @@ class UnCLe:
 
         for epoch in range(self.config.epochs):
             running, batches = 0.0, 0
+            task_running, protection_running = 0.0, 0.0
 
             for batch in loader:
                 images, labels = batch[:2]
@@ -169,8 +178,18 @@ class UnCLe:
                     strict=True,
                 )
 
-                loss = F.cross_entropy(scores, labels.to(self.device))
-                loss = loss + self.config.beta * self.preserve(protected, snapshot)
+                task_loss = F.cross_entropy(scores, labels.to(self.device))
+                protection_loss = self.preserve(protected, snapshot)
+                weighted_protection = self.config.beta * protection_loss
+                loss = task_loss + weighted_protection
+                gradients = {}
+                if step + 1 in gradient_steps:
+                    task_norms, protection_norms, cosine = self._term_gradients(
+                        task_loss, weighted_protection,
+                        self.hypernet.generator_parameters())
+                    gradients = {"task_gradient_norms": task_norms,
+                                 "weighted_protection_gradient_norms": protection_norms,
+                                 "gradient_cosine": cosine}
 
                 optimizer.zero_grad(set_to_none=True)
                 loss.backward()
@@ -180,16 +199,31 @@ class UnCLe:
                     self._notify_forget_step(on_step, {
                         "step": step, "epoch": epoch + 1,
                         "loss": loss.item(), "indices": batch[2],
+                        "task_loss": task_loss.item(),
+                        "protection_loss": protection_loss.item(),
+                        "weighted_protection_loss": weighted_protection.item(),
+                        "loss_stage": "before_update", **gradients,
                         "images": images, "labels": labels,
                     })
 
                 running += loss.item()
+                if on_epoch is not None:
+                    task_running += task_loss.item()
+                    protection_running += protection_loss.item()
                 batches += 1
                 bar.update(1)
                 bar.set_postfix_str(
                     f"epoch {epoch + 1}/{self.config.epochs}, loss {loss.item():.3f}")
 
             epoch_losses.append(running / batches)
+            self._notify_forget_step(on_epoch, {
+                "epoch": epoch + 1, "step": step, "batches": batches,
+                "loss": running / batches,
+                "task_loss": task_running / batches,
+                "protection_loss": protection_running / batches,
+                "weighted_protection_loss": self.config.beta * protection_running / batches,
+                "loss_aggregation": "mean_over_batches",
+            })
 
         bar.close()
         return epoch_losses
