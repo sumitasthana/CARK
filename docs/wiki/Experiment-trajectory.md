@@ -8,6 +8,8 @@ Learning a new task can lower older-task scores even without an unlearning reque
 
 Next, compare the source hashes, starting scores, actual configurations, and runtime metadata in the two saved reports on CPU. No additional GPU replay is proposed for this check. The planned beta batch remains `0`, `0.001`, `0.01`, `0.1`, and `1`, starting from the same checkpoint before task 17. Treat its outcomes as exploratory until the setup comparison and run-to-run variation are understood. No completed multi-value beta batch has been reported.
 
+Notebook 15 now includes both steps as new sections. Use `MODE = "COMPARE"` on CPU, then `MODE = "BATCH"` in a fresh A100 session. The batch runs four new beta values from the original source model and reuses the completed R2 beta-0.01 result. The comparison table identifies that earlier-session reference. These are implemented steps, not new experimental results. The batch stops if the saved reports disagree on the source model, starting scores, training settings, task list, or dataset sizes.
+
 The earlier cross-session replay problem remains unexplained. Its first recorded mismatch was at training update 1, after matching recorded inputs. A single new beta trial should therefore be treated as diagnostic evidence rather than a settled ranking.
 
 ## Contents

@@ -1,4 +1,4 @@
-"""Run COPY and RUN cells with a tiny real model and a fake R2 service."""
+"""Run notebook modes with a tiny real model and a fake R2 service."""
 import contextlib
 import io
 import json
@@ -86,12 +86,13 @@ class R2NotebookTests(unittest.TestCase):
             source_cell = cells[2].replace('{"3": 27.0, "0": 31.2, "9": 48.4, "5": 54.8}', repr(before))
             def cpu_diagnostic(*args, **kwargs):
                 kwargs['device'] = 'cpu'
-                return diagnostic(*args, **kwargs)
+                with patch('torch.cuda.is_available', return_value=False):
+                    return diagnostic(*args, **kwargs)
             def namespace():
                 return {'TEST_ROOT': root, 'Path': Path, 'CODE_VERSION': 'test-version'}
             with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()), patch.dict(sys.modules, {'google.colab': colab}), patch.object(R2Store, 'connect', return_value=store):
                 copy_session = namespace()
-                exec(setup, copy_session)
+                exec(setup.replace('MODE = "COMPARE"', 'MODE = "COPY"'), copy_session)
                 with patch('torch.cuda.is_available', return_value=False):
                     exec(source_cell, copy_session)
                 exec(cells[3], copy_session)
@@ -101,7 +102,7 @@ class R2NotebookTests(unittest.TestCase):
                 self.assertEqual(set(client.objects), {'uncle/model.pt'})
                 self.assertEqual(copy_session['copied_files']['skipped_directories'], ['data'])
                 run_session = namespace()
-                exec(setup.replace('MODE = "COPY"', 'MODE = "RUN"'), run_session)
+                exec(setup.replace('MODE = "COMPARE"', 'MODE = "RUN"'), run_session)
                 with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'):
                     exec(source_cell, run_session)
                 run_session['run_learning_diagnostic'] = cpu_diagnostic
@@ -117,6 +118,55 @@ class R2NotebookTests(unittest.TestCase):
                 # Reusing this experiment name in a fresh session stops before another lesson.
                 with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), self.assertRaises(AssertionError):
                     exec(source_cell, run_session)
+
+                earlier = json.loads(json.dumps(report))
+                earlier['environment']['gpu'] = 'earlier GPU'
+                earlier_path = root / 'earlier.json'
+                earlier_path.write_text(json.dumps(earlier))
+                store.upload(earlier_path, run_session['DRIVE_REPORT_KEY'])
+                compare_session = namespace()
+                exec(setup, compare_session)
+                compare_cell = cells[5].replace('Path("/content/report-comparison.json")', 'TEST_ROOT / "comparison.json"')
+                with patch('torch.cuda.is_available', return_value=False), patch('uncle.streams.build_tasks', side_effect=AssertionError('CPU comparison must not load data')):
+                    exec(source_cell, compare_session)
+                    exec(compare_cell, compare_session)
+                self.assertTrue(compare_session['comparison']['ready_for_beta_batch'])
+                self.assertIn('gpu', compare_session['comparison']['runtime_differences'])
+
+                batch_session = namespace()
+                exec(setup.replace('MODE = "COMPARE"', 'MODE = "BATCH"'), batch_session)
+                trained_betas = []
+                def batch_diagnostic(*args, **kwargs):
+                    trained_betas.append(kwargs['beta'])
+                    return cpu_diagnostic(*args, **kwargs)
+                batch_session['run_learning_diagnostic'] = batch_diagnostic
+                reference_uploads = client.uploads.count(run_session['R2_REPORT_KEY'])
+                with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), patch('uncle.streams.build_tasks', return_value=tasks) as build, patch('uncle.learning_diagnostic.build_target', side_effect=target):
+                    exec(source_cell, batch_session)
+                    exec(cells[6], batch_session)
+                    self.assertEqual(build.call_count, 1)
+                    with self.assertRaises(AssertionError):
+                        exec(cells[6], batch_session)
+                self.assertEqual(trained_betas, [0.0, 0.001, 0.1, 1.0])
+                self.assertEqual(client.uploads.count(run_session['R2_REPORT_KEY']), reference_uploads)
+                self.assertEqual(events, ['mount', 'flush', 'release', 'release'])
+                self.assertEqual(sha256(source), original_hash)
+                self.assertEqual(len(batch_session['summaries']), 5)
+                self.assertEqual([r['beta'] for r in batch_session['summaries'] if r['reused']], [0.01])
+                self.assertIn(batch_session['batch_prefix'] + '/beta_batch_comparison.json', client.objects)
+
+                # A source mismatch is recorded on CPU and blocks all new training.
+                earlier['source_sha256'] = 'different model'
+                earlier_path.write_text(json.dumps(earlier))
+                store.upload(earlier_path, run_session['DRIVE_REPORT_KEY'], overwrite=True)
+                compare_session['COMPARISON_KEY'] = 'uncle/mismatch-comparison.json'
+                with patch('torch.cuda.is_available', return_value=False):
+                    exec(compare_cell, compare_session)
+                self.assertFalse(compare_session['comparison']['ready_for_beta_batch'])
+                batch_session['COMPARISON_KEY'] = compare_session['COMPARISON_KEY']
+                with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), self.assertRaises(AssertionError):
+                    exec(cells[6], batch_session)
+                self.assertEqual(trained_betas, [0.0, 0.001, 0.1, 1.0])
 
 
 if __name__ == '__main__':
