@@ -18,6 +18,8 @@ The next sequence is implemented in notebook 15, section 9, with `MODE = "SEQUEN
 
 The same three lessons measure four hypotheses: forgetting accumulates across lessons; earlier-learned tasks lose more; a mean hides individual task damage; and learning/protection gradients conflict in sampled parameter groups. Save a fixed five-task average relative to the sequence's start, per-task changes, losses from best recorded scores within this sequence, and the existing first-batch gradient sample from each epoch. Task age and gradient observations are associations, not causal comparisons. The final report and per-lesson checkpoints go to R2. Local verification with a small model checked the checkpoint chain and all three lessons; it is not an actual A100 experiment.
 
+An R2 inventory taken after the repeat found 177 objects totaling 13.98 GB. No Tiny ImageNet dataset objects appeared. Most space is in model checkpoints of approximately 537 MB each. The unused beta-0, beta-0.001, and beta-1 final models are initial cleanup candidates totaling 1.61 GB. Older paired-L9, session-replay, and learning-only folders total approximately 7.00 GB including their reports; their historical models need an archive decision before deletion. Preserve all reports, the post-task-5 source, both beta-0.1 models, and active sequence checkpoints. Three new sequence checkpoints will add approximately 1.61 GB. Cleanup is a proposal only: nothing has been deleted and training cells do not delete older evidence.
+
 The earlier cross-session replay problem remains unexplained. Its first recorded mismatch was at training update 1, after matching recorded inputs. A single new beta trial should therefore be treated as diagnostic evidence rather than a settled ranking.
 
 ## Contents
