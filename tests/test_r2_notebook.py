@@ -59,6 +59,11 @@ class R2NotebookTests(unittest.TestCase):
             source = drive_root / 'model.pt'
             checkpoint.save(source, config=config, hypernet=hypernet, uncle=trainer,
                 history=history, seen=seen, forgotten=[], previous=before, costs=[], setup_seconds=0)
+            dataset_folder = drive_root / 'data/tiny-imagenet-200/train'
+            dataset_folder.mkdir(parents=True)
+            (dataset_folder / 'image.JPEG').write_bytes(b'dataset image')
+            (dataset_folder / 'labels.json').write_text('{}')
+            (drive_root / 'tiny-imagenet-200.zip').write_bytes(b'dataset archive')
             original_hash = sha256(source)
             client = Files()
             store = R2Store(client, 'test')
@@ -93,6 +98,8 @@ class R2NotebookTests(unittest.TestCase):
                 exec(cells[4], copy_session)
                 self.assertEqual(events, ['mount', 'flush'])
                 self.assertFalse(any('learning_loss_diagnostic' in k for k in client.objects))
+                self.assertEqual(set(client.objects), {'uncle/model.pt'})
+                self.assertEqual(copy_session['copied_files']['skipped_directories'], ['data'])
                 run_session = namespace()
                 exec(setup.replace('MODE = "COPY"', 'MODE = "RUN"'), run_session)
                 with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'):
