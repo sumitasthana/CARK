@@ -25,6 +25,9 @@ proposal-assets/
 # Measurements written by explore.py, task1.py and run.py
 uncle_from_scratch/outputs/
 
+# Local status and logs from the scheduled wiki publisher
+/outputs/wiki_publication/
+
 # Editable installs and build output
 *.egg-info/
 build/
