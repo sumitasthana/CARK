@@ -32,11 +32,13 @@ class R2NotebookTests(unittest.TestCase):
             compile(cell, str(notebook), 'exec')
         torch.manual_seed(0)
         config = Config(dataset='tiny_imagenet', backbone='resnet50', device='cpu',
-            tasks=('3','0','9','5','17'), requests=tuple(('learn', t) for t in ('3','0','9','5')),
+            tasks=('3','0','9','5','17','1','7','14'), requests=tuple(('learn', t) for t in ('3','0','9','5')),
             initialization='hyperfan_in', hidden=(16,), code_dim=4, chunks=8,
             epochs=1, batch_size=4, eval_batch_size=4, learning_rate=0.0001, beta=0.01)
         data = TensorDataset(torch.rand(8,3,8,8), torch.arange(8) % 10)
         tasks = {t: {'train': data, 'test': data} for t in config.tasks}
+        def build_fixture_tasks(*args, **kwargs):
+            return {t: tasks[t] for t in kwargs['include']}
         def target(_config=None):
             return nn.Sequential(nn.Conv2d(3,4,3,padding=1,bias=False),nn.BatchNorm2d(4),
                 nn.ReLU(),nn.AdaptiveAvgPool2d(1),nn.Flatten(),nn.Linear(4,10)).requires_grad_(False)
@@ -79,6 +81,7 @@ class R2NotebookTests(unittest.TestCase):
                 events.append('release')
             colab.runtime = SimpleNamespace(unassign=release)
             setup = cells[1].replace('Path("/content/drive/MyDrive/uncle")', 'TEST_ROOT / "drive"')
+            setup = setup.replace('MODE = "SEQUENCE"', 'MODE = "COMPARE"')
             setup = setup.replace('Path("/content/r2-cache")', 'TEST_ROOT / "cache"')
             setup = setup.replace('Path("/content/r2-results")', 'TEST_ROOT / "results"')
             setup = setup.replace('SOURCE_KEY = "uncle/learning_initialization/20261006_hyperfan_L3_L0_L9_seed0_02/checkpoint_seq1_resnet50_seed0.pt"', 'SOURCE_KEY = "uncle/model.pt"')
@@ -106,7 +109,7 @@ class R2NotebookTests(unittest.TestCase):
                 with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'):
                     exec(source_cell, run_session)
                 run_session['run_learning_diagnostic'] = cpu_diagnostic
-                with patch('uncle.streams.build_tasks', return_value=tasks), patch('uncle.learning_diagnostic.build_target', side_effect=target):
+                with patch('uncle.streams.build_tasks', side_effect=build_fixture_tasks), patch('uncle.learning_diagnostic.build_target', side_effect=target):
                     exec(cells[3], run_session)
                 exec(cells[4], run_session)
                 self.assertEqual(events, ['mount', 'flush', 'release'])
@@ -141,7 +144,7 @@ class R2NotebookTests(unittest.TestCase):
                     return cpu_diagnostic(*args, **kwargs)
                 batch_session['run_learning_diagnostic'] = batch_diagnostic
                 reference_uploads = client.uploads.count(run_session['R2_REPORT_KEY'])
-                with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), patch('uncle.streams.build_tasks', return_value=tasks) as build, patch('uncle.learning_diagnostic.build_target', side_effect=target):
+                with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), patch('uncle.streams.build_tasks', side_effect=build_fixture_tasks) as build, patch('uncle.learning_diagnostic.build_target', side_effect=target):
                     exec(source_cell, batch_session)
                     exec(cells[6], batch_session)
                     self.assertEqual(build.call_count, 1)
@@ -163,7 +166,7 @@ class R2NotebookTests(unittest.TestCase):
                     return cpu_diagnostic(*args, **kwargs)
                 repeat_session['run_learning_diagnostic'] = repeat_diagnostic
                 first_trial_uploads = client.uploads.count(repeat_session['REPEAT_REPORT_KEY'])
-                with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), patch('uncle.streams.build_tasks', return_value=tasks), patch('uncle.learning_diagnostic.build_target', side_effect=target):
+                with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), patch('uncle.streams.build_tasks', side_effect=build_fixture_tasks), patch('uncle.learning_diagnostic.build_target', side_effect=target):
                     exec(source_cell, repeat_session)
                     # Run all earlier cells: none may train or release the session.
                     for cell in cells[3:7]:
@@ -179,7 +182,44 @@ class R2NotebookTests(unittest.TestCase):
                 saved_comparison = json.loads(client.objects[repeat_session['repeat_prefix'] + '/repeat_comparison.json'][0])
                 self.assertEqual(saved_comparison['first']['beta'], 0.1)
                 self.assertEqual(saved_comparison['repeat']['beta'], 0.1)
-                self.assertEqual(saved_comparison['repeat_minus_first'], {t: 0.0 for t in config.tasks})
+                self.assertEqual(saved_comparison['repeat_minus_first'], {t: 0.0 for t in ('3','0','9','5','17')})
+
+                sequence_session = namespace()
+                exec(setup.replace('MODE = "COMPARE"', 'MODE = "SEQUENCE"'), sequence_session)
+                sequence_calls = []
+                def sequence_diagnostic(*args, **kwargs):
+                    sequence_calls.append((sha256(args[0]), args[2], kwargs['beta']))
+                    return cpu_diagnostic(*args, **kwargs)
+                sequence_session['run_learning_diagnostic'] = sequence_diagnostic
+                sequence_cell = cells[8].replace('{"3": 23.6, "0": 30.8, "9": 42.8, "5": 55.8, "17": 55.8}', repr(repeat_session['repeated']['final_accuracies']))
+                with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), patch('uncle.streams.build_tasks', side_effect=build_fixture_tasks) as build, patch('uncle.learning_diagnostic.build_target', side_effect=target):
+                    exec(source_cell, sequence_session)
+                    for cell in cells[3:8]:
+                        exec(cell, sequence_session)
+                    self.assertEqual(sequence_calls, [])
+                    exec(sequence_cell, sequence_session)
+                    self.assertEqual(build.call_count, 1)
+                    with self.assertRaises(AssertionError):
+                        exec(sequence_cell, sequence_session)
+                result = sequence_session['sequence_result']
+                self.assertEqual(result['status'], 'complete')
+                self.assertEqual([call[1] for call in sequence_calls], ['1', '7', '14'])
+                self.assertEqual([call[2] for call in sequence_calls], [0.1]*3)
+                self.assertEqual(sequence_calls[0][0], sha256(repeat_session['output'] / 'checkpoint.pt'))
+                self.assertEqual(sequence_calls[1][0], result['lessons'][0]['checkpoint_sha256'])
+                self.assertEqual(sequence_calls[2][0], result['lessons'][1]['checkpoint_sha256'])
+                self.assertEqual(len(result['gradient_samples']), 3)
+                self.assertEqual(len(result['epoch_measurements']), 3)
+                self.assertEqual(len(result['scores_by_stage']), 4)
+                for row in result['lessons']:
+                    self.assertEqual(set(row['initial_task_changes']), {'3','0','9','5','17'})
+                    expected_mean = sum(row['final_accuracies'][t] - result['selection']['initial_scores'][t] for t in result['selection']['initial_tasks']) / 5
+                    self.assertAlmostEqual(row['initial_task_mean_change'], expected_mean)
+                final_sequence = checkpoint.load(sequence_session['current_source'])
+                self.assertEqual(final_sequence['seen'], ['3','0','9','5','17','1','7','14'])
+                self.assertEqual(len(final_sequence['history']), 8)
+                self.assertEqual(events, ['mount', 'flush', 'release', 'release', 'release', 'release'])
+                self.assertIn(sequence_session['sequence_prefix'] + '/sequence_comparison.json', client.objects)
 
                 # A source mismatch is recorded on CPU and blocks all new training.
                 earlier['source_sha256'] = 'different model'
