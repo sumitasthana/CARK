@@ -8,7 +8,7 @@ Open the main workflows directly in Colab: [04: gradient diagnostic](https://col
 
 | Task | Notebook | Runtime | What it reads and saves |
 | --- | --- | --- | --- |
-| Compare saved reports and test old-task protection | [15: R2 learning-loss diagnostic](15_R2_learning_loss.ipynb) | CPU comparison, then one fresh A100 session | COMPARE checks the two saved reports. BATCH runs four new beta values from the same model before task 17 and reuses the saved beta-0.01 result. Uploads and checks results before releasing the GPU. COPY and RUN remain available for earlier steps. |
+| Compare saved reports and test old-task protection | [15: R2 learning-loss diagnostic](15_R2_learning_loss.ipynb) | CPU for COMPARE; fresh A100 for BATCH or REPEAT | REPEAT runs only beta 0.1 from the original model and compares it with the completed beta-0.1 trial. BATCH tests four new values and reuses beta 0.01. Saves and checks results before releasing the GPU. Earlier modes remain available. |
 | Inspect Tiny ImageNet files and labels | [01: dataset walkthrough](01_tiny_imagenet.ipynb) | CPU | Reads the dataset; no experiment result. |
 | Inspect one task and its batches | [02: task walkthrough](02_task1.ipynb) | CPU | Reads the dataset and fixed class partition; no experiment result. |
 | Continue a saved model and measure protection | [14: learning-loss diagnostic](14_learning_loss_diagnostic.ipynb) | CPU selection, then one A100 session | Selects a checkpoint after learning 9 or 5; teaches only the next task; saves separate losses, sampled gradients, and scores after each epoch. Optional beta trials each restart from the same source. |

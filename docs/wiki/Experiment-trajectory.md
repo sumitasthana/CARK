@@ -12,6 +12,8 @@ The five-value beta batch is complete. With beta 0, task 17 reached 54.0%, but t
 
 The recommendation is to stop expanding the beta search and carry beta 0.1 forward as a provisional retention setting. First repeat only its task-17 continuation from the same source model in one fresh session. If the retention result holds, use that setting for the next learning-only sequence before returning to deliberate unlearning. This repeat checks stability for this source model; multiple training seeds and checkpoints remain necessary for a generalized claim.
 
+Notebook 15 now implements this single repeat in section 8. Set `MODE = "REPEAT"` in a fresh A100 session and run from the top. It checks the first beta-0.1 report against the original source, trains only task 17 at beta 0.1, saves under a separate repeat identifier, and compares the two results before releasing the GPU. No repeat result has been reported yet.
+
 The earlier cross-session replay problem remains unexplained. Its first recorded mismatch was at training update 1, after matching recorded inputs. A single new beta trial should therefore be treated as diagnostic evidence rather than a settled ranking.
 
 ## Contents

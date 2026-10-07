@@ -155,6 +155,32 @@ class R2NotebookTests(unittest.TestCase):
                 self.assertEqual([r['beta'] for r in batch_session['summaries'] if r['reused']], [0.01])
                 self.assertIn(batch_session['batch_prefix'] + '/beta_batch_comparison.json', client.objects)
 
+                repeat_session = namespace()
+                exec(setup.replace('MODE = "COMPARE"', 'MODE = "REPEAT"'), repeat_session)
+                repeat_calls = []
+                def repeat_diagnostic(*args, **kwargs):
+                    repeat_calls.append((sha256(args[0]), kwargs['beta']))
+                    return cpu_diagnostic(*args, **kwargs)
+                repeat_session['run_learning_diagnostic'] = repeat_diagnostic
+                first_trial_uploads = client.uploads.count(repeat_session['REPEAT_REPORT_KEY'])
+                with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), patch('uncle.streams.build_tasks', return_value=tasks), patch('uncle.learning_diagnostic.build_target', side_effect=target):
+                    exec(source_cell, repeat_session)
+                    # Run all earlier cells: none may train or release the session.
+                    for cell in cells[3:7]:
+                        exec(cell, repeat_session)
+                    self.assertEqual(repeat_calls, [])
+                    exec(cells[7], repeat_session)
+                    with self.assertRaises(AssertionError):
+                        exec(cells[7], repeat_session)
+                self.assertEqual(repeat_calls, [(original_hash, 0.1)])
+                self.assertEqual(client.uploads.count(repeat_session['REPEAT_REPORT_KEY']), first_trial_uploads)
+                self.assertEqual(events, ['mount', 'flush', 'release', 'release', 'release'])
+                self.assertEqual(sha256(source), original_hash)
+                saved_comparison = json.loads(client.objects[repeat_session['repeat_prefix'] + '/repeat_comparison.json'][0])
+                self.assertEqual(saved_comparison['first']['beta'], 0.1)
+                self.assertEqual(saved_comparison['repeat']['beta'], 0.1)
+                self.assertEqual(saved_comparison['repeat_minus_first'], {t: 0.0 for t in config.tasks})
+
                 # A source mismatch is recorded on CPU and blocks all new training.
                 earlier['source_sha256'] = 'different model'
                 earlier_path.write_text(json.dumps(earlier))
