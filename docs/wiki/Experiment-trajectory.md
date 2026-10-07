@@ -1,12 +1,12 @@
 # Experiment trajectory
 
-Updated 6 October 2026. This page is the experiment record. It contains completed results, their limits, and the next controlled comparison. Files linked as evidence are measurements or original transcriptions, not separate experiment reports.
+Updated 7 October 2026. This page is the experiment record. It contains completed results, their limits, and the next controlled comparison. Files linked as evidence are measurements or original transcriptions, not separate experiment reports.
 
 ## Current finding and next experiment
 
-Learning a new task can lower older-task scores even without an unlearning request. In the latest continuation, task 17 reached 53.4%, while the four older tasks lost 6.25 percentage points on average. Task 9 fell from 48.4% to 32.6%. The protection term contributed to the loss, but that does not establish its gradient strength or identify the cause of the decline.
+Learning a new task can lower older-task scores even without an unlearning request, but the size of that loss varies between the two reported beta-0.01 continuations. The earlier Drive run learned task 17 to 53.4% and lost 6.25 percentage points on older tasks on average. The later R2 run learned task 17 to 52.2% and lost 0.05 points on older tasks on average. Task 5 still fell by 3.8 points in the later run. Task 9 finished at 32.6% in the earlier run and 50.0% in the later run. Neither result establishes consistent retention.
 
-Next, use notebook 14 to compare beta values `0`, `0.001`, `0.01`, `0.1`, and `1` in one A100 session. Every value starts from the same confirmed checkpoint before task 17. The completed beta-0.01 result is reused. The other four trials run sequentially and save separate outputs. This tests protection strength for one lesson and one source model; it is not a multi-seed or full-sequence result. No new trial from this batch has been reported yet.
+Next, compare the source hashes, starting scores, actual configurations, and runtime metadata in the two saved reports on CPU. No additional GPU replay is proposed for this check. The planned beta batch remains `0`, `0.001`, `0.01`, `0.1`, and `1`, starting from the same checkpoint before task 17. Treat its outcomes as exploratory until the setup comparison and run-to-run variation are understood. No completed multi-value beta batch has been reported.
 
 The earlier cross-session replay problem remains unexplained. Its first recorded mismatch was at training update 1, after matching recorded inputs. A single new beta trial should therefore be treated as diagnostic evidence rather than a settled ranking.
 
@@ -16,6 +16,7 @@ The earlier cross-session replay problem remains unexplained. Its first recorded
 - [Learning without unlearning](#learning-without-unlearning-5-and-6-october)
 - [Hyperfan learning runs](#hyperfan-learning-runs-6-october)
 - [Task-17 continuation](#task-17-continuation-beta-001)
+- [R2 continuation reported on 7 October](#r2-continuation-reported-on-7-october)
 - [History through 4 October](#history-through-4-october)
 - [Historical run notes through 29 September](#historical-run-notes-through-29-september)
 - [Learning audit and its qualification](#learning-audit-and-its-qualification)
@@ -106,6 +107,34 @@ The mean old-task score fell from 40.35% to 34.10%, a loss of 6.25 percentage po
 The positive protection term shows that protection contributed to the objective. Its scalar value does not establish the strength or direction of its gradient, or prove that increasing beta will improve retention. This run confirms older-task degradation during the new lesson under these settings; it does not identify the full cause or establish a result across seeds.
 
 For the batch comparison, finish notebook 14's final cell, then use a fresh A100 session with `MODE = "RUN"`, `EXPERIMENT_ID = "20261006_learning_loss_01"`, and `BETAS = (0.0, 0.001, 0.01, 0.1, 1.0)`. The saved selection is reused; no new selection or retraining of the source tasks is needed. Compare new-task accuracy, mean old-task change, and the largest old-task drop. The beta batch changes only the weight of protection during task 17, keeping the checkpoint, code, seed, images, learning rate, and training budget fixed.
+
+## R2 continuation reported on 7 October
+
+The user supplied notebook 15's output for one beta value, 0.01. The default selected source is the confirmed four-task Hyperfan model above. The screenshot does not include the source hash, actual configuration, or environment metadata; these must be read from the saved reports before calling this an exact repeat. The receipt date is 7 October, while the experiment name contains 6 October.
+
+Reported final model: `uncle/learning_loss_diagnostic/20261006_learning_loss_r2_01/beta_0_01/checkpoint.pt` in R2. Each epoch report and the final model were reported as checked in R2. The final history-check and GPU-release cell was still pending in the screenshot.
+
+| Epoch | New-task loss | Beta times protection | Task 3 (%) | Task 0 (%) | Task 9 (%) | Task 5 (%) | Task 17 (%) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 1.8008 | 0.8181 | 20.6 | 29.4 | 41.4 | 37.2 | 40.2 |
+| 2 | 1.4441 | 0.4781 | 31.2 | 31.6 | 49.6 | 52.8 | 39.6 |
+| 3 | 1.2688 | 0.4108 | 22.6 | 31.0 | 36.4 | 45.8 | 39.6 |
+| 4 | 1.1410 | 0.4133 | 26.4 | 34.2 | 56.2 | 48.2 | 54.6 |
+| 5 | 0.9835 | 0.4025 | 28.8 | 31.4 | 50.0 | 51.0 | 52.2 |
+
+| Task | Confirmed source score (%) | Earlier Drive final (%) | Later R2 final (%) | Later change from source (points) |
+| --- | --- | --- | --- | --- |
+| 3 | 27.0 | 24.6 | 28.8 | +1.8 |
+| 0 | 31.2 | 28.0 | 31.4 | +0.2 |
+| 9 | 48.4 | 32.6 | 50.0 | +1.6 |
+| 5 | 54.8 | 51.2 | 51.0 | -3.8 |
+| 17 | Not supplied | 53.4 | 52.2 | Not calculated |
+
+The later mean old-task score is 40.30%, against the source's 40.35%. The notebook printed the change rounded to one decimal place as `-0.0 points`; the unrounded change is -0.05 points. An unchanged average does not mean that every task was preserved.
+
+Task 9's final score differs by 17.4 points between the runs, while task 17 differs by 1.2 points. This is a repeatability concern for interpreting smaller beta effects. Moving files to R2 is not a demonstrated cause of the retention improvement. The training, checkpoint, configuration, dataset, and learning-diagnostic files have no Git changes between notebook 14's pin `6a59648a5512724f94917ed9b97a12807c68809b` and notebook 15's pin `dd7beb173fb957467116c71b6ffe39e562799016`. Runtime versions and actual report metadata have not yet been compared.
+
+The next check uses the already saved `report.json` files to compare `source_sha256`, `starting_accuracies`, `config`, `code_version`, and `environment`. This is a CPU metadata check, not another training run or a request for extended kernel tracing. Gradient samples are not shown in either supplied output, so loss magnitudes alone do not explain the discrepancy.
 
 ## History through 4 October
 
