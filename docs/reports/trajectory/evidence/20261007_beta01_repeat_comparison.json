@@ -1,0 +1,65 @@
+{
+  "selection": {
+    "source_key": "uncle/learning_initialization/20261006_hyperfan_L3_L0_L9_seed0_02/checkpoint_seq1_resnet50_seed0.pt",
+    "source_sha256": "9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f",
+    "beta": 0.1,
+    "reference_report_key": "uncle/learning_loss_diagnostic/20261007_beta_batch_01/beta_0_1/report.json",
+    "reference_report_sha256": "d8efd3e212475d156f7b459264170d6ae28fa60c85adb4803c28d585c99a60ef",
+    "code_version": "dd7beb173fb957467116c71b6ffe39e562799016"
+  },
+  "first": {
+    "beta": 0.1,
+    "new_task": "17",
+    "new_task_accuracy": 50.8,
+    "mean_old_accuracy_before": 40.35,
+    "mean_old_accuracy_after": 41.35,
+    "mean_old_change": 1.0,
+    "largest_old_drop": 0.3999999999999986,
+    "old_task_changes": {
+      "3": 2.0,
+      "0": -0.3999999999999986,
+      "9": 1.3999999999999986,
+      "5": 1.0
+    },
+    "source_sha256": "9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f"
+  },
+  "repeat": {
+    "beta": 0.1,
+    "new_task": "17",
+    "new_task_accuracy": 55.8,
+    "mean_old_accuracy_before": 40.35,
+    "mean_old_accuracy_after": 38.25,
+    "mean_old_change": -2.0999999999999996,
+    "largest_old_drop": 5.600000000000001,
+    "old_task_changes": {
+      "3": -3.3999999999999986,
+      "0": -0.3999999999999986,
+      "9": -5.600000000000001,
+      "5": 1.0
+    },
+    "source_sha256": "9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f"
+  },
+  "first_final_accuracies": {
+    "3": 29.0,
+    "0": 30.8,
+    "9": 49.8,
+    "5": 55.8,
+    "17": 50.8
+  },
+  "repeat_final_accuracies": {
+    "3": 23.6,
+    "0": 30.8,
+    "9": 42.8,
+    "5": 55.8,
+    "17": 55.8
+  },
+  "repeat_minus_first": {
+    "3": -5.399999999999999,
+    "0": 0.0,
+    "9": -7.0,
+    "5": 0.0,
+    "17": 5.0
+  },
+  "environment_differences": {},
+  "limitation": "Two sessions from one saved source model; no different-seed or longer-sequence result."
+}

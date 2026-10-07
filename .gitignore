@@ -1,6 +1,11 @@
 __pycache__/
 *.py[cod]
 
+# Local credentials
+.env
+.env.*
+!.env.example
+
 # Operational documentation stays local
 /ops-docs/
 
@@ -27,6 +32,7 @@ uncle_from_scratch/outputs/
 
 # Local status and logs from the scheduled wiki publisher
 /outputs/wiki_publication/
+/outputs/r2-review/
 
 # Editable installs and build output
 *.egg-info/

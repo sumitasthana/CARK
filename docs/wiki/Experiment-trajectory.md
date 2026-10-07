@@ -10,9 +10,9 @@ The CPU report comparison is complete. The user reported matching starting-model
 
 The five-value beta batch is complete. With beta 0, task 17 reached 54.0%, but the older-task average fell by 26.5 points. With beta 0.1, task 17 reached 50.8%, the older-task average rose by 1.0 point, and the largest individual old-task drop was 0.4 points. This supports old-task protection as a useful mechanism in this continuation. It does not establish a repeatable optimum.
 
-The recommendation is to stop expanding the beta search and carry beta 0.1 forward as a provisional retention setting. First repeat only its task-17 continuation from the same source model in one fresh session. If the retention result holds, use that setting for the next learning-only sequence before returning to deliberate unlearning. This repeat checks stability for this source model; multiple training seeds and checkpoints remain necessary for a generalized claim.
+The beta-0.1 repeat is complete and was read directly from R2, together with both individual reports. It learned task 17 to 55.8%, but the older-task average fell by 2.1 points and task 9 lost 5.6 points relative to the starting model. The first beta-0.1 trial had a 1.0-point average gain and a 0.4-point largest drop. Both reports have matching source hashes, starting scores, full configurations, code versions, and recorded environment dictionaries. The repeat does not confirm near-zero forgetting or explain the session variation.
 
-Notebook 15 now implements this single repeat in section 8. Set `MODE = "REPEAT"` in a fresh A100 session and run from the top. It checks the first beta-0.1 report against the original source, trains only task 17 at beta 0.1, saves under a separate repeat identifier, and compares the two results before releasing the GPU. No repeat result has been reported yet.
+The recommendation is to close this bounded beta diagnostic and stop further beta tuning or repeated session probes for now. Keep beta 0.1 as a provisional setting for the next learning-only sequence, recording every older-task score after each new lesson. This tests whether the protection remains useful over multiple lessons, which this single-task continuation cannot establish. A later paired unlearning comparison needs a learning-only control from the same starting checkpoint to distinguish ordinary forgetting from the effect of deliberate unlearning. Multiple training seeds and checkpoints remain necessary for a generalized claim.
 
 The earlier cross-session replay problem remains unexplained. Its first recorded mismatch was at training update 1, after matching recorded inputs. A single new beta trial should therefore be treated as diagnostic evidence rather than a settled ranking.
 
@@ -24,11 +24,32 @@ The earlier cross-session replay problem remains unexplained. Its first recorded
 - [Task-17 continuation](#task-17-continuation-beta-001)
 - [R2 continuation reported on 7 October](#r2-continuation-reported-on-7-october)
 - [Beta batch completed on 7 October](#beta-batch-completed-on-7-october)
+- [Beta 0.1 repeat read from R2](#beta-01-repeat-read-from-r2)
 - [History through 4 October](#history-through-4-october)
 - [Historical run notes through 29 September](#historical-run-notes-through-29-september)
 - [Learning audit and its qualification](#learning-audit-and-its-qualification)
 - [Hyperfan implementation and CPU checks](#hyperfan-implementation-and-cpu-checks)
 - [Paper recheck and diagnostic validation](#paper-recheck-and-diagnostic-validation)
+
+## Beta 0.1 repeat read from R2
+
+Local credentials enabled direct read access to the private R2 bucket. The comparison file and both individual reports were downloaded and verified against their R2 SHA-256 metadata. No model checkpoint was downloaded or independently loaded for this review.
+
+| Measurement | First beta 0.1 | Repeat beta 0.1 |
+| --- | --- | --- |
+| Task 17 accuracy (%) | 50.8 | 55.8 |
+| Mean old-task change (points) | +1.00 | -2.10 |
+| Largest old-task drop (points) | 0.4 | 5.6 |
+| Task 3 final accuracy (%) | 29.0 | 23.6 |
+| Task 0 final accuracy (%) | 30.8 | 30.8 |
+| Task 9 final accuracy (%) | 49.8 | 42.8 |
+| Task 5 final accuracy (%) | 55.8 | 55.8 |
+
+Both runs used seed 0, beta 0.1, five epochs, batch size 64, and learning rate 0.0001. Their complete recorded configurations and environment dictionaries match. Each report records 395 updates and status `complete`. The repeat's task-9 score is 7.0 points below the first trial and 5.6 points below the source model. The new-task score is 5.0 points higher. Losses and scores already differ in the first epoch summary; these reports do not record the first individual update where the runs diverged.
+
+Analysis: protection remains associated with much less forgetting than the beta-0 trial in the batch, but this repeat weakens the initial impression that beta 0.1 preserves every old task almost exactly. Two sessions with one saved source model do not establish a stable optimum, different-seed generalization, or longer-sequence retention. The comparison does not show a recorded setup mismatch that explains the differences. Final reports alone do not confirm that the GPU was released afterwards.
+
+Evidence: [repeat comparison](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_beta01_repeat_comparison.json), [first trial report](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_beta01_first_report.json), and [repeat report](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_beta01_repeat_report.json). R2 comparison key: `uncle/learning_loss_diagnostic/20261007_beta01_repeat_01/repeat_comparison.json`.
 
 ## Beta batch completed on 7 October
 
