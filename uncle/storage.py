@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 from pathlib import Path, PurePosixPath
 import re
 import uuid
@@ -109,24 +110,42 @@ class R2Store:
             temporary.unlink(missing_ok=True)
         return path
 
-    def copy_tree(self, root, prefix, *, on_file=None):
-        """Copy and verify each file. Originals stay in place; retries check existing copies."""
+    def copy_tree(self, root, prefix, *, on_file=None, exclude_dirs=(), suffixes=None):
+        """Copy allowed files, pruning excluded folders before reading their contents."""
         root, prefix = Path(root).resolve(), _key(prefix)
         if not root.is_dir():
             raise FileNotFoundError(root)
+        excluded = {name.casefold() for name in exclude_dirs}
+        allowed = None if suffixes is None else {suffix.casefold() for suffix in suffixes}
         count, total = 0, 0
-        for path in sorted(root.rglob('*')):
-            if path.is_symlink():
-                raise ValueError(f'Copy ordinary files instead of symbolic links: {path}')
-            if not path.is_file():
-                continue
-            path.resolve().relative_to(root)
-            result = self.upload(path, prefix + '/' + path.relative_to(root).as_posix())
-            count += 1
-            total += result['bytes']
-            if on_file is not None:
-                on_file(result)
-        return {'files': count, 'bytes': total}
+        skipped_dirs, skipped_files = [], 0
+        def walk_error(error):
+            raise error
+        for directory, folders, files in os.walk(root, topdown=True, onerror=walk_error):
+            directory = Path(directory)
+            for name in list(folders):
+                path = directory / name
+                if name.casefold() in excluded:
+                    folders.remove(name)
+                    skipped_dirs.append(path.relative_to(root).as_posix())
+                elif path.is_symlink():
+                    raise ValueError(f'Copy ordinary folders instead of symbolic links: {path}')
+            folders.sort()
+            for name in sorted(files):
+                path = directory / name
+                if allowed is not None and path.suffix.casefold() not in allowed:
+                    skipped_files += 1
+                    continue
+                if path.is_symlink():
+                    raise ValueError(f'Copy ordinary files instead of symbolic links: {path}')
+                path.resolve().relative_to(root)
+                result = self.upload(path, prefix + '/' + path.relative_to(root).as_posix())
+                count += 1
+                total += result['bytes']
+                if on_file is not None:
+                    on_file(result)
+        return {'files': count, 'bytes': total, 'skipped_directories': skipped_dirs,
+                'skipped_files': skipped_files}
 
     def publish_lesson(self, output, prefix, *, complete=False):
         """Publish the final model before the completed report. Epochs save reports only."""

@@ -50,6 +50,29 @@ class Files:
 
 
 class StorageTests(unittest.TestCase):
+    def test_experiment_copy_excludes_dataset_trees_images_and_archives(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for folder in ('data/tiny-imagenet-200/train', 'nested/datasets',
+                           'nested/tiny-imagenet-200', 'results'):
+                (root / folder).mkdir(parents=True)
+            for name in ('data/tiny-imagenet-200/train/image.JPEG',
+                         'data/tiny-imagenet-200/train/labels.json',
+                         'nested/datasets/model.pt', 'nested/tiny-imagenet-200/labels.csv',
+                         'tiny-imagenet-200.zip', 'loose-image.JPEG',
+                         'results/checkpoint.pt', 'results/report.json', 'results/scores.csv'):
+                (root / name).write_bytes(b'test')
+            client = Files()
+            store = R2Store(client, 'test')
+            result = store.copy_tree(root, 'uncle', exclude_dirs=('data', 'datasets', 'tiny-imagenet-200'),
+                                     suffixes=('.pt', '.json', '.csv'))
+            self.assertEqual(set(client.objects), {'uncle/results/checkpoint.pt',
+                'uncle/results/report.json', 'uncle/results/scores.csv'})
+            self.assertEqual(result['files'], 3)
+            self.assertEqual(result['skipped_files'], 2)
+            self.assertEqual(set(result['skipped_directories']),
+                             {'data', 'nested/datasets', 'nested/tiny-imagenet-200'})
+
     def test_copy_retry_cache_and_conflict(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / 'drive'
