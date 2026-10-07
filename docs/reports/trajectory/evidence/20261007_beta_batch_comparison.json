@@ -1,0 +1,151 @@
+{
+  "selection": {
+    "source_key": "uncle/learning_initialization/20261006_hyperfan_L3_L0_L9_seed0_02/checkpoint_seq1_resnet50_seed0.pt",
+    "source_sha256": "9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f",
+    "new_task": "17",
+    "betas": [
+      0.0,
+      0.001,
+      0.01,
+      0.1,
+      1.0
+    ],
+    "reference_report_key": "uncle/learning_loss_diagnostic/20261006_learning_loss_r2_01/beta_0_01/report.json",
+    "reference_report_sha256": "68c4a8d954d0faa7e0a028c2ae56a641beab9330c4b59425002d3defb4f99593",
+    "comparison_key": "uncle/learning_loss_diagnostic/report_comparison/20261007_drive_vs_r2_01.json",
+    "code_version": "dd7beb173fb957467116c71b6ffe39e562799016",
+    "current_runtime": {
+      "torch": "2.11.0+cu130",
+      "cuda": "13.0",
+      "gpu": "NVIDIA A100-SXM4-40GB"
+    }
+  },
+  "trials": [
+    {
+      "beta": 0.0,
+      "new_task": "17",
+      "new_task_accuracy": 54.0,
+      "mean_old_accuracy_before": 40.35,
+      "mean_old_accuracy_after": 13.85,
+      "mean_old_change": -26.499999999999996,
+      "largest_old_drop": 41.599999999999994,
+      "old_task_changes": {
+        "3": -9.2,
+        "0": -16.799999999999997,
+        "9": -38.4,
+        "5": -41.599999999999994
+      },
+      "source_sha256": "9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f",
+      "reused": false,
+      "result_prefix": "uncle/learning_loss_diagnostic/20261007_beta_batch_01/beta_0",
+      "final_accuracies": {
+        "3": 17.8,
+        "0": 14.4,
+        "9": 10.0,
+        "5": 13.2,
+        "17": 54.0
+      }
+    },
+    {
+      "beta": 0.001,
+      "new_task": "17",
+      "new_task_accuracy": 56.8,
+      "mean_old_accuracy_before": 40.35,
+      "mean_old_accuracy_after": 38.8,
+      "mean_old_change": -1.549999999999998,
+      "largest_old_drop": 5.799999999999997,
+      "old_task_changes": {
+        "3": -4.600000000000001,
+        "0": 0.40000000000000213,
+        "9": 3.8000000000000043,
+        "5": -5.799999999999997
+      },
+      "source_sha256": "9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f",
+      "reused": false,
+      "result_prefix": "uncle/learning_loss_diagnostic/20261007_beta_batch_01/beta_0_001",
+      "final_accuracies": {
+        "3": 22.4,
+        "0": 31.6,
+        "9": 52.2,
+        "5": 49.0,
+        "17": 56.8
+      }
+    },
+    {
+      "beta": 0.01,
+      "new_task": "17",
+      "new_task_accuracy": 52.2,
+      "mean_old_accuracy_before": 40.35,
+      "mean_old_accuracy_after": 40.3,
+      "mean_old_change": -0.049999999999998934,
+      "largest_old_drop": 3.799999999999997,
+      "old_task_changes": {
+        "3": 1.8000000000000007,
+        "0": 0.1999999999999993,
+        "9": 1.6000000000000014,
+        "5": -3.799999999999997
+      },
+      "source_sha256": "9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f",
+      "reused": true,
+      "result_prefix": "uncle/learning_loss_diagnostic/20261006_learning_loss_r2_01/beta_0_01",
+      "final_accuracies": {
+        "3": 28.8,
+        "0": 31.4,
+        "9": 50.0,
+        "5": 51.0,
+        "17": 52.2
+      }
+    },
+    {
+      "beta": 0.1,
+      "new_task": "17",
+      "new_task_accuracy": 50.8,
+      "mean_old_accuracy_before": 40.35,
+      "mean_old_accuracy_after": 41.35,
+      "mean_old_change": 1.0,
+      "largest_old_drop": 0.3999999999999986,
+      "old_task_changes": {
+        "3": 2.0,
+        "0": -0.3999999999999986,
+        "9": 1.3999999999999986,
+        "5": 1.0
+      },
+      "source_sha256": "9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f",
+      "reused": false,
+      "result_prefix": "uncle/learning_loss_diagnostic/20261007_beta_batch_01/beta_0_1",
+      "final_accuracies": {
+        "3": 29.0,
+        "0": 30.8,
+        "9": 49.8,
+        "5": 55.8,
+        "17": 50.8
+      }
+    },
+    {
+      "beta": 1.0,
+      "new_task": "17",
+      "new_task_accuracy": 52.4,
+      "mean_old_accuracy_before": 40.35,
+      "mean_old_accuracy_after": 39.05,
+      "mean_old_change": -1.299999999999998,
+      "largest_old_drop": 3.799999999999997,
+      "old_task_changes": {
+        "3": -1.6000000000000014,
+        "0": 1.4000000000000021,
+        "9": -3.799999999999997,
+        "5": -1.1999999999999957
+      },
+      "source_sha256": "9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f",
+      "reused": false,
+      "result_prefix": "uncle/learning_loss_diagnostic/20261007_beta_batch_01/beta_1",
+      "final_accuracies": {
+        "3": 25.4,
+        "0": 32.6,
+        "9": 44.6,
+        "5": 53.6,
+        "17": 52.4
+      }
+    }
+  ],
+  "limitation": "Beta 0.01 is an earlier-session reference; four new trials share the current runtime."
+}

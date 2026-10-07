@@ -8,9 +8,9 @@ Learning a new task can lower older-task scores even without an unlearning reque
 
 The CPU report comparison is complete. The user reported matching starting-model hashes, starting scores, training settings, lesson, and task sizes. The only reported computer or software difference was the Git revision: `6a59648` for the earlier run and `dd7beb1` for the later run. This establishes matching recorded setup; it does not explain the accuracy difference or prove that every source-code path and runtime state matched. The comparison was checked in R2 at `uncle/learning_loss_diagnostic/report_comparison/20261007_drive_vs_r2_01.json`.
 
-Next, run the planned beta batch with values `0`, `0.001`, `0.01`, `0.1`, and `1`, starting from the same checkpoint before task 17. No additional GPU replay is proposed. Treat the outcomes as exploratory because run-to-run variation remains unexplained. No completed multi-value beta batch has been reported.
+The five-value beta batch is complete. With beta 0, task 17 reached 54.0%, but the older-task average fell by 26.5 points. With beta 0.1, task 17 reached 50.8%, the older-task average rose by 1.0 point, and the largest individual old-task drop was 0.4 points. This supports old-task protection as a useful mechanism in this continuation. It does not establish a repeatable optimum.
 
-Notebook 15 includes both steps as new sections. The user has finished `MODE = "COMPARE"` on CPU. Use `MODE = "BATCH"` next in a fresh A100 session. The batch runs four new beta values from the original source model and reuses the completed R2 beta-0.01 result. The comparison table identifies that earlier-session reference. The batch is implemented but has no reported results yet. It stops if the saved reports disagree on the source model, starting scores, training settings, task list, or dataset sizes.
+The recommendation is to stop expanding the beta search and carry beta 0.1 forward as a provisional retention setting. First repeat only its task-17 continuation from the same source model in one fresh session. If the retention result holds, use that setting for the next learning-only sequence before returning to deliberate unlearning. This repeat checks stability for this source model; multiple training seeds and checkpoints remain necessary for a generalized claim.
 
 The earlier cross-session replay problem remains unexplained. Its first recorded mismatch was at training update 1, after matching recorded inputs. A single new beta trial should therefore be treated as diagnostic evidence rather than a settled ranking.
 
@@ -21,11 +21,39 @@ The earlier cross-session replay problem remains unexplained. Its first recorded
 - [Hyperfan learning runs](#hyperfan-learning-runs-6-october)
 - [Task-17 continuation](#task-17-continuation-beta-001)
 - [R2 continuation reported on 7 October](#r2-continuation-reported-on-7-october)
+- [Beta batch completed on 7 October](#beta-batch-completed-on-7-october)
 - [History through 4 October](#history-through-4-october)
 - [Historical run notes through 29 September](#historical-run-notes-through-29-september)
 - [Learning audit and its qualification](#learning-audit-and-its-qualification)
 - [Hyperfan implementation and CPU checks](#hyperfan-implementation-and-cpu-checks)
 - [Paper recheck and diagnostic validation](#paper-recheck-and-diagnostic-validation)
+
+## Beta batch completed on 7 October
+
+The user supplied the saved batch comparison JSON. All five rows record the same source SHA-256, `9741c921a34ff68a8e15f2f80469adacf06cd0c72b9c3b8fb65da14e92d1586f`, for the confirmed model after tasks 3, 0, 9, and 5. The batch records code revision `dd7beb173fb957467116c71b6ffe39e562799016`, PyTorch `2.11.0+cu130`, CUDA `13.0`, and an NVIDIA A100-SXM4-40GB. Four new trials shared that runtime. Beta 0.01 was reused from an earlier session.
+
+| Beta | Task 17 accuracy (%) | Mean old-task change (points) | Largest old-task drop (points) | Result source |
+| --- | --- | --- | --- | --- |
+| 0 | 54.0 | -26.50 | 41.6 | New batch |
+| 0.001 | 56.8 | -1.55 | 5.8 | New batch |
+| 0.01 | 52.2 | -0.05 | 3.8 | Earlier-session reference |
+| 0.1 | 50.8 | +1.00 | 0.4 | New batch |
+| 1 | 52.4 | -1.30 | 3.8 | New batch |
+
+| Stage or beta | Task 3 (%) | Task 0 (%) | Task 9 (%) | Task 5 (%) |
+| --- | --- | --- | --- | --- |
+| Starting model | 27.0 | 31.2 | 48.4 | 54.8 |
+| 0 | 17.8 | 14.4 | 10.0 | 13.2 |
+| 0.001 | 22.4 | 31.6 | 52.2 | 49.0 |
+| 0.01 | 28.8 | 31.4 | 50.0 | 51.0 |
+| 0.1 | 29.0 | 30.8 | 49.8 | 55.8 |
+| 1 | 25.4 | 32.6 | 44.6 | 53.6 |
+
+Analysis: nonzero protection substantially reduced forgetting relative to beta 0 in these observations. Beta 0.001 had the highest new-task score; beta 0.1 had the smallest worst old-task drop. Increasing beta to 1 did not improve retention further. Each value has only one result in this table, and the earlier beta-0.01 continuation showed substantial run-to-run variation. The batch therefore identifies a candidate setting, not a statistically established ranking or a general reproduction of the paper.
+
+The aggregate file reports completed trial results. Individual epoch reports and checkpoints have not been independently inspected in this workspace. The file alone does not confirm that Colab released the GPU afterwards.
+
+Evidence: [original batch comparison JSON](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_beta_batch_comparison.json). R2 key: `uncle/learning_loss_diagnostic/20261007_beta_batch_01/beta_batch_comparison.json`.
 
 ## Session replay, 5 October
 
