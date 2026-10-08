@@ -56,7 +56,8 @@ def make_plan(code_version, partition_path, study_id='paired_generalization_v1')
         'config': vars(config), 'orders': ORDERS, 'seeds': [0, 1, 2],
         'forget_tasks': ['3', '5', '14'], 'new_tasks': ['15'],
         'forget_checkpoint_interval': 20, 'forget_evaluation_interval': 20,
-        'keep_post_unlearning_checkpoint': True,
+        'keep_post_unlearning_checkpoint': False,
+        'keep_branch_checkpoints': False,
         'forgetting_tolerance_pp': 2.0,
         'data_policy': '500 training images per class; validation evaluation; no recovery probe',
         'scope': 'Diagnostic generalization of experiment 06, not paper sequence reproduction',
@@ -101,6 +102,9 @@ def validate_plan(plan):
             raise ValueError('Checkpoint and evaluation intervals must be positive integers.')
     if not math.isfinite(plan['forgetting_tolerance_pp']) or plan['forgetting_tolerance_pp'] < 0:
         raise ValueError('Forgetting tolerance must be finite and nonnegative.')
+    for name in ('keep_post_unlearning_checkpoint', 'keep_branch_checkpoints'):
+        if name in plan and type(plan[name]) is not bool:
+            raise ValueError('Checkpoint retention settings must be booleans.')
 
 
 def jobs(plan):
@@ -162,12 +166,23 @@ class StudyStore:
                 or info.get('Metadata', {}).get('sha256') != artifact['sha256']):
             raise ValueError('Missing or changed R2 artifact: ' + artifact['key'])
 
+    def validate_progress_artifacts(self, job, progress):
+        self.validate_artifact(progress['report'])
+        if progress.get('checkpoint_retained', True):
+            self.validate_artifact(progress['checkpoint'])
+        elif (progress['status']!='complete' or job['kind']=='source'
+              or self.plan.get('keep_branch_checkpoints', True)):
+            raise ValueError('Required checkpoint cannot be discarded.')
+        elif not progress.get('checkpoint_verified_before_discard'):
+            raise ValueError('Discarded checkpoint lacks its verification receipt.')
+
     def load(self, job):
         progress = self.progress(job)
         if progress is None:
             return None
-        for field in ('checkpoint', 'report'):
-            self.validate_artifact(progress[field])
+        self.validate_progress_artifacts(job, progress)
+        if not progress.get('checkpoint_retained', True):
+            raise ValueError('This completed branch model was discarded after verification. Its report remains available.')
         path = self.store.download(progress['checkpoint']['key'], self.root / 'cache')
         return torch.load(path, map_location='cpu', weights_only=False)
 
@@ -175,8 +190,7 @@ class StudyStore:
         progress = self.progress(job)
         if progress is None or progress['status'] != 'complete':
             return None
-        for field in ('checkpoint', 'report'):
-            self.validate_artifact(progress[field])
+        self.validate_progress_artifacts(job, progress)
         report = self.read(progress['report']['key'])
         if report['status'] != 'complete' or report['job'] != job:
             raise ValueError('Invalid completed job report.')
@@ -218,6 +232,10 @@ class StudyStore:
                        if payload['active_request'] else None),
             'upload_verify_seconds': time.monotonic()-started,
             'updated_at': datetime.now(timezone.utc).isoformat()}
+        pointer['checkpoint_retained'] = not (complete and job['kind']!='source'
+            and not self.plan.get('keep_branch_checkpoints', True))
+        if not pointer['checkpoint_retained']:
+            pointer['checkpoint_verified_before_discard'] = True
         pointer_path = directory / 'progress.json'
         _write_json(pointer_path, pointer)
         self.store.upload(pointer_path, base + '/progress.json', overwrite=True)
@@ -229,29 +247,39 @@ class StudyStore:
         return pointer
 
     def cleanup(self, job):
-        """Only remove this completed job's four temporary slot objects."""
+        """Remove completed-job model files only after a durable verification receipt."""
         progress = self.progress(job)
         if progress is None or progress['status'] != 'complete':
             raise ValueError('Temporary slots can be cleaned only after completion.')
-        for field in ('checkpoint', 'report'):
-            self.validate_artifact(progress[field])
+        self.validate_progress_artifacts(job, progress)
         base = self.prefix + '/' + job['id']
         removed = []
-        for slot in (0, 1):
-            for suffix in ('pt', 'json'):
-                key = base + f'/resume_{slot}.{suffix}'
+        keys = [base+f'/resume_{slot}.{suffix}' for slot in (0,1) for suffix in ('pt','json')]
+        if not progress.get('checkpoint_retained', True):
+            if progress['checkpoint']['key']!=base+'/checkpoint.pt':
+                raise ValueError('Unexpected final checkpoint location.')
+            keys.append(base+'/checkpoint.pt')
+        for key in keys:
+            info = self.store.info(key)
+            if info is not None:
+                if key==base+'/checkpoint.pt':
+                    self.validate_artifact(progress['checkpoint'])
+                condition = {'IfMatch':info['ETag']} if info.get('ETag') else {}
+                self.store.client.delete_object(Bucket=self.store.bucket, Key=key, **condition)
                 if self.store.info(key) is not None:
-                    self.store.client.delete_object(Bucket=self.store.bucket, Key=key)
-                    if self.store.info(key) is not None:
-                        raise ValueError('Temporary slot deletion failed.')
-                    removed.append(key)
+                    raise ValueError('Completed-job model cleanup failed.')
+                removed.append(key)
         directory = self.root / job['id']
         for path in directory.glob('resume_*.*'):
             path.unlink()
+        if not progress.get('checkpoint_retained', True):
+            (directory/'checkpoint.pt').unlink(missing_ok=True)
         if removed:
             path = directory / 'resume_cleanup.json'
             _write_json(path, {'job':job['id'], 'removed':removed,
-                'completed_checkpoint':progress['checkpoint'], 'historical_files_touched':False})
+                'completed_checkpoint':progress['checkpoint'],
+                'checkpoint_retained':progress.get('checkpoint_retained',True),
+                'historical_files_touched':False})
             self.store.upload(path, base + '/resume_cleanup.json', overwrite=True)
 
 
@@ -432,8 +460,7 @@ def inspect_queue(plan, storage, *, progress=True):
             pointer = storage.progress(job)
             status = 'pending' if pointer is None else pointer['status']
             if pointer:
-                for field in ('checkpoint', 'report'):
-                    storage.validate_artifact(pointer[field])
+                storage.validate_progress_artifacts(job, pointer)
             rows.append({**job, 'status':status, 'active':pointer['active'] if pointer else None})
             bar.update(1)
     finally:

@@ -27,6 +27,7 @@ class Objects(Files):
         super().__init__()
         self.deleted = []
         self.fail_key = None
+        self.fail_delete_key = None
         self.download_keys = []
 
     def upload_file(self, path, bucket, key, ExtraArgs, **kwargs):
@@ -42,7 +43,9 @@ class Objects(Files):
         if 'Callback' in kwargs:
             kwargs['Callback'](Path(path).stat().st_size)
 
-    def delete_object(self, Bucket, Key):
+    def delete_object(self, Bucket, Key, **kwargs):
+        if Key==self.fail_delete_key:
+            raise OSError('Injected cleanup outage')
         self.deleted.append(Key)
         self.objects.pop(Key, None)
 
@@ -55,7 +58,8 @@ class PairedStudyTests(unittest.TestCase):
         self.tasks = {task:{'train':data,'test':data} for task in ('3','0','15')}
         self.plan = make_plan('test-revision', Path(__file__).resolve().parents[1]/'uncle/task_partition.json')
         self.plan.update(orders={'order_01':['3','0']}, seeds=[0], forget_tasks=['3'],
-                         forget_checkpoint_interval=2, forget_evaluation_interval=2)
+                         forget_checkpoint_interval=2, forget_evaluation_interval=2,
+                         keep_branch_checkpoints=True, keep_post_unlearning_checkpoint=True)
         self.plan['config'].update(tasks=['3','0','15'], device='cpu',
             classes_per_task=2, hidden=[16], code_dim=4, chunks=8, epochs=2,
             batch_size=4, eval_batch_size=4, noise_samples=2, burn_in=4)
@@ -103,6 +107,51 @@ class PairedStudyTests(unittest.TestCase):
                 seen.append(task)
             for name,value in h.state_dict().items():
                 self.assertTrue(torch.equal(value,saved['hypernet'][name]),name)
+
+    def test_reports_only_branch_retention_keeps_sources_and_review(self):
+        self.plan['keep_branch_checkpoints']=False
+        self.plan['keep_post_unlearning_checkpoint']=False
+        with tempfile.TemporaryDirectory() as directory:
+            storage=self.storage(Path(directory))
+            for job in jobs(self.plan):
+                run_job(self.plan,job,self.tasks,storage,device='cpu',progress=False)
+            models=[key for key in storage.store.client.objects if key.endswith('.pt')]
+            self.assertEqual(models,[storage.prefix+'/'+self.source['id']+'/checkpoint.pt'])
+            self.assertEqual(storage.load(self.source)['report']['status'],'complete')
+            for job in (self.control,self.branch):
+                pointer=storage.progress(job)
+                self.assertFalse(pointer['checkpoint_retained'])
+                self.assertTrue(pointer['checkpoint_verified_before_discard'])
+                self.assertEqual(storage.completed_report(job)['status'],'complete')
+                with self.assertRaisesRegex(ValueError,'discarded after verification'):
+                    storage.load(job)
+            self.assertEqual(review(self.plan,storage,progress=False)['valid_pairs'],1)
+            result=run_queue(self.plan,storage,lambda job:self.fail('Completed work should not train'),
+                max_jobs=1,max_minutes=2,reserve_minutes=1,device='cpu',progress=False)
+            self.assertEqual(result['completed_jobs'],3)
+
+    def test_cleanup_outage_keeps_completion_and_refuses_changed_model(self):
+        self.plan['keep_branch_checkpoints']=False
+        self.plan['keep_post_unlearning_checkpoint']=False
+        with tempfile.TemporaryDirectory() as directory:
+            storage=self.storage(Path(directory))
+            run_job(self.plan,self.source,self.tasks,storage,device='cpu',progress=False)
+            key=storage.prefix+'/'+self.control['id']+'/checkpoint.pt'
+            storage.store.client.fail_delete_key=key
+            with self.assertRaisesRegex(OSError,'cleanup outage'):
+                run_job(self.plan,self.control,self.tasks,storage,device='cpu',progress=False)
+            self.assertEqual(storage.completed_report(self.control)['status'],'complete')
+            self.assertIn(key,storage.store.client.objects)
+            data,metadata=storage.store.client.objects[key]
+            storage.store.client.fail_delete_key=None
+            storage.store.client.objects[key]=(b'changed',metadata)
+            with self.assertRaisesRegex(ValueError,'changed R2 artifact'):
+                storage.cleanup(self.control)
+            self.assertIn(key,storage.store.client.objects)
+            storage.store.client.objects[key]=(data,metadata)
+            storage.cleanup(self.control)
+            self.assertNotIn(key,storage.store.client.objects)
+            self.assertEqual(storage.completed_report(self.control)['status'],'complete')
 
     def test_epoch_and_forget_resume_match_uninterrupted_with_no_old_training(self):
         with tempfile.TemporaryDirectory() as directory:
