@@ -14,11 +14,13 @@ The beta-0.1 repeat is complete and was read directly from R2, together with bot
 
 The beta diagnostic and three-lesson learning-only sequence are now complete. Keep beta 0.1 as a provisional setting and stop further beta tuning or session probes for now. The sequence's original five-task average finished unchanged, but task 17 lost 5.8 points and task 1 lost 7.8 points during the last lesson. A paired unlearning comparison from the same starting checkpoint is the next research step, so ordinary forgetting can be distinguished from the effect of deliberate unlearning. Multiple training seeds and checkpoints remain necessary for a generalized claim.
 
-The user authorized that pair. Notebook 15 now implements `MODE = "PAIRED"` in section 10. From the saved model after learning 14, branch A learns 15; branch B unlearns 3, then learns 15. Both branches restore the same source model and reset PyTorch RNG to the source state before learning. The report verifies source model, initial scores, new-task code, CPU/CUDA RNG, batch order, input values, and update count. Old task codes, chunk codes, and BatchNorm buffers must remain unchanged. During later learning, task 3 stays protected at its post-unlearning state. No pair result has been reported yet.
+The paired experiment is complete. From the saved model after learning 14, branch A learned 15; branch B unlearned 3, then learned 15. Direct R2 review independently recomputed all eight matching-condition checks from the branch reports. Task 3 fell from 27.4% to 10.0% and stayed at 10.0% through all five later learning epochs. Common retained tasks finished 0.34 points lower on average in B than A, while new task 15 finished 5.4 points lower. Individual retained-task differences were larger than the mean. This is one controlled observation of functional forgetting without observed relapse through one subsequent lesson, not evidence of information erasure.
 
 The new paired runner resolves the recorded representation difference explicitly: its noise loss uses actual generated target parameters, including output scales and offsets, matching the representation used by preservation. It averages summed squared distances to fresh unit Gaussian vectors, as in Algorithm 2 and equation 3. Historical `UnCLe.forget()` retains its raw-output objective. This is a new unlearning implementation for this pair, not a reinterpretation of old results. The source's fixed settings are beta 0.1, gamma 0.01, 100 unlearning steps, ten noise samples, learning and unlearning LR 0.0001, five learning epochs, and batch size 64. Moving U3 to this later checkpoint and using the pilot learning settings makes this a diagnostic variant, not an exact paper reproduction. [Paper, unlearning](https://arxiv.org/html/2509.17530v1#S3.SS1.SSS2)
 
 Measure task 3 immediately after unlearning and after learning 15, and compare changes on the seven common retained tasks against branch A. If task 3 never reaches 10%, a later increase does not demonstrate relapse after successful unlearning. Chance accuracy alone does not prove information erasure. Matching recorded conditions does not exclude all GPU numerical variation in a single pair. The notebook uploads reports during the run and only three new models: A final, B after unlearning, and B final, approximately 1.61 GB total. Existing files are preserved. Local small-model tests check the objective's value and gradient, control equivalence to ordinary learning, frozen state, absence of old training-data reads, RNG isolation, checkpoint history, invalid-pair rejection, and R2 publication. These tests are not A100 results.
+
+Decision after the completed pair: close this first functional-unlearning comparison without another gamma or beta search. Preserve the source, after-unlearning, and final branch checkpoints for a bounded recovery probe. The next residual-knowledge question is whether task-3 performance can be recovered from the saved unlearned model under a fixed adaptation budget and suitable controls. Faster recovery than a control can indicate reusable information, but transfer from retained tasks must be distinguished from task-3-specific residual knowledge. No recovery experiment has been run, and the present accuracy result cannot answer that question.
 
 The completed sequence used notebook 15, section 9, with `MODE = "SEQUENCE"`. It loaded the completed beta-0.1 repeat model after tasks 3, 0, 9, 5, and 17, then learned 1, 7, and 14 in that order, carrying each final model forward. Task 17 was not trained again. This follows the next learning operations in Table 4's Tiny ImageNet sequence 1 while keeping this diagnostic learning-only. Beta stayed 0.1; other settings came from the saved repeat model.
 
@@ -38,11 +40,38 @@ The earlier cross-session replay problem remains unexplained. Its first recorded
 - [Beta batch completed on 7 October](#beta-batch-completed-on-7-october)
 - [Beta 0.1 repeat read from R2](#beta-01-repeat-read-from-r2)
 - [Learning sequence 1, 7, 14 completed](#learning-sequence-1-7-14-completed)
+- [Paired U3 and L15 completed](#paired-u3-and-l15-completed)
 - [History through 4 October](#history-through-4-october)
 - [Historical run notes through 29 September](#historical-run-notes-through-29-september)
 - [Learning audit and its qualification](#learning-audit-and-its-qualification)
 - [Hyperfan implementation and CPU checks](#hyperfan-implementation-and-cpu-checks)
 - [Paper recheck and diagnostic validation](#paper-recheck-and-diagnostic-validation)
+
+## Paired U3 and L15 completed
+
+The user supplied `uncle/learning_loss_diagnostic/20261007_U3_L15_pair_01/paired_comparison.json`. The comparison and two full branch reports were read directly from R2 and verified against their SHA-256 metadata. Source hash `4b8849bece1e82defd7c0393dd4c5f9acefe4caa87a30fba932e5179f300a980` matches the preceding learning sequence's final checkpoint. Runner revision is `bda6040bff7d3927d78f8289f3ecd584e529508f`. Both branches completed 395 learning updates on the same A100 runtime. Branch B completed 100 unlearning updates first.
+
+All eight controls were independently recomputed from the individual reports and passed: starting model, starting scores, CPU RNG, CUDA RNG, new-task code, batch order, input values, and update count. Reported frozen-state fingerprints also match before and after both branches. Remote metadata for A final, B after unlearning, and B final matches each recorded checkpoint fingerprint. Models were not independently downloaded or loaded during this review. The reports alone do not verify that Colab released the GPU afterwards.
+
+| Task | Start (%) | After U3 (%) | A: L15 final (%) | B: U3 then L15 final (%) | B minus A (points) |
+| --- | --- | --- | --- | --- | --- |
+| 3, forget target | 27.4 | 10.0 | 35.2 | 10.0 | -25.2 |
+| 0 | 31.6 | 30.0 | 36.8 | 34.2 | -2.6 |
+| 9 | 45.6 | 42.4 | 47.0 | 41.4 | -5.6 |
+| 5 | 54.2 | 53.0 | 46.0 | 55.6 | +9.6 |
+| 17 | 50.0 | 50.0 | 45.0 | 47.8 | +2.8 |
+| 1 | 49.0 | 46.8 | 52.0 | 46.6 | -5.4 |
+| 7 | 31.8 | 30.8 | 29.4 | 30.4 | +1.0 |
+| 14 | 47.6 | 46.0 | 45.8 | 43.6 | -2.2 |
+| 15, new task | Not learned | Not learned | 54.4 | 49.0 | -5.4 |
+
+Task 3 first reached 10.0% at the recorded step-20 evaluation and stayed there at every subsequent unlearning evaluation through step 100. It stayed at 10.0% at each of the five L15 epoch evaluations. Branch A's task-3 score instead rose to 35.2%. This supports functional suppression and absence of observed accuracy relapse over this one later lesson. It does not demonstrate erasure, permanence across a longer sequence, or a repeatable different-seed effect.
+
+For the same seven retained tasks, mean changes relative to the starting checkpoint were -1.54 points after U3, -1.11 points after A's L15, and -1.46 points after B's U3 and L15. The paired final difference is -0.34 points. This small mean difference is descriptive and should not be treated as a resolved statistically reliable effect. Task-level changes do not cancel scientifically merely because they cancel in the average: task 9 is 5.6 points worse in B, while task 5 is 9.6 points better. New task 15 is 5.4 points worse in B.
+
+There was substantial temporary retained-task damage. The first unlearning update lowered task 17 from 50.0% to 28.2%, a 21.8-point drop. Much of the retained performance recovered during the remaining unlearning updates. The initial preservation penalty is zero at the starting snapshot; this observation does not establish the cause or prove that the noise term dominates all gradients. Its large scalar loss includes the high-dimensional Gaussian squared-distance contribution and cannot by itself quantify gradient dominance.
+
+Evidence: [paired comparison](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_paired_comparison.json), [learning-only report](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_pair_learning_only_report.json), and [unlearn-then-learn report](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_pair_unlearn_then_learn_report.json).
 
 ## Learning sequence 1, 7, 14 completed
 
