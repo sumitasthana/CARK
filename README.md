@@ -72,3 +72,6 @@ The wiki's Wednesday and Saturday publication schedule is separate.
 Adhikari, Sayanta, et al. "An Unlearning Framework for Continual Learning."
 *arXiv*, 2025.
 [doi:10.48550/arXiv.2509.17530](https://doi.org/10.48550/arXiv.2509.17530).
+
+Ha, David, Andrew Dai, and Quoc V. Le. "HyperNetworks." *arXiv*, 2016.
+[doi:10.48550/arXiv.1609.09106](https://doi.org/10.48550/arXiv.1609.09106).
