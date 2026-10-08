@@ -23,12 +23,20 @@ def _key(value):
     return value
 
 
+def _transfer_bar(total, description, enabled):
+    if enabled:
+        from tqdm.auto import tqdm
+        return tqdm(total=total, desc=description, unit='B', unit_scale=True, leave=False)
+    return None
+
+
 class R2Store:
     """One writer per experiment folder; uploads are checked by reading them back."""
 
-    def __init__(self, client, bucket):
+    def __init__(self, client, bucket, progress=False):
         self.client = client
         self.bucket = bucket
+        self.progress = progress
 
     @classmethod
     def connect(cls, endpoint, bucket, access_key, secret_key):
@@ -38,7 +46,8 @@ class R2Store:
         from botocore.config import Config
         client = boto3.client('s3', endpoint_url=endpoint, region_name='auto',
             aws_access_key_id=access_key, aws_secret_access_key=secret_key,
-            config=Config(signature_version='s3v4', retries={'mode': 'standard', 'max_attempts': 5},
+            config=Config(signature_version='s3v4', connect_timeout=10, read_timeout=60,
+                retries={'mode': 'standard', 'max_attempts': 3},
                 request_checksum_calculation='when_required', response_checksum_validation='when_required'))
         return cls(client, bucket)
 
@@ -63,12 +72,17 @@ class R2Store:
         response = self.client.get_object(Bucket=self.bucket, Key=_key(key))
         body = response['Body']
         digest, size = hashlib.sha256(), 0
+        bar = _transfer_bar(expected_size, 'Verify R2 ' + key.rsplit('/', 1)[-1], self.progress)
         try:
             for chunk in iter(lambda: body.read(1024 * 1024), b''):
                 digest.update(chunk)
                 size += len(chunk)
+                if bar:
+                    bar.update(len(chunk))
         finally:
             body.close()
+            if bar:
+                bar.close()
         if size != expected_size or digest.hexdigest() != expected_sha256:
             raise ValueError(f'R2 file verification failed: {key}')
 
@@ -80,7 +94,14 @@ class R2Store:
         if existing is not None and not same and not overwrite:
             raise FileExistsError(f'R2 already has a different file: {key}. Choose a new experiment name.')
         if not same:
-            self.client.upload_file(str(path), self.bucket, key, ExtraArgs={'Metadata': {'sha256': digest}})
+            bar = _transfer_bar(size, 'Upload ' + path.name, self.progress)
+            try:
+                callbacks = {'Callback': bar.update} if bar else {}
+                self.client.upload_file(str(path), self.bucket, key,
+                    ExtraArgs={'Metadata': {'sha256': digest}}, **callbacks)
+            finally:
+                if bar:
+                    bar.close()
         self.verify(key, digest, size)
         if sha256(path) != digest:
             raise ValueError(f'The local file changed during upload: {path}')
@@ -101,13 +122,17 @@ class R2Store:
         if path.is_file() and path.stat().st_size == info['ContentLength'] and sha256(path) == digest:
             return path
         temporary = path.with_name(path.name + '.partial-' + uuid.uuid4().hex)
+        bar = _transfer_bar(info['ContentLength'], 'Download ' + path.name, self.progress)
         try:
-            self.client.download_file(self.bucket, key, str(temporary))
+            callbacks = {'Callback': bar.update} if bar else {}
+            self.client.download_file(self.bucket, key, str(temporary), **callbacks)
             if temporary.stat().st_size != info['ContentLength'] or sha256(temporary) != digest:
                 raise ValueError(f'Downloaded file verification failed: {key}')
             temporary.replace(path)
         finally:
             temporary.unlink(missing_ok=True)
+            if bar:
+                bar.close()
         return path
 
     def copy_tree(self, root, prefix, *, on_file=None, exclude_dirs=(), suffixes=None):
