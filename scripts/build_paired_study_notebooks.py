@@ -140,7 +140,8 @@ def prepare(revision):
         # plan["orders"] = {"order_01": plan["orders"]["order_01"]}
         # plan["seeds"] = [0]
         # plan["forget_tasks"] = ["3"]
-        # plan["keep_post_unlearning_checkpoint"] = False  # smaller final storage
+        # plan["keep_post_unlearning_checkpoint"] = True  # retain these for selected follow-up work
+        # plan["keep_branch_checkpoints"] = True  # retain all branch finals for later model inspection
         from uncle.paired_study import validate_plan
         validate_plan(plan)
         print(json.dumps(plan, indent=2))
@@ -152,7 +153,11 @@ def prepare(revision):
         paired_count = counts["unlearned"]
         learning_lessons = sum(action == "learn" for job in queue for action, task in job["operations"])
         approx_model_bytes = 538_000_000  # approximate observed model size, not a storage limit
-        retained_models = len(queue) + (paired_count if plan["keep_post_unlearning_checkpoint"] else 0)
+        retained_models = counts["source"]
+        if plan["keep_branch_checkpoints"]:
+            retained_models += counts["control"] + counts["unlearned"]
+        if plan["keep_post_unlearning_checkpoint"]:
+            retained_models += paired_count
         print("Work units:", dict(counts))
         print("Paired comparisons:", paired_count)
         print("Learning lessons:", learning_lessons, "Unlearning requests:", paired_count)
@@ -160,6 +165,7 @@ def prepare(revision):
         print("Two active resume slots add roughly 4.3 GB for a large job; actual size is measured when saved.")
         print("Runtime is unknown until the first GPU sessions measure training, evaluation, and transfers.")
         print("Resume saves include Adam and the original protection snapshot, so they exceed final model size.")
+        print("Sources remain available. Branch models are deleted after verified completion; reports and hashes remain.")
         print("Temporary slots are removed only after the final model and report are verified.")
         print("No existing experiment folders are deleted. No dataset images are uploaded.")
         '''),
@@ -241,9 +247,12 @@ def gpu(revision):
         and the study queue also have progress bars.
 
         Every progress pointer is published after its checkpoint and report are verified.
-        Completed jobs keep final models and reports. With the default plan, deletion branches
-        also keep their immediate post-unlearning models. Cleanup touches only this study's
-        temporary resume slots for completed jobs. It never deletes historical experiment files.
+        Source models remain available for every branch. By default, branch final models are
+        deleted after the completed report and model verification receipt are durably saved.
+        Immediate post-unlearning models are not retained by default. All reports, settings,
+        hashes, and figures remain. Unfinished jobs retain resumable model and optimizer state.
+        Cleanup touches only this study's completed-job model files and temporary slots.
+        It never deletes historical experiment files.
         '''),
         code('''
         from uncle.streams import build_tasks
