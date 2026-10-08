@@ -19,3 +19,11 @@ The gate keeps the proposal's retained mean above 40% and summed absolute spill 
 Four small CPU tests passed for branch isolation, shared-state reuse, frozen-state preservation, request-boundary resume, configuration mismatch refusal, spill arithmetic, and partition mismatch rejection. These tests do not establish study-model accuracy or GPU runtime. The notebook code cells compile. Cloud credentials, dataset download, R2 transfers, and A100 training were not executed in this review.
 
 Next decision: run CPU image preparation and protocol checks first. When training is explicitly resumed, prepare and review seed 0 before committing further GPU sessions. Recovery adaptation and component tests still require a later runner. Main-repository records are updated now; wiki publication stays on its Wednesday/Saturday schedule.
+
+## Manifest persistence after a disconnected session
+
+The user reported that the notebook-16 session had disconnected and asked where its manifest was saved. The original notebook saved local JSON files and exported a ZIP; it did not upload to R2. A read-only bucket check found no object at `uncle/recovery_study/recovery_task3_reserved_v1/manifest.json`. Whether the user downloaded the ZIP or whether the disconnected runtime retains local files is unknown.
+
+Notebook 16 now uploads the manifest and preparation metadata to R2 by default, with content verification, before offering the ZIP export. It uploads no images or checkpoints. Notebook 17 now reads the R2 manifest in CPU CHECK and PREPARE modes as well as TRAIN. LOCAL remains an explicit alternative. A missing remote manifest stops with instructions to run notebook 16's CPU preparation and R2 save cell. The same split seed and class partition regenerate the same selection for the same extracted dataset layout.
+
+Both notebooks' code cells compile. Mocked-storage execution checked notebook 16's JSON uploads, notebook 17's CPU CHECK and PREPARE paths, and the missing-object message. No new manifest was uploaded to the user's bucket by this work. No dataset or model training was performed.
