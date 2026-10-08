@@ -37,6 +37,8 @@
     .protocol{font-size:15px;color:var(--muted)}.small{font-size:14px;color:var(--muted)}.source-links{font-size:15px}.source-links ul{columns:2;column-gap:30px}.source-links li{break-inside:avoid}
     footer{padding:26px 60px;background:#fafbfc;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:20px;font-size:14px;color:var(--muted)}
     button{font:inherit;border:1px solid #a5b2c0;padding:8px 14px;background:white;color:var(--ink);border-radius:4px;cursor:pointer}button:hover{background:#edf2f6}
+    .snapshot-toolbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:12px}.snapshot-toolbar h2{margin:0}.snapshot-table{font-size:16px;min-width:720px}.snapshot-table th,.snapshot-table td{padding:14px 16px}.snapshot-table th:first-child{width:17%}.snapshot-table th:nth-child(2){width:32%}.snapshot-table ul{margin:0;padding-left:20px}.snapshot-table li{margin-bottom:6px}.snapshot-table li:last-child{margin:0}.snapshot-start{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.snapshot-sequence{font-weight:650}.snapshot-scope{font-size:14px;color:var(--muted);margin-bottom:12px}
+    body.presenting .topbar,body.presenting header,body.presenting nav.contents,body.presenting main>section:not(#snapshot),body.presenting footer,body.presenting .skip{display:none}body.presenting .report{max-width:1500px;margin:12px auto;border:0}body.presenting main{padding:0 24px 16px}body.presenting #snapshot{padding-top:12px}body.presenting .snapshot-table{font-size:17px;line-height:1.45}body.presenting .snapshot-start,body.presenting .snapshot-scope{font-size:14px;line-height:1.45}body.presenting .snapshot-table th,body.presenting .snapshot-table td{padding:12px 14px}body.presenting .snapshot-table li{margin-bottom:4px}body.presenting .snapshot-toolbar h2{font-size:26px}body.presenting .snapshot-scope{margin-bottom:8px}body.presenting .table-scroll{margin:12px 0}body.presenting #snapshot>.small{margin-bottom:0;font-size:13px}
     @media(max-width:720px){body{font-size:16px}.topbar{padding:20px}.toplinks{gap:12px}.report{border-left:0;border-right:0;border-radius:0;margin-bottom:0}header{padding:32px 22px}.lead{font-size:18px}.keynumbers{gap:12px}.keynumber{padding-left:10px}.keynumber strong{font-size:22px}.keynumber span{font-size:12px}nav.contents{padding:18px 22px;gap:8px 16px}main{padding:0 22px 30px}h2{font-size:25px}.terms{grid-template-columns:1fr}figure{padding:12px}.chart svg{min-width:520px}.source-links ul{columns:1}footer{padding:24px 22px;flex-wrap:wrap}.note{padding:16px}.figure-title{font-size:15px}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
     @media print{body{background:white;font-size:10pt}.topbar,nav.contents,button,.skip{display:none}.report{border:0;margin:0;max-width:none}header,main,footer{padding-left:0;padding-right:0}header{padding-top:0}h1{font-size:26pt}h2{font-size:17pt}section{padding-top:20px}figure{break-inside:avoid;padding:8px}.chart svg{min-width:0}details{display:block}details>summary{display:none}details>*{display:block!important}.table-scroll{overflow:visible}table,.assessment{min-width:0;font-size:8pt}a{color:inherit}.terms{grid-template-columns:1fr 1fr}footer{background:white}}
@@ -58,8 +60,22 @@
         <div class="keynumber"><strong>One pair</strong><span>Evidence from one seed and one later lesson</span></div>
       </div>
     </header>
-    <nav class="contents" aria-label="Report contents"><a href="#question">Research question</a><a href="#methods">Dataset, settings, and architecture</a><a href="#repeatability">Repeated runs</a><a href="#protection">Protection</a><a href="#sequence">Successive lessons</a><a href="#paired">Paired test</a><a href="#claims">Paper comparison</a><a href="#evidence">Evidence</a></nav>
+    <nav class="contents" aria-label="Report contents"><a href="#snapshot">Experiment snapshot</a><a href="#question">Research question</a><a href="#methods">Dataset, settings, and architecture</a><a href="#repeatability">Repeated runs</a><a href="#protection">Protection</a><a href="#sequence">Successive lessons</a><a href="#paired">Paired test</a><a href="#claims">Paper comparison</a><a href="#evidence">Evidence</a></nav>
     <main id="report">
+      <section id="snapshot">
+        <p class="section-number">Presentation summary · Evidence through 7 October 2026</p>
+        <div class="snapshot-toolbar"><h2>Key experiments and findings</h2><button type="button" id="present-snapshot" aria-pressed="false">Present this table</button></div>
+        <p class="snapshot-scope"><strong>L = learn a task. U = unlearn a task.</strong> Each task contains ten image classes; chance accuracy is 10%. Arrows show operation order. All scores are validation accuracy; changes are percentage points.</p>
+        <div class="table-scroll"><table class="snapshot-table"><thead><tr><th scope="col">Experiment</th><th scope="col">Sequence or comparison</th><th scope="col">Key findings</th></tr></thead><tbody>
+          <tr><th scope="row"><a href="#protection">Protection during new learning</a></th><td><span class="snapshot-start">Start: saved model after L3 → L0 → L9 → L5.</span><span class="snapshot-sequence">L17 with beta 0 vs beta 0.1</span><br><span class="snapshot-start">Beta sets the strength of old-task protection.</span></td><td><ul><li>Without protection, older tasks lost <strong>26.5 points on average</strong>.</li><li>With beta 0.1, their average rose <strong>1.0 point</strong> in this trial. Protection helped.</li></ul></td></tr>
+          <tr><th scope="row"><a href="#repeatability">Repeatability</a></th><td><span class="snapshot-start">Start: reload that same saved model for each run.</span><span class="snapshot-sequence">L17 twice in fresh GPU sessions</span><br><span class="snapshot-start">Same seed 0 and beta 0.1.</span></td><td><ul><li>Task 9 finished at <strong>49.8% vs 42.8%</strong>, a seven-point difference.</li><li>Matching recorded settings did not explain the variation. A stable best beta was not established.</li></ul></td></tr>
+          <tr><th scope="row"><a href="#sequence">Successive learning</a></th><td><span class="snapshot-start">Start: repeat model after tasks 3, 0, 9, 5, and 17.</span><span class="snapshot-sequence">L1 → L7 → L14</span><br><span class="snapshot-start">Continue each final model; beta 0.1; no unlearning.</span></td><td><ul><li>The original five-task average ended unchanged at <strong>41.76%</strong>.</li><li>Task 17 still fell from <strong>55.8% to 50.0%</strong>. The average hid an individual loss.</li></ul></td></tr>
+          <tr><th scope="row"><a href="#paired">Unlearning and later learning</a></th><td><span class="snapshot-start">Start: same saved model after L14 for both branches.</span><span class="snapshot-sequence">A: L15<br>B: U3 → L15</span><br><span class="snapshot-start">Beta 0.1; gamma 0.01; same GPU session.</span></td><td><ul><li>In B, task 3 fell from <strong>27.4% to 10.0%</strong> and stayed at 10.0% during L15.</li><li>Task 15 reached <strong>54.4% in A vs 49.0% in B</strong>. Unlearning did not improve new-task learning in this pair.</li></ul></td></tr>
+        </tbody></table></div>
+        <p class="snapshot-scope"><strong>Limit:</strong> these are one-seed diagnostics. The paired result covers one later lesson. Chance accuracy does not prove information erasure; recovery and privacy have not been tested. Experiments are paused.</p>
+        <p class="small"><a href="#methods">Settings and architecture</a> · <a href="#claims">Comparison with the paper</a> · <a href="#evidence">Evidence files</a>. Click an experiment name for its detailed results.</p>
+      </section>
+
       <section id="question">
         <p class="section-number">01 · The purpose</p>
         <h2>Research question and experimental sequence</h2>
@@ -2571,6 +2587,19 @@ L 425.077885 49.634068
     </main>
     <footer><span>CARK · Research progress through 7 October 2026</span><button type="button" id="print-report">Print / save as PDF</button></footer>
   </article>
-  <script>document.getElementById('print-report').addEventListener('click',function(){window.print();});</script>
+  <script>
+    document.getElementById('print-report').addEventListener('click',function(){window.print();});
+    const snapshotButton=document.getElementById('present-snapshot');
+    function presentSnapshot(enabled){
+      document.body.classList.toggle('presenting',enabled);
+      snapshotButton.setAttribute('aria-pressed',String(enabled));
+      snapshotButton.textContent=enabled?'Return to full report':'Present this table';
+      if(enabled){window.scrollTo(0,0);}else{document.getElementById('snapshot').scrollIntoView();}
+    }
+    snapshotButton.addEventListener('click',function(){presentSnapshot(!document.body.classList.contains('presenting'));});
+    document.addEventListener('keydown',function(event){if(event.key==='Escape'&&document.body.classList.contains('presenting')){presentSnapshot(false);}});
+    document.querySelectorAll('#snapshot a[href^="#"]').forEach(function(link){link.addEventListener('click',function(){if(document.body.classList.contains('presenting')){presentSnapshot(false);}});});
+    if(new URLSearchParams(window.location.search).get('view')==='snapshot'){presentSnapshot(true);}
+  </script>
 </body>
 </html>
