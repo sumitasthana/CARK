@@ -1,6 +1,6 @@
 # Experiment trajectory
 
-Updated 7 October 2026. This is the index for the dated experiment record. Each page keeps the questions, settings, results, evidence links, and decisions together.
+Updated 8 October 2026. This is the index for the dated experiment record. Each page keeps the questions, settings, results, evidence links, and decisions together.
 
 ## Latest findings
 
@@ -12,8 +12,11 @@ Read the [7 October research summary](Experiment-trajectory-2026-10-07#research-
 
 ## Record by date
 
+The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserved recovery images and matched-model preparation. No study GPU training or recovery experiment has been run in this work.
+
 | Reporting date or period | What is covered |
 | --- | --- |
+| [8 October 2026](Experiment-trajectory-2026-10-08) | CPU image-split notebook and matched-model preparation notebook; proposed controls, fixed criteria, and software checks. |
 | [7 October 2026](Experiment-trajectory-2026-10-07) | R2 continuation, beta batch and repeat, learning sequence, paired unlearning comparison, and reflection against the paper. |
 | [5 and 6 October 2026](Experiment-trajectory-2026-10-05-to-06) | Session replay, learning-only runs, Hyperfan pilot, task-17 continuation, and implementation reviews. |
 | [Through 4 October 2026](Experiment-trajectory-2026-10-04) | Earlier reproduction stages, parameter studies, full sequence, replay variation, and weight audit. |
