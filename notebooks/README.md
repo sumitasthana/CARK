@@ -8,6 +8,7 @@ Open the main workflows directly in Colab: [04: gradient diagnostic](https://col
 
 | Task | Notebook | Runtime | What it reads and saves |
 | --- | --- | --- | --- |
+| Prepare reserved images for the recovery study | [16: recovery data setup](16_recovery_data_setup.ipynb) | CPU only | Saves fixed task-3 initial-training, recovery, and validation lists; checks separation and nested budgets; exports a small ZIP. No model training or checkpoint loading. |
 | Compare learning with unlearning followed by learning | [15: R2 learning-loss diagnostic](15_R2_learning_loss.ipynb) | Fresh A100 for PAIRED; earlier modes remain available | PAIRED loads the model after task 14. A learns 15; B unlearns 3, then learns 15. Checks matching source, new-task code, RNG, image order, and values. Records unlearning damage and subsequent task-3 recovery. Uses generated target weights in both unlearning terms. Saves three checkpoints and reports to R2, then releases the GPU. |
 | Inspect Tiny ImageNet files and labels | [01: dataset walkthrough](01_tiny_imagenet.ipynb) | CPU | Reads the dataset; no experiment result. |
 | Inspect one task and its batches | [02: task walkthrough](02_task1.ipynb) | CPU | Reads the dataset and fixed class partition; no experiment result. |
