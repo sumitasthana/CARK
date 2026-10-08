@@ -4,7 +4,9 @@ Updated 8 October 2026. This is the index for the dated experiment record. Each 
 
 ## Latest findings
 
-Further experiments are paused. In one controlled comparison, task-3 accuracy fell from 27.4% to 10.0%, the chance score for ten classes, and stayed there during one later lesson. Other tasks showed mixed changes. New task 15 scored 49.0% after unlearning versus 54.4% with learning alone.
+Study-model preparation has started: the user reported seed 0 completing shared L0 at 51.4% validation accuracy, with its checkpoint and report verified in R2. The next stage prepares the never-learned-task-3 sequence from that checkpoint. Recovery remains untested.
+
+In the earlier controlled comparison, task-3 accuracy fell from 27.4% to 10.0%, the chance score for ten classes, and stayed there during one later lesson. Other tasks showed mixed changes. New task 15 scored 49.0% after unlearning versus 54.4% with learning alone.
 
 Old-task protection helped in the beta trials, but repeated-session variation remains unexplained. Chance accuracy does not establish information erasure. Recovery, privacy, and results across multiple training seeds remain untested.
 
@@ -12,11 +14,11 @@ Read the [7 October research summary](Experiment-trajectory-2026-10-07#research-
 
 ## Record by date
 
-The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserved recovery images and matched-model preparation. No study GPU training or recovery experiment has been run in this work.
+The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserved recovery images and matched-model preparation. The user has reported shared L0 completion for seed 0; no recovery experiment has been reported.
 
 | Reporting date or period | What is covered |
 | --- | --- |
-| [8 October 2026](Experiment-trajectory-2026-10-08) | CPU image-split notebook and matched-model preparation notebook; proposed controls, fixed criteria, and software checks. |
+| [8 October 2026](Experiment-trajectory-2026-10-08) | CPU image-split notebook and matched-model preparation notebook; proposed controls, fixed criteria, software checks, and seed-0 shared L0 completion. |
 | [7 October 2026](Experiment-trajectory-2026-10-07) | R2 continuation, beta batch and repeat, learning sequence, paired unlearning comparison, and reflection against the paper. |
 | [5 and 6 October 2026](Experiment-trajectory-2026-10-05-to-06) | Session replay, learning-only runs, Hyperfan pilot, task-17 continuation, and implementation reviews. |
 | [Through 4 October 2026](Experiment-trajectory-2026-10-04) | Earlier reproduction stages, parameter studies, full sequence, replay variation, and weight audit. |
