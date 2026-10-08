@@ -97,6 +97,9 @@ def guarded_setup(cell):
     source = ''.join(cell['source'])
     wrapped = 'try:\n' + textwrap.indent(source, '    ')
     wrapped += '''except BaseException:
+    import traceback
+    traceback.print_exc(file=sys.stdout)
+    sys.stdout.flush()
     if RELEASE_GPU_WHEN_DONE and IN_COLAB:
         from google.colab import runtime
         print("Setup failed before training. Releasing the GPU runtime.")
@@ -275,6 +278,9 @@ def gpu(revision):
             print(json.dumps(session, indent=2))
             print("Session progress saved. Reopen this notebook with the same STUDY_ID to continue.")
         except BaseException as error:
+            import traceback
+            traceback.print_exc(file=sys.stdout)
+            sys.stdout.flush()
             print("Session interrupted:", type(error).__name__)
             print("Verified earlier R2 boundaries remain available. Do not change the study settings to resume.")
             raise

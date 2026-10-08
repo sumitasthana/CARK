@@ -24,6 +24,25 @@ def cells(name):
 
 
 class NotebookFlows(unittest.TestCase):
+    def test_setup_prints_error_before_runtime_release(self):
+        import types
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('notebook_builder',ROOT/'scripts/build_paired_study_notebooks.py')
+        builder=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        output=io.StringIO()
+        runtime=types.SimpleNamespace(unassign=lambda: print('RUNTIME RELEASED'))
+        colab=types.ModuleType('google.colab')
+        colab.runtime=runtime
+        scope={'sys':sys,'IN_COLAB':True,'RELEASE_GPU_WHEN_DONE':True}
+        source=''.join(builder.guarded_setup(builder.code('raise FileNotFoundError("missing study.json")'))['source'])
+        with patch.dict(sys.modules,{'google.colab':colab}), contextlib.redirect_stdout(output):
+            with self.assertRaises(FileNotFoundError):
+                exec(source,scope)
+        captured=output.getvalue()
+        self.assertIn('FileNotFoundError: missing study.json',captured)
+        self.assertLess(captured.index('FileNotFoundError: missing study.json'),captured.index('RUNTIME RELEASED'))
+
     def test_cpu_prepare_and_empty_review_export_use_reports_only(self):
         with tempfile.TemporaryDirectory() as directory, contextlib.redirect_stdout(io.StringIO()):
             store=R2Store(Objects(),'test')
