@@ -53,11 +53,14 @@ The proposed recovery measurements still need an experiment runner.
 
 ## Publish the HTML report
 
-The static report is in `site/`. It opens locally without a server. To publish it,
-choose **Settings → Pages → Source → GitHub Actions** in this repository. Then
-open **Actions → Publish experiment report → Run workflow** on `main`.
-The expected site address is `https://sumitasthana.github.io/CARK/`; it becomes
-available after the deployment succeeds. The workflow publishes only `site/`.
+The static report is in `site/`. It opens locally without a server. GitHub Pages
+currently publishes the root of `main`, so pushing report updates to that branch
+updates [the live report](https://sumitasthana.github.io/CARK/site/index.html)
+after the Pages build finishes.
+
+The optional **Publish experiment report** workflow publishes only `site/` and
+requires the Pages source to be set to **GitHub Actions**. That deployment mode
+would serve the report at `https://sumitasthana.github.io/CARK/`.
 
 To rebuild the report from the saved measurements, run
 `python scripts/build_experiment_site.py` with Matplotlib and NumPy installed.

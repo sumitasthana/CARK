@@ -80,19 +80,19 @@ def build():
         'axes.labelsize':12,'axes.titleweight':'bold','axes.titlesize':13})
     assets, values = {}, {}
 
-    fig, ax = plt.subplots(figsize=(8.5,3.8), layout='constrained')
-    x = np.arange(3)
-    tasks = ['3','9','17']
+    fig, ax = plt.subplots(figsize=(9,4), layout='constrained')
+    tasks = ['3','0','9','5','17']
+    x = np.arange(len(tasks))
     first = [repeat['first_final_accuracies'][t] for t in tasks]
     second = [repeat['repeat_final_accuracies'][t] for t in tasks]
     for offset, scores, color, label in ((-.19,first,BLUE,'First run'),(.19,second,ORANGE,'Fresh-session repeat')):
         bars=ax.bar(x+offset,scores,.36,color=color,label=label)
         ax.bar_label(bars,fmt='%.1f',padding=4,fontsize=11)
-    ax.set_xticks(x,['Task 3','Task 9','Task 17'])
+    ax.set_xticks(x,['Task '+t for t in tasks])
     ax.set_ylim(0,70)
     ax.legend(loc='upper left',frameon=False,ncols=2,fontsize=10)
     style_axis(ax,ylabel='Validation accuracy (%)')
-    values['repeat_chart']=export(fig,'01-repeat','Same beta and source model, different final scores',assets)
+    values['repeat_chart']=export(fig,'01-repeat','Final validation scores on all five tasks in two task-17 training runs',assets)
 
     trials=batch['trials']
     fig, axes=plt.subplots(1,2,figsize=(9.5,4.5),layout='constrained')
@@ -131,7 +131,7 @@ def build():
     ax.set_ylim(0,65)
     ax.legend(loc='lower left',frameon=False,fontsize=10)
     style_axis(ax,ylabel='Validation accuracy (%)')
-    values['sequence_chart']=export(fig,'03-sequence','An unchanged average can hide a falling task score',assets)
+    values['sequence_chart']=export(fig,'03-sequence','Original five-task mean and task-17 accuracy after learning tasks 1, 7, and 14',assets)
 
     fig,ax=plt.subplots(figsize=(8.5,4),layout='constrained')
     for report,color,label,marker in ((a,BLUE,'A: learning only','o'),(b,ORANGE,'B: unlearn 3, then learn 15','s')):
@@ -139,7 +139,7 @@ def build():
         ax.plot(range(7),numbers,color=color,label=label,marker=marker,linewidth=2.3)
         ax.annotate(f'{numbers[-1]:.1f}%',(6,numbers[-1]),xytext=(8,4),textcoords='offset points',color=color,fontsize=12)
     ax.axhline(10,color=INK,linestyle='--',linewidth=1,label='Chance: 10%')
-    ax.set_xticks(range(7),['Start','Before L15','Epoch 1','Epoch 2','Epoch 3','Epoch 4','Epoch 5'])
+    ax.set_xticks(range(7),['Start','Before\ntask 15','Epoch 1','Epoch 2','Epoch 3','Epoch 4','Epoch 5'])
     ax.set_xlim(-.15,6.7)
     ax.set_ylim(0,50)
     ax.legend(loc='upper left',frameon=False,fontsize=10)
@@ -181,7 +181,7 @@ def build():
     all_tasks=[*initial,*sequence['selection']['new_tasks']]
     values['sequence_table']=table(['Stage']+['Task '+t+' (%)' for t in all_tasks],[
         [row['stage'].capitalize()]+[f"{row['accuracies'][t]:.1f}" if t in row['accuracies'] else 'Not learned' for t in all_tasks] for row in stages])
-    values['pair_table']=table(['Task','Start (%)','After U3 (%)','A final (%)','B final (%)','B minus A (points)'],[
+    values['pair_table']=table(['Task','Start (%)','B: after unlearning 3 (%)','A: learn 15 (%)','B: unlearn 3, then learn 15 (%)','B minus A (points)'],[
         ['Task '+t+(' (target)' if t=='3' else ' (new)' if t=='15' else ''),
          f"{pair['starting_accuracies'][t]:.1f}" if t!='15' else 'Not learned',
          f"{pair['after_unlearning_accuracies'][t]:.1f}" if t!='15' else 'Not learned',
