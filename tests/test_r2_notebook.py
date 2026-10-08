@@ -19,6 +19,7 @@ from uncle.config import Config
 from uncle.hypernet import HyperNetwork
 from uncle.trainer import UnCLe
 from uncle.learning_diagnostic import run_learning_diagnostic as diagnostic
+from uncle.paired_diagnostic import run_paired_diagnostic as paired_diagnostic
 from uncle.storage import R2Store, sha256
 from test_storage import Files
 
@@ -32,9 +33,10 @@ class R2NotebookTests(unittest.TestCase):
             compile(cell, str(notebook), 'exec')
         torch.manual_seed(0)
         config = Config(dataset='tiny_imagenet', backbone='resnet50', device='cpu',
-            tasks=('3','0','9','5','17','1','7','14'), requests=tuple(('learn', t) for t in ('3','0','9','5')),
+            tasks=('3','0','9','5','17','1','7','14','15'), requests=tuple(('learn', t) for t in ('3','0','9','5')),
             initialization='hyperfan_in', hidden=(16,), code_dim=4, chunks=8,
-            epochs=1, batch_size=4, eval_batch_size=4, learning_rate=0.0001, beta=0.01)
+            epochs=1, batch_size=4, eval_batch_size=4, learning_rate=0.0001, beta=0.01,
+            noise_samples=2, burn_in=3)
         data = TensorDataset(torch.rand(8,3,8,8), torch.arange(8) % 10)
         tasks = {t: {'train': data, 'test': data} for t in config.tasks}
         def build_fixture_tasks(*args, **kwargs):
@@ -81,7 +83,8 @@ class R2NotebookTests(unittest.TestCase):
                 events.append('release')
             colab.runtime = SimpleNamespace(unassign=release)
             setup = cells[1].replace('Path("/content/drive/MyDrive/uncle")', 'TEST_ROOT / "drive"')
-            setup = setup.replace('MODE = "SEQUENCE"', 'MODE = "COMPARE"')
+            setup = setup.replace('MODE = "PAIRED"', 'MODE = "COMPARE"')
+            setup = setup.replace('REFERENCE_CODE_VERSION = "dd7beb173fb957467116c71b6ffe39e562799016"', 'REFERENCE_CODE_VERSION = "test-version"')
             setup = setup.replace('Path("/content/r2-cache")', 'TEST_ROOT / "cache"')
             setup = setup.replace('Path("/content/r2-results")', 'TEST_ROOT / "results"')
             setup = setup.replace('SOURCE_KEY = "uncle/learning_initialization/20261006_hyperfan_L3_L0_L9_seed0_02/checkpoint_seq1_resnet50_seed0.pt"', 'SOURCE_KEY = "uncle/model.pt"')
@@ -220,6 +223,37 @@ class R2NotebookTests(unittest.TestCase):
                 self.assertEqual(len(final_sequence['history']), 8)
                 self.assertEqual(events, ['mount', 'flush', 'release', 'release', 'release', 'release'])
                 self.assertIn(sequence_session['sequence_prefix'] + '/sequence_comparison.json', client.objects)
+
+                paired_session = namespace()
+                exec(setup.replace('MODE = "COMPARE"', 'MODE = "PAIRED"'), paired_session)
+                paired_cell = cells[9].replace('{"3": 27.4, "0": 31.6, "9": 45.6, "5": 54.2, "17": 50.0, "1": 49.0, "7": 31.8, "14": 47.6}', repr(final_sequence['previous']))
+                paired_cell = paired_cell.replace('(0.1, 0.01, 0.0001, None, 100, 10, 5, 64)', '(0.1, 0.01, 0.0001, None, 3, 2, 1, 4)')
+                def cpu_pair(*args, **kwargs):
+                    kwargs['device'] = 'cpu'
+                    kwargs['progress'] = False
+                    with patch('torch.cuda.is_available', return_value=False):
+                        return paired_diagnostic(*args, **kwargs)
+                with patch('torch.cuda.is_available', return_value=True), patch('torch.cuda.get_device_name', return_value='A100'), patch('uncle.streams.build_tasks', side_effect=build_fixture_tasks) as build, patch('uncle.paired_diagnostic.build_target', side_effect=target), patch('uncle.paired_diagnostic.run_paired_diagnostic', side_effect=cpu_pair) as run_pair:
+                    exec(source_cell, paired_session)
+                    for cell in cells[3:9]:
+                        exec(cell, paired_session)
+                    self.assertEqual(run_pair.call_count, 0)
+                    exec(paired_cell, paired_session)
+                    self.assertEqual(build.call_count, 1)
+                    self.assertEqual(run_pair.call_count, 1)
+                    with self.assertRaises(AssertionError):
+                        exec(paired_cell, paired_session)
+                paired_result = paired_session['paired_result']
+                self.assertEqual(paired_result['status'], 'complete')
+                self.assertTrue(all(paired_result['pair_checks'].values()))
+                self.assertEqual(paired_result['selection']['unlearning_objective'], 'generated_weights_unit_gaussian')
+                self.assertEqual(events.count('release'), 5)
+                self.assertEqual(sha256(source), original_hash)
+                self.assertEqual(sha256(sequence_session['current_source']), result['lessons'][-1]['checkpoint_sha256'])
+                models = [key for key in client.objects if key.startswith(paired_session['paired_prefix']) and key.endswith('.pt')]
+                self.assertEqual(len(models), 3)
+                remote_pair = json.loads(client.objects[paired_session['paired_prefix'] + '/paired_comparison.json'][0])
+                self.assertEqual(remote_pair, paired_result)
 
                 # A source mismatch is recorded on CPU and blocks all new training.
                 earlier['source_sha256'] = 'different model'
