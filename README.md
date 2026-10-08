@@ -40,7 +40,7 @@ unlearning methods. Neither shows up in accuracy at the end of a run.
 - **HTML research write-up:** [What our unlearning experiments show so far](site/index.html),
   with six figures, plain-English explanations, and links to the saved evidence.
 - **Results so far:** the [experiment trajectory](https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory),
-  every recorded run in order, with figures.
+  a short findings index with dated records and figures.
 - **Background:** the [concepts FAQ](https://github.com/sumitasthana/CARK/wiki/Concepts-and-processes)
   explains the method and how to read its results.
 - **Inspecting a trained model:** the [model diagnostics guide](docs/MODEL_DIAGNOSTICS.md)

@@ -91,9 +91,9 @@ def table(headers, rows):
 
 
 def render(registry, traces, gradients, norms):
-    """Keep one experiment page; background pages have separate subjects.
+    """Keep the experiment index and dated records; background pages have separate subjects.
 
-    Edit docs/wiki/Experiment-trajectory.md for new results. Raw measurements
+    Edit the dated trajectory records and index for new results. Raw measurements
     stay in DATA. This build checks the archive and removes obsolete wiki pages.
     """
     base = registry["repository"]
@@ -103,6 +103,8 @@ def render(registry, traces, gradients, norms):
         "Concepts-and-processes.md": (ROOT / "docs/CONCEPTS.md").read_text(encoding="utf-8"),
         "An-Unlearning-Framework-for-Continual-Learning.md": (ROOT / "docs/ANCHOR_PAPER.md").read_text(encoding="utf-8"),
     }
+    pages.update({path.name: path.read_text(encoding="utf-8")
+                  for path in sorted((ROOT / "docs/wiki").glob("Experiment-trajectory-*.md"))})
     pages["Model-diagnostics.md"] = (
         (ROOT / "docs/MODEL_DIAGNOSTICS.md").read_text(encoding="utf-8")
         .replace("(../notebooks/04_gradient_diagnostics.ipynb)",
@@ -112,7 +114,7 @@ def render(registry, traces, gradients, norms):
         .replace("(PLAN.md)", f"({base}/blob/main/docs/PLAN.md)")
     )
     entries = [
-        ("Experiment trajectory", "Experiment-trajectory", "the experiment record, results, and next comparison"),
+        ("Experiment trajectory", "Experiment-trajectory", "latest findings and experiment records by date"),
         ("Concepts and processes", "Concepts-and-processes", "what the model does and how to read its results"),
         ("Model diagnostics", "Model-diagnostics", "inspect weights, gradients, and Fisher scores"),
         ("Anchor paper", "An-Unlearning-Framework-for-Continual-Learning", "the paper we are reproducing"),

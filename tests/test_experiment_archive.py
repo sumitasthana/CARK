@@ -55,14 +55,18 @@ class ArchiveTests(unittest.TestCase):
 
     def test_generated_pages_match_sources_and_internal_links_resolve(self):
         pages = wiki.render(self.registry, self.traces, self.gradients, self.norms)
-        self.assertEqual(set(pages), {'Home.md', '_Sidebar.md', 'Experiment-trajectory.md',
+        expected = {'Home.md', '_Sidebar.md', 'Experiment-trajectory.md',
             'Concepts-and-processes.md', 'Model-diagnostics.md',
-            'An-Unlearning-Framework-for-Continual-Learning.md'})
+            'An-Unlearning-Framework-for-Continual-Learning.md'}
+        expected.update(path.name for path in (ROOT / 'docs/wiki').glob('Experiment-trajectory-*.md'))
+        self.assertEqual(set(pages), expected)
         for name, text in pages.items():
             self.assertEqual((ROOT / "docs" / "wiki" / name).read_text(encoding="utf-8"), text, name)
             self.assertNotIn("\u2014", text, name)
             for slug in re.findall(r"https://github.com/sumitasthana/CARK/wiki/([^#)\s]+)", text):
                 self.assertIn(slug + ".md", pages, (name, slug))
+            for slug in re.findall(r"\]\((Experiment-trajectory[^#)\s]*)(?:#[^)]+)?\)", text):
+                self.assertIn(slug + '.md', pages, (name, slug))
 
 
 if __name__ == "__main__":

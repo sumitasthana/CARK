@@ -30,13 +30,20 @@ def run(*args, cwd=None):
 
 
 def copy_record(source, wiki):
-    """Only the experiment page and its SVG evidence belong to this publication."""
+    """Publish the experiment index, dated records, and SVG evidence together."""
     source, wiki = Path(source), Path(wiki)
     text = (source / PAGE).read_text(encoding='utf-8')
     if not text.startswith('# Experiment trajectory\n') or '\u2014' in text:
         raise ValueError('The experiment page failed its heading or prose check.')
-    (wiki / PAGE.name).write_text(text, encoding='utf-8')
-    names = [PAGE.name]
+    records = {PAGE.name: text}
+    for path in sorted((source / PAGE.parent).glob('Experiment-trajectory-*.md')):
+        dated_text = path.read_text(encoding='utf-8')
+        if not dated_text.startswith('# Experiment trajectory: ') or '\u2014' in dated_text:
+            raise ValueError(f'The dated experiment page failed its prose check: {path.name}')
+        records[path.name] = dated_text
+    for name, content in records.items():
+        (wiki / name).write_text(content, encoding='utf-8')
+    names = list(records)
     figures = source / 'docs/reports/trajectory/figures'
     for figure in sorted(figures.rglob('*.svg')):
         relative = Path('figures') / figure.relative_to(figures)

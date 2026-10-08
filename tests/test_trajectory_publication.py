@@ -29,6 +29,8 @@ class PublicationTests(unittest.TestCase):
             source, wiki = Path(directory) / 'source', Path(directory) / 'wiki'
             (source / publication.PAGE).parent.mkdir(parents=True)
             (source / publication.PAGE).write_text('# Experiment trajectory\n\nResult.\n')
+            dated = 'Experiment-trajectory-2026-10-07.md'
+            (source / publication.PAGE.parent / dated).write_text('# Experiment trajectory: 7 October 2026\n\nResults.\n')
             figures = source / 'docs/reports/trajectory/figures/2026-10-04'
             figures.mkdir(parents=True)
             (figures / 'chart.svg').write_text('<svg/>')
@@ -36,7 +38,8 @@ class PublicationTests(unittest.TestCase):
             wiki.mkdir()
             (wiki / 'Home.md').write_text('Keep this page')
             copied = publication.copy_record(source, wiki)
-            self.assertEqual(copied, ['Experiment-trajectory.md', 'figures/2026-10-04/chart.svg'])
+            self.assertEqual(copied, ['Experiment-trajectory.md', dated, 'figures/2026-10-04/chart.svg'])
+            self.assertIn('Results.', (wiki / dated).read_text())
             self.assertEqual((wiki / 'Home.md').read_text(), 'Keep this page')
             self.assertFalse((wiki / 'figures/2026-10-04/private.json').exists())
             self.assertEqual((wiki / 'Experiment-trajectory.md').read_text(), '# Experiment trajectory\n\nResult.\n')
@@ -51,6 +54,18 @@ class PublicationTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 publication.copy_record(source, wiki)
             self.assertEqual((wiki / 'Experiment-trajectory.md').read_text(), 'Existing record')
+
+    def test_bad_dated_record_does_not_partially_replace_index(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, wiki = Path(directory) / 'source', Path(directory) / 'wiki'
+            (source / publication.PAGE).parent.mkdir(parents=True)
+            (source / publication.PAGE).write_text('# Experiment trajectory\n\nNew index.\n')
+            (source / publication.PAGE.parent / 'Experiment-trajectory-2026-10-07.md').write_text('Invalid dated page')
+            wiki.mkdir()
+            (wiki / publication.PAGE.name).write_text('Existing index')
+            with self.assertRaises(ValueError):
+                publication.copy_record(source, wiki)
+            self.assertEqual((wiki / publication.PAGE.name).read_text(), 'Existing index')
 
 
 if __name__ == '__main__':
