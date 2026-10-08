@@ -90,6 +90,7 @@ def build():
         'residual_chunks': environment['chunks_per_head']['residual']}
     diagram = Template((ROOT/'scripts/templates/architecture.svg').read_text(encoding='utf-8')).substitute(diagram_values)
     assets['assets/07-architecture.svg'] = diagram.encode()
+    assets['assets/08-architecture-unlearning.svg'] = diagram.replace('data-mode="learning"', 'data-mode="unlearning"', 1).encode()
     values['architecture_diagram'] = diagram
     values['generated_parameters'] = f"{environment['generated_parameters']:,}"
     values['hypernetwork_parameters'] = f"{environment['hypernetwork_parameters']:,}"
@@ -233,7 +234,7 @@ def main():
         else:
             target.parent.mkdir(parents=True,exist_ok=True)
             target.write_bytes(content)
-    print(('Checked' if args.check else 'Built')+f' HTML report, six charts, architecture diagram, and source data ({len(assets)} files).')
+    print(('Checked' if args.check else 'Built')+f' HTML report, six charts, learning and unlearning diagrams, and source data ({len(assets)} files).')
 
 
 if __name__=='__main__': main()
