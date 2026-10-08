@@ -33,6 +33,11 @@ uncle_from_scratch/outputs/
 # Local status and logs from the scheduled wiki publisher
 /outputs/wiki_publication/
 /outputs/r2-review/
+/outputs/site-review/
+
+# Public chart measurements for the experiment report
+!/site/data/
+!/site/data/*.json
 
 # Editable installs and build output
 *.egg-info/

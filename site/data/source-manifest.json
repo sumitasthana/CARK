@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-07",
+  "sources": [
+    {
+      "file": "20261007_beta_batch_comparison.json",
+      "canonical_json_sha256": "58495245bbfba7111384ae8c8b3afcf2c546e9d8283b03e7993f012c330f98b0"
+    },
+    {
+      "file": "20261007_beta01_repeat_comparison.json",
+      "canonical_json_sha256": "b7936e56a0490f5cce9dd81d8bf270c53d8f54d9e6879c7d57c7ea4892e3a2dc"
+    },
+    {
+      "file": "20261007_sequence_comparison.json",
+      "canonical_json_sha256": "c9d6536e932bc2473bcd2261f072a162e4fb5b1a9a3b060cb7c103eb107b2216"
+    },
+    {
+      "file": "20261007_paired_comparison.json",
+      "canonical_json_sha256": "622aaad21db8a7bbda5d750a308f581b06b205891e0bd8c9916d969dbff3ac5a"
+    },
+    {
+      "file": "20261007_pair_learning_only_report.json",
+      "canonical_json_sha256": "8efa83b1d411845205fd5fe9c843552eb24779380151e0bc0fe4bfacc77cf846"
+    },
+    {
+      "file": "20261007_pair_unlearn_then_learn_report.json",
+      "canonical_json_sha256": "1aefa9586d3caf006b827f106ebd7ca9d2a4288ee39539b533e84d75fbefc8de"
+    }
+  ],
+  "definition": "Canonical JSON SHA256 ignores formatting differences; figures use these saved measurements."
+}

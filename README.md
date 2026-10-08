@@ -37,6 +37,8 @@ unlearning methods. Neither shows up in accuracy at the end of a run.
 
 ## Where to look
 
+- **HTML research write-up:** [What our unlearning experiments show so far](site/index.html),
+  with six figures, plain-English explanations, and links to the saved evidence.
 - **Results so far:** the [experiment trajectory](https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory),
   every recorded run in order, with figures.
 - **Background:** the [concepts FAQ](https://github.com/sumitasthana/CARK/wiki/Concepts-and-processes)
@@ -48,6 +50,19 @@ unlearning methods. Neither shows up in accuracy at the end of a run.
   experiments, CPU reports, and historical notebooks.
 
 The proposed recovery measurements still need an experiment runner.
+
+## Publish the HTML report
+
+The static report is in `site/`. It opens locally without a server. To publish it,
+choose **Settings → Pages → Source → GitHub Actions** in this repository. Then
+open **Actions → Publish experiment report → Run workflow** on `main`.
+The expected site address is `https://sumitasthana.github.io/CARK/`; it becomes
+available after the deployment succeeds. The workflow publishes only `site/`.
+
+To rebuild the report from the saved measurements, run
+`python scripts/build_experiment_site.py` with Matplotlib and NumPy installed.
+Use `--check` to verify that the generated files match the source evidence.
+The wiki's Wednesday and Saturday publication schedule is separate.
 
 ## Citation
 

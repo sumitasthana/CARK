@@ -1,0 +1,2349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A plain-English report of CARK's learning and task-unlearning experiments, with evidence, charts, and limits on the findings.">
+  <meta name="theme-color" content="#253349">
+  <title>What our unlearning experiments show so far | CARK</title>
+  <style>
+    :root{--ink:#253349;--muted:#526074;--blue:#245d99;--orange:#b85b22;--line:#dbe1e7;--paper:#fff;--background:#f4f6f8}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}
+    body{margin:0;background:var(--background);color:var(--ink);font:17px/1.7 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:var(--blue);text-underline-offset:3px}a:hover{text-decoration-thickness:2px}
+    a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #b85b22;outline-offset:4px}
+    .skip{position:absolute;left:16px;top:-80px;background:white;padding:8px 16px;z-index:10}.skip:focus{top:12px}
+    .topbar{max-width:1140px;margin:auto;padding:24px 32px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px}
+    .brand{font-weight:750;letter-spacing:.06em;text-decoration:none;color:var(--ink)}.toplinks{display:flex;gap:22px;flex-wrap:wrap}
+    .report{max-width:1080px;margin:0 auto 50px;background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+    header{padding:52px 60px 38px;border-bottom:1px solid var(--line)}
+    .eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin:0 0 15px}
+    h1{font-size:clamp(31px,4.2vw,48px);line-height:1.15;letter-spacing:-.025em;max-width:840px;margin:0 0 24px;font-weight:730}
+    .lead{font-size:20px;line-height:1.6;max-width:830px;margin-bottom:24px}
+    .metadata{color:var(--muted);font-size:14px;display:flex;gap:10px 24px;flex-wrap:wrap}.status{background:#edf0f3;padding:2px 10px;border-radius:4px;color:#364458}
+    .keynumbers{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:30px}
+    .keynumber{border-left:3px solid var(--blue);padding-left:16px}.keynumber strong{font-size:27px;line-height:1.3;display:block}.keynumber span{display:block;font-size:14px;color:var(--muted)}
+    nav.contents{padding:22px 60px;background:#fafbfc;border-bottom:1px solid var(--line);font-size:14px;display:flex;gap:8px 22px;flex-wrap:wrap}
+    main{padding:4px 60px 40px}section{padding-top:38px;scroll-margin-top:16px}section+section{border-top:1px solid var(--line);margin-top:40px}
+    h2{font-size:28px;line-height:1.3;letter-spacing:-.018em;margin:0 0 20px;font-weight:720}h3{font-size:19px;margin:26px 0 10px}
+    p{margin:0 0 18px}ul,ol{padding-left:24px;margin:10px 0 22px}li{margin-bottom:7px}.section-number{color:var(--muted);font-size:13px;font-weight:700;letter-spacing:.08em;margin-bottom:7px}
+    .note{padding:18px 22px;border-left:3px solid var(--blue);background:#f2f6fa;margin:22px 0;font-size:16px}.note p:last-child{margin:0}
+    .terms{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}.term{padding:16px 18px;background:#f7f8fa;border:1px solid var(--line);border-radius:4px;font-size:15px}.term strong{display:block;margin-bottom:4px}
+    .sequence{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0}.sequence span{padding:6px 12px;background:#eef3f8;border-radius:4px;font-size:15px;font-weight:650}.sequence .arrow{padding:0;background:none;color:var(--muted)}
+    figure{margin:28px 0 18px;border:1px solid var(--line);border-radius:5px;padding:18px;background:#fff}.figure-title{font-size:16px;font-weight:700;margin:0 0 12px}.chart{overflow-x:auto}.chart svg{display:block;width:100%;height:auto;min-width:520px}
+    figcaption{font-size:14px;line-height:1.65;color:var(--muted);margin:12px 0 0}.takeaway{font-size:16px}.takeaway strong{color:var(--ink)}
+    details{margin:16px 0 24px}summary{font-size:14px;color:var(--blue);cursor:pointer;display:list-item;width:fit-content;padding:6px 0}
+    .table-scroll{overflow-x:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;min-width:500px}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}thead th{background:#edf2f6;font-weight:700}tbody th{font-weight:600}tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}.assessment{font-size:15px;min-width:700px}
+    .protocol{font-size:15px;color:var(--muted)}.small{font-size:14px;color:var(--muted)}.source-links{font-size:15px}.source-links ul{columns:2;column-gap:30px}.source-links li{break-inside:avoid}
+    footer{padding:26px 60px;background:#fafbfc;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:20px;font-size:14px;color:var(--muted)}
+    button{font:inherit;border:1px solid #a5b2c0;padding:8px 14px;background:white;color:var(--ink);border-radius:4px;cursor:pointer}button:hover{background:#edf2f6}
+    @media(max-width:720px){body{font-size:16px}.topbar{padding:20px}.toplinks{gap:12px}.report{border-left:0;border-right:0;border-radius:0;margin-bottom:0}header{padding:32px 22px}.lead{font-size:18px}.keynumbers{gap:12px}.keynumber{padding-left:10px}.keynumber strong{font-size:22px}.keynumber span{font-size:12px}nav.contents{padding:18px 22px;gap:8px 16px}main{padding:0 22px 30px}h2{font-size:25px}.terms{grid-template-columns:1fr}figure{padding:12px}.chart svg{min-width:520px}.source-links ul{columns:1}footer{padding:24px 22px;flex-wrap:wrap}.note{padding:16px}.figure-title{font-size:15px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+    @media print{body{background:white;font-size:10pt}.topbar,nav.contents,button,.skip{display:none}.report{border:0;margin:0;max-width:none}header,main,footer{padding-left:0;padding-right:0}header{padding-top:0}h1{font-size:26pt}h2{font-size:17pt}section{padding-top:20px}figure{break-inside:avoid;padding:8px}.chart svg{min-width:0}details{display:block}details>summary{display:none}details>*{display:block!important}.table-scroll{overflow:visible}table,.assessment{min-width:0;font-size:8pt}a{color:inherit}.terms{grid-template-columns:1fr 1fr}footer{background:white}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#report">Skip to report</a>
+  <div class="topbar"><a class="brand" href="https://github.com/sumitasthana/CARK">CARK</a><div class="toplinks"><a href="https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory">Full experiment record</a><a href="https://arxiv.org/html/2509.17530v1">Reference paper</a></div></div>
+  <article class="report">
+    <header>
+      <p class="eyebrow">Research progress · Learning and task unlearning</p>
+      <h1>What our unlearning experiments show so far</h1>
+      <p class="lead">We made a model’s task-3 accuracy fall to chance and stay there during one later lesson. We also found that averages can hide damage to individual tasks. Whether useful task-3 information remains inside the model is still unanswered.</p>
+      <div class="metadata"><span>Evidence through 7 October 2026</span><span>Tiny ImageNet · ResNet50 target model</span><span class="status">Further experiments paused for reflection</span></div>
+      <div class="keynumbers" aria-label="Main observations">
+        <div class="keynumber"><strong>27.4% → 10.0%</strong><span>Task 3 before and after unlearning</span></div>
+        <div class="keynumber"><strong>10.0%</strong><span>Task 3 after learning task 15</span></div>
+        <div class="keynumber"><strong>One pair</strong><span>Evidence from one seed and one later lesson</span></div>
+      </div>
+    </header>
+    <nav class="contents" aria-label="Report contents"><a href="#question">Research question</a><a href="#repeatability">Repeated runs</a><a href="#protection">Protection</a><a href="#sequence">Successive lessons</a><a href="#paired">Paired test</a><a href="#claims">Paper comparison</a><a href="#evidence">Evidence</a></nav>
+    <main id="report">
+      <section id="question">
+        <p class="section-number">01 · The purpose</p>
+        <h2>Does low accuracy mean the model has lost the knowledge?</h2>
+        <p>Our research asks what remains in a model after a task has been deliberately unlearned. A model may stop answering correctly, yet still contain information that could help it recover the task. We have not run that recovery test yet.</p>
+        <p>We first needed a model that could learn several tasks, a way to measure ordinary forgetting, and a controlled comparison that separated ordinary learning from deliberate unlearning. Those checks explain the experiments in this report.</p>
+        <div class="terms">
+          <div class="term"><strong>Task</strong>A group of ten image classes. Each task has its own numeric identifier, such as 3 or 15. The number is a label, not a difficulty score.</div>
+          <div class="term"><strong>Accuracy</strong>The percentage of validation images answered correctly. Each task has 500 validation images. Chance accuracy is 10% for ten classes.</div>
+          <div class="term"><strong>Hypernetwork</strong>A network that generates the weights of another network. In our experiments, it generates a task-specific ResNet50 image classifier.</div>
+          <div class="term"><strong>Unlearning</strong>A deliberate update intended to remove a task’s useful behaviour. Ordinary forgetting is a score loss caused by learning something else.</div>
+        </div>
+        <p>In early attempts, the model either learned weakly or damaged other tasks when unlearning. We reviewed the initialization and training choices. Later runs used a documented Hyperfan-in initialization and a lower learning rate. The latest unlearning runner also corrected a difference between the weights used for its two loss terms. We did not isolate each change in a separate comparison, so we cannot credit one change for all later improvements.</p>
+        <p class="small">Historical attempts used different settings and, in some cases, an earlier unlearning objective. Their detailed records remain in the <a href="https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory">experiment trajectory</a>. The figures below use saved evidence from the later diagnostics.</p>
+      </section>
+
+      <section id="repeatability">
+        <p class="section-number">02 · Before interpreting small effects</p>
+        <h2>Matching the setup did not guarantee matching results</h2>
+        <p>We repeated learning task 17 from the same saved model with beta 0.1. Beta controls how strongly learning protects earlier tasks. The recorded starting model, seed, training settings, and software/GPU details matched. The final scores still differed.</p>
+        <figure><p class="figure-title">Figure 1. Two beta-0.1 runs from the same source model</p><div class="chart"><svg role="img" aria-label="Same beta and source model, different final scores" xmlns:xlink="http://www.w3.org/1999/xlink" width="612pt" height="273.6pt" viewBox="0 0 612 273.6" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <title>Same beta and source model, different final scores</title>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>Same beta and source model, different final scores</dc:title>
+    <dc:format>image/svg+xml</dc:format>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="01-repeat-figure_1">
+  <g id="01-repeat-patch_1">
+   <path d="M 0 273.6
+L 612 273.6
+L 612 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="01-repeat-axes_1">
+   <g id="01-repeat-patch_2">
+    <path d="M 45.61149 252.953822
+L 608.99976 252.953822
+L 608.99976 7.179381
+L 45.61149 7.179381
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="01-repeat-matplotlib.axis_1">
+    <g id="01-repeat-xtick_1">
+     <g id="01-repeat-line2d_1">
+      <defs>
+       <path id="01-repeat-m38070d05c8" d="M 0 0
+L 0 3.5
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#01-repeat-m38070d05c8" x="140.381846" y="252.953822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_1">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="140.381846" y="268.312104" transform="rotate(-0 140.381846 268.312104)">Task 3</text>
+     </g>
+    </g>
+    <g id="01-repeat-xtick_2">
+     <g id="01-repeat-line2d_2">
+      <g>
+       <use xlink:href="#01-repeat-m38070d05c8" x="327.305625" y="252.953822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_2">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="327.305625" y="268.312104" transform="rotate(-0 327.305625 268.312104)">Task 9</text>
+     </g>
+    </g>
+    <g id="01-repeat-xtick_3">
+     <g id="01-repeat-line2d_3">
+      <g>
+       <use xlink:href="#01-repeat-m38070d05c8" x="514.229404" y="252.953822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_3">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="514.229404" y="268.312104" transform="rotate(-0 514.229404 268.312104)">Task 17</text>
+     </g>
+    </g>
+   </g>
+   <g id="01-repeat-matplotlib.axis_2">
+    <g id="01-repeat-ytick_1">
+     <g id="01-repeat-line2d_4">
+      <path d="M 45.61149 252.953822
+L 608.99976 252.953822
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="01-repeat-line2d_5">
+      <defs>
+       <path id="01-repeat-mafd187a631" d="M 0 0
+L -3.5 0
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#01-repeat-mafd187a631" x="45.61149" y="252.953822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_4">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="257.132963" transform="rotate(-0 38.61149 257.132963)">0</text>
+     </g>
+    </g>
+    <g id="01-repeat-ytick_2">
+     <g id="01-repeat-line2d_6">
+      <path d="M 45.61149 217.843188
+L 608.99976 217.843188
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="01-repeat-line2d_7">
+      <g>
+       <use xlink:href="#01-repeat-mafd187a631" x="45.61149" y="217.843188" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_5">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="222.022329" transform="rotate(-0 38.61149 222.022329)">10</text>
+     </g>
+    </g>
+    <g id="01-repeat-ytick_3">
+     <g id="01-repeat-line2d_8">
+      <path d="M 45.61149 182.732553
+L 608.99976 182.732553
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="01-repeat-line2d_9">
+      <g>
+       <use xlink:href="#01-repeat-mafd187a631" x="45.61149" y="182.732553" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_6">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="186.911694" transform="rotate(-0 38.61149 186.911694)">20</text>
+     </g>
+    </g>
+    <g id="01-repeat-ytick_4">
+     <g id="01-repeat-line2d_10">
+      <path d="M 45.61149 147.621919
+L 608.99976 147.621919
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="01-repeat-line2d_11">
+      <g>
+       <use xlink:href="#01-repeat-mafd187a631" x="45.61149" y="147.621919" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_7">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="151.801059" transform="rotate(-0 38.61149 151.801059)">30</text>
+     </g>
+    </g>
+    <g id="01-repeat-ytick_5">
+     <g id="01-repeat-line2d_12">
+      <path d="M 45.61149 112.511284
+L 608.99976 112.511284
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="01-repeat-line2d_13">
+      <g>
+       <use xlink:href="#01-repeat-mafd187a631" x="45.61149" y="112.511284" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_8">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="116.690425" transform="rotate(-0 38.61149 116.690425)">40</text>
+     </g>
+    </g>
+    <g id="01-repeat-ytick_6">
+     <g id="01-repeat-line2d_14">
+      <path d="M 45.61149 77.40065
+L 608.99976 77.40065
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="01-repeat-line2d_15">
+      <g>
+       <use xlink:href="#01-repeat-mafd187a631" x="45.61149" y="77.40065" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_9">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="81.57979" transform="rotate(-0 38.61149 81.57979)">50</text>
+     </g>
+    </g>
+    <g id="01-repeat-ytick_7">
+     <g id="01-repeat-line2d_16">
+      <path d="M 45.61149 42.290015
+L 608.99976 42.290015
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="01-repeat-line2d_17">
+      <g>
+       <use xlink:href="#01-repeat-mafd187a631" x="45.61149" y="42.290015" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_10">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="46.469156" transform="rotate(-0 38.61149 46.469156)">60</text>
+     </g>
+    </g>
+    <g id="01-repeat-ytick_8">
+     <g id="01-repeat-line2d_18">
+      <path d="M 45.61149 7.179381
+L 608.99976 7.179381
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="01-repeat-line2d_19">
+      <g>
+       <use xlink:href="#01-repeat-mafd187a631" x="45.61149" y="7.179381" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="01-repeat-text_11">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="11.358521" transform="rotate(-0 38.61149 11.358521)">70</text>
+     </g>
+    </g>
+    <g id="01-repeat-text_12">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="12.118365" y="130.066602" transform="rotate(-90 12.118365 130.066602)">Validation accuracy (%)</text>
+    </g>
+   </g>
+   <g id="01-repeat-patch_3">
+    <path d="M 71.220048 252.953822
+L 138.512608 252.953822
+L 138.512608 151.132982
+L 71.220048 151.132982
+z
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: #245d99"/>
+   </g>
+   <g id="01-repeat-patch_4">
+    <path d="M 258.143827 252.953822
+L 325.436387 252.953822
+L 325.436387 78.102862
+L 258.143827 78.102862
+z
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: #245d99"/>
+   </g>
+   <g id="01-repeat-patch_5">
+    <path d="M 445.067606 252.953822
+L 512.360166 252.953822
+L 512.360166 74.591799
+L 445.067606 74.591799
+z
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: #245d99"/>
+   </g>
+   <g id="01-repeat-patch_6">
+    <path d="M 142.251084 252.953822
+L 209.543644 252.953822
+L 209.543644 170.092725
+L 142.251084 170.092725
+z
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: #b85b22"/>
+   </g>
+   <g id="01-repeat-patch_7">
+    <path d="M 329.174863 252.953822
+L 396.467423 252.953822
+L 396.467423 102.680307
+L 329.174863 102.680307
+z
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: #b85b22"/>
+   </g>
+   <g id="01-repeat-patch_8">
+    <path d="M 516.098642 252.953822
+L 583.391202 252.953822
+L 583.391202 57.036482
+L 516.098642 57.036482
+z
+" clip-path="url(#01-repeat-p1dc7eeb9f4)" style="fill: #b85b22"/>
+   </g>
+   <g id="01-repeat-patch_9">
+    <path d="M 45.61149 252.953822
+L 45.61149 7.179381
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="01-repeat-patch_10">
+    <path d="M 45.61149 252.953822
+L 608.99976 252.953822
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="01-repeat-text_13">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="104.866328" y="144.845326" transform="rotate(-0 104.866328 144.845326)">29.0</text>
+   </g>
+   <g id="01-repeat-text_14">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="291.790107" y="71.815206" transform="rotate(-0 291.790107 71.815206)">49.8</text>
+   </g>
+   <g id="01-repeat-text_15">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="478.713886" y="68.304143" transform="rotate(-0 478.713886 68.304143)">50.8</text>
+   </g>
+   <g id="01-repeat-text_16">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="175.897364" y="163.805069" transform="rotate(-0 175.897364 163.805069)">23.6</text>
+   </g>
+   <g id="01-repeat-text_17">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="362.821143" y="96.39265" transform="rotate(-0 362.821143 96.39265)">42.8</text>
+   </g>
+   <g id="01-repeat-text_18">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="549.744922" y="50.748825" transform="rotate(-0 549.744922 50.748825)">55.8</text>
+   </g>
+   <g id="01-repeat-legend_1">
+    <g id="01-repeat-patch_11">
+     <path d="M 54.61149 23.777818
+L 74.61149 23.777818
+L 74.61149 16.777818
+L 54.61149 16.777818
+z
+" style="fill: #245d99"/>
+    </g>
+    <g id="01-repeat-text_19">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="82.61149" y="23.777818" transform="rotate(-0 82.61149 23.777818)">First run</text>
+    </g>
+    <g id="01-repeat-patch_12">
+     <path d="M 143.620865 23.777818
+L 163.620865 23.777818
+L 163.620865 16.777818
+L 143.620865 16.777818
+z
+" style="fill: #b85b22"/>
+    </g>
+    <g id="01-repeat-text_20">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="171.620865" y="23.777818" transform="rotate(-0 171.620865 23.777818)">Fresh-session repeat</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="01-repeat-p1dc7eeb9f4">
+   <rect x="45.61149" y="7.179381" width="563.38827" height="245.774442"/>
+  </clipPath>
+ </defs>
+</svg>
+</div><figcaption>Each bar is a final validation score. Both runs learned task 17; tasks 3 and 9 were already learned. The fresh-session repeat is 7.0 points lower on task 9 and 5.0 points higher on task 17. These are repeats with the same seed, not different-seed experiments. <a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_beta01_repeat_comparison.json">Source</a>.</figcaption></figure>
+        <details><summary>View Figure 1 values</summary><div class="table-scroll"><table><thead><tr><th scope="col">Task</th><th scope="col">First run (%)</th><th scope="col">Repeat (%)</th><th scope="col">Repeat minus first (points)</th></tr></thead><tbody><tr><th scope="row">Task 3</th><td>29.0</td><td>23.6</td><td>-5.4</td></tr><tr><th scope="row">Task 9</th><td>49.8</td><td>42.8</td><td>-7.0</td></tr><tr><th scope="row">Task 17</th><td>50.8</td><td>55.8</td><td>+5.0</td></tr></tbody></table></div></details>
+        <p class="takeaway"><strong>What we learned:</strong> one small score improvement is not enough to identify a better setting. The recorded setup checks ruled out several simple mismatches, but they did not explain the remaining variation.</p>
+      </section>
+
+      <section id="protection">
+        <p class="section-number">03 · Learning without deliberate unlearning</p>
+        <h2>Protection greatly reduced ordinary forgetting in the batch</h2>
+        <p>We tried five beta values while learning task 17. Every new trial started from the same model after tasks 3, 0, 9, and 5. This experiment contained no unlearning request. It asked whether changing protection could reduce damage caused by learning alone.</p>
+        <figure><p class="figure-title">Figure 2. New-task learning and older-task retention</p><div class="chart"><svg role="img" aria-label="Task 17 learning and old-task retention across five beta values" xmlns:xlink="http://www.w3.org/1999/xlink" width="684pt" height="324pt" viewBox="0 0 684 324" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <title>Task 17 learning and old-task retention across five beta values</title>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>Task 17 learning and old-task retention across five beta values</dc:title>
+    <dc:format>image/svg+xml</dc:format>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="02-beta-figure_1">
+  <g id="02-beta-patch_1">
+   <path d="M 0 324
+L 684 324
+L 684 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="02-beta-axes_1">
+   <g id="02-beta-patch_2">
+    <path d="M 59.96774 286.77226
+L 334.194674 286.77226
+L 334.194674 27.118365
+L 59.96774 27.118365
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="02-beta-matplotlib.axis_1">
+    <g id="02-beta-xtick_1">
+     <g id="02-beta-line2d_1">
+      <path d="M 59.96774 286.77226
+L 59.96774 27.118365
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_2">
+      <defs>
+       <path id="02-beta-mdc107b8357" d="M 0 0
+L 0 3.5
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="59.96774" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_1">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="59.96774" y="302.890385" transform="rotate(-0 59.96774 302.890385)">0</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_2">
+     <g id="02-beta-line2d_3">
+      <path d="M 102.156499 286.77226
+L 102.156499 27.118365
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_4">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="102.156499" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_2">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="102.156499" y="302.890385" transform="rotate(-0 102.156499 302.890385)">10</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_3">
+     <g id="02-beta-line2d_5">
+      <path d="M 144.345258 286.77226
+L 144.345258 27.118365
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_6">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="144.345258" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_3">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="144.345258" y="302.890385" transform="rotate(-0 144.345258 302.890385)">20</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_4">
+     <g id="02-beta-line2d_7">
+      <path d="M 186.534017 286.77226
+L 186.534017 27.118365
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_8">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="186.534017" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_4">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="186.534017" y="302.890385" transform="rotate(-0 186.534017 302.890385)">30</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_5">
+     <g id="02-beta-line2d_9">
+      <path d="M 228.722776 286.77226
+L 228.722776 27.118365
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_10">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="228.722776" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_5">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="228.722776" y="302.890385" transform="rotate(-0 228.722776 302.890385)">40</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_6">
+     <g id="02-beta-line2d_11">
+      <path d="M 270.911535 286.77226
+L 270.911535 27.118365
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_12">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="270.911535" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_6">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="270.911535" y="302.890385" transform="rotate(-0 270.911535 302.890385)">50</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_7">
+     <g id="02-beta-line2d_13">
+      <path d="M 313.100294 286.77226
+L 313.100294 27.118365
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_14">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="313.100294" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_7">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="313.100294" y="302.890385" transform="rotate(-0 313.100294 302.890385)">60</text>
+     </g>
+    </g>
+    <g id="02-beta-text_8">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="197.081207" y="318.504135" transform="rotate(-0 197.081207 318.504135)">Validation accuracy (%)</text>
+    </g>
+   </g>
+   <g id="02-beta-matplotlib.axis_2">
+    <g id="02-beta-ytick_1">
+     <g id="02-beta-line2d_15">
+      <defs>
+       <path id="02-beta-m771fc2e270" d="M 0 0
+L -3.5 0
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="59.96774" y="53.867149" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_9">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="52.96774" y="58.426211" transform="rotate(-0 52.96774 58.426211)">0</text>
+     </g>
+    </g>
+    <g id="02-beta-ytick_2">
+     <g id="02-beta-line2d_16">
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="59.96774" y="105.406231" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_10">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="52.96774" y="109.965293" transform="rotate(-0 52.96774 109.965293)">0.001</text>
+     </g>
+    </g>
+    <g id="02-beta-ytick_3">
+     <g id="02-beta-line2d_17">
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="59.96774" y="156.945312" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_11">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="52.96774" y="161.504375" transform="rotate(-0 52.96774 161.504375)">0.01*</text>
+     </g>
+    </g>
+    <g id="02-beta-ytick_4">
+     <g id="02-beta-line2d_18">
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="59.96774" y="208.484394" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_12">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="52.96774" y="213.043457" transform="rotate(-0 52.96774 213.043457)">0.1</text>
+     </g>
+    </g>
+    <g id="02-beta-ytick_5">
+     <g id="02-beta-line2d_19">
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="59.96774" y="260.023476" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_13">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="52.96774" y="264.582539" transform="rotate(-0 52.96774 264.582539)">1</text>
+     </g>
+    </g>
+    <g id="02-beta-text_14">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="12.118365" y="156.945312" transform="rotate(-90 12.118365 156.945312)">Beta (protection strength)</text>
+    </g>
+   </g>
+   <g id="02-beta-patch_3">
+    <path d="M 59.96774 38.920815
+L 287.787039 38.920815
+L 287.787039 68.813482
+L 59.96774 68.813482
+z
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: #245d99"/>
+   </g>
+   <g id="02-beta-patch_4">
+    <path d="M 59.96774 90.459897
+L 299.599891 90.459897
+L 299.599891 120.352564
+L 59.96774 120.352564
+z
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: #245d99"/>
+   </g>
+   <g id="02-beta-patch_5">
+    <path d="M 59.96774 141.998979
+L 280.193062 141.998979
+L 280.193062 171.891646
+L 59.96774 171.891646
+z
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: #8794a3"/>
+   </g>
+   <g id="02-beta-patch_6">
+    <path d="M 59.96774 193.538061
+L 274.286636 193.538061
+L 274.286636 223.430728
+L 59.96774 223.430728
+z
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: #245d99"/>
+   </g>
+   <g id="02-beta-patch_7">
+    <path d="M 59.96774 245.077143
+L 281.036837 245.077143
+L 281.036837 274.96981
+L 59.96774 274.96981
+z
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: #245d99"/>
+   </g>
+   <g id="02-beta-line2d_20">
+    <path d="M 59.96774 286.77226
+L 59.96774 27.118365
+" clip-path="url(#02-beta-pd8a0f0c838)" style="fill: none; stroke: #8693a0; stroke-width: 0.9; stroke-linecap: square"/>
+   </g>
+   <g id="02-beta-patch_8">
+    <path d="M 59.96774 286.77226
+L 334.194674 286.77226
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="02-beta-text_15">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="291.162139" y="56.902461" transform="rotate(-0 291.162139 56.902461)">54.0</text>
+   </g>
+   <g id="02-beta-text_16">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="302.974992" y="108.441543" transform="rotate(-0 302.974992 108.441543)">56.8</text>
+   </g>
+   <g id="02-beta-text_17">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="283.568163" y="159.980625" transform="rotate(-0 283.568163 159.980625)">52.2</text>
+   </g>
+   <g id="02-beta-text_18">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="277.661737" y="211.519707" transform="rotate(-0 277.661737 211.519707)">50.8</text>
+   </g>
+   <g id="02-beta-text_19">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="284.411938" y="263.058789" transform="rotate(-0 284.411938 263.058789)">52.4</text>
+   </g>
+   <g id="02-beta-text_20">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="197.081207" y="12.118365" transform="rotate(-0 197.081207 12.118365)">Learning task 17</text>
+   </g>
+  </g>
+  <g id="02-beta-axes_2">
+   <g id="02-beta-patch_9">
+    <path d="M 398.002174 286.77226
+L 672.229107 286.77226
+L 672.229107 27.118365
+L 398.002174 27.118365
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="02-beta-matplotlib.axis_3">
+    <g id="02-beta-xtick_8">
+     <g id="02-beta-line2d_21">
+      <path d="M 398.002174 286.77226
+L 398.002174 27.118365
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_22">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="398.002174" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_21">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="398.002174" y="302.890385" transform="rotate(-0 398.002174 302.890385)">−30</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_9">
+     <g id="02-beta-line2d_23">
+      <path d="M 437.17745 286.77226
+L 437.17745 27.118365
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_24">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="437.17745" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_22">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="437.17745" y="302.890385" transform="rotate(-0 437.17745 302.890385)">−25</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_10">
+     <g id="02-beta-line2d_25">
+      <path d="M 476.352726 286.77226
+L 476.352726 27.118365
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_26">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="476.352726" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_23">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="476.352726" y="302.890385" transform="rotate(-0 476.352726 302.890385)">−20</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_11">
+     <g id="02-beta-line2d_27">
+      <path d="M 515.528002 286.77226
+L 515.528002 27.118365
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_28">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="515.528002" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_24">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="515.528002" y="302.890385" transform="rotate(-0 515.528002 302.890385)">−15</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_12">
+     <g id="02-beta-line2d_29">
+      <path d="M 554.703279 286.77226
+L 554.703279 27.118365
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_30">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="554.703279" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_25">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="554.703279" y="302.890385" transform="rotate(-0 554.703279 302.890385)">−10</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_13">
+     <g id="02-beta-line2d_31">
+      <path d="M 593.878555 286.77226
+L 593.878555 27.118365
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_32">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="593.878555" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_26">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="593.878555" y="302.890385" transform="rotate(-0 593.878555 302.890385)">−5</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_14">
+     <g id="02-beta-line2d_33">
+      <path d="M 633.053831 286.77226
+L 633.053831 27.118365
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_34">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="633.053831" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_27">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="633.053831" y="302.890385" transform="rotate(-0 633.053831 302.890385)">0</text>
+     </g>
+    </g>
+    <g id="02-beta-xtick_15">
+     <g id="02-beta-line2d_35">
+      <path d="M 672.229107 286.77226
+L 672.229107 27.118365
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="02-beta-line2d_36">
+      <g>
+       <use xlink:href="#02-beta-mdc107b8357" x="672.229107" y="286.77226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_28">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="672.229107" y="302.890385" transform="rotate(-0 672.229107 302.890385)">5</text>
+     </g>
+    </g>
+    <g id="02-beta-text_29">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="535.115641" y="318.504135" transform="rotate(-0 535.115641 318.504135)">Mean accuracy change (points)</text>
+    </g>
+   </g>
+   <g id="02-beta-matplotlib.axis_4">
+    <g id="02-beta-ytick_6">
+     <g id="02-beta-line2d_37">
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="398.002174" y="53.867149" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_30">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="391.002174" y="58.426211" transform="rotate(-0 391.002174 58.426211)">0</text>
+     </g>
+    </g>
+    <g id="02-beta-ytick_7">
+     <g id="02-beta-line2d_38">
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="398.002174" y="105.406231" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_31">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="391.002174" y="109.965293" transform="rotate(-0 391.002174 109.965293)">0.001</text>
+     </g>
+    </g>
+    <g id="02-beta-ytick_8">
+     <g id="02-beta-line2d_39">
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="398.002174" y="156.945312" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_32">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="391.002174" y="161.504375" transform="rotate(-0 391.002174 161.504375)">0.01*</text>
+     </g>
+    </g>
+    <g id="02-beta-ytick_9">
+     <g id="02-beta-line2d_40">
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="398.002174" y="208.484394" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_33">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="391.002174" y="213.043457" transform="rotate(-0 391.002174 213.043457)">0.1</text>
+     </g>
+    </g>
+    <g id="02-beta-ytick_10">
+     <g id="02-beta-line2d_41">
+      <g>
+       <use xlink:href="#02-beta-m771fc2e270" x="398.002174" y="260.023476" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="02-beta-text_34">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="391.002174" y="264.582539" transform="rotate(-0 391.002174 264.582539)">1</text>
+     </g>
+    </g>
+    <g id="02-beta-text_35">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="350.152799" y="156.945312" transform="rotate(-90 350.152799 156.945312)">Beta (protection strength)</text>
+    </g>
+   </g>
+   <g id="02-beta-patch_10">
+    <path d="M 633.053831 38.920815
+L 425.424867 38.920815
+L 425.424867 68.813482
+L 633.053831 68.813482
+z
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: #245d99"/>
+   </g>
+   <g id="02-beta-patch_11">
+    <path d="M 633.053831 90.459897
+L 620.909496 90.459897
+L 620.909496 120.352564
+L 633.053831 120.352564
+z
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: #245d99"/>
+   </g>
+   <g id="02-beta-patch_12">
+    <path d="M 633.053831 141.998979
+L 632.662078 141.998979
+L 632.662078 171.891646
+L 633.053831 171.891646
+z
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: #8794a3"/>
+   </g>
+   <g id="02-beta-patch_13">
+    <path d="M 633.053831 193.538061
+L 640.888886 193.538061
+L 640.888886 223.430728
+L 633.053831 223.430728
+z
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: #245d99"/>
+   </g>
+   <g id="02-beta-patch_14">
+    <path d="M 633.053831 245.077143
+L 622.868259 245.077143
+L 622.868259 274.96981
+L 633.053831 274.96981
+z
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: #245d99"/>
+   </g>
+   <g id="02-beta-line2d_42">
+    <path d="M 633.053831 286.77226
+L 633.053831 27.118365
+" clip-path="url(#02-beta-p10b1ff16b9)" style="fill: none; stroke: #8693a0; stroke-width: 0.9; stroke-linecap: square"/>
+   </g>
+   <g id="02-beta-patch_15">
+    <path d="M 398.002174 286.77226
+L 672.229107 286.77226
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="02-beta-text_36">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end" x="419.940328" y="56.902461" transform="rotate(-0 419.940328 56.902461)">-26.50</text>
+   </g>
+   <g id="02-beta-text_37">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end" x="615.424957" y="108.441543" transform="rotate(-0 615.424957 108.441543)">-1.55</text>
+   </g>
+   <g id="02-beta-text_38">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end" x="627.17754" y="159.980625" transform="rotate(-0 627.17754 159.980625)">-0.05</text>
+   </g>
+   <g id="02-beta-text_39">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="647.156931" y="211.519707" transform="rotate(-0 647.156931 211.519707)">+1.00</text>
+   </g>
+   <g id="02-beta-text_40">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end" x="617.383721" y="263.058789" transform="rotate(-0 617.383721 263.058789)">-1.30</text>
+   </g>
+   <g id="02-beta-text_41">
+    <text style="font-weight: 700; font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="535.115641" y="12.118365" transform="rotate(-0 535.115641 12.118365)">Change in the original four tasks</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="02-beta-pd8a0f0c838">
+   <rect x="59.96774" y="27.118365" width="274.226934" height="259.653895"/>
+  </clipPath>
+  <clipPath id="02-beta-p10b1ff16b9">
+   <rect x="398.002174" y="27.118365" width="274.226934" height="259.653895"/>
+  </clipPath>
+ </defs>
+</svg>
+</div><figcaption>Left: final task-17 accuracy. Right: average score change for the same four older tasks, relative to their starting scores. A negative change means loss. Beta 0.01, marked with an asterisk, is a reused result from an earlier session; the other four trials shared one runtime. Each beta has one result in this table. <a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_beta_batch_comparison.json">Source</a>.</figcaption></figure>
+        <details><summary>View all beta scores and largest individual drops</summary><div class="table-scroll"><table><thead><tr><th scope="col">Beta</th><th scope="col">Task 17 (%)</th><th scope="col">Mean old-task change (points)</th><th scope="col">Largest old-task drop (points)</th></tr></thead><tbody><tr><th scope="row">0</th><td>54.0</td><td>-26.50</td><td>41.6</td></tr><tr><th scope="row">0.001</th><td>56.8</td><td>-1.55</td><td>5.8</td></tr><tr><th scope="row">0.01*</th><td>52.2</td><td>-0.05</td><td>3.8</td></tr><tr><th scope="row">0.1</th><td>50.8</td><td>+1.00</td><td>0.4</td></tr><tr><th scope="row">1</th><td>52.4</td><td>-1.30</td><td>3.8</td></tr></tbody></table></div></details>
+        <p>Without protection, the older-task average fell by <strong>26.5 percentage points</strong>. Task 9 fell to 10.0%, and task 5 fell to 13.2%. With beta 0.1, the older-task average rose by 1.0 point and the largest individual drop was 0.4 points, while task 17 reached 50.8%.</p>
+        <p>The repeat did not reproduce that near-zero individual loss: its older-task average fell by 2.1 points and its largest drop was 5.6 points. We therefore kept beta 0.1 as a provisional setting, without calling it a proven optimum.</p>
+        <p class="takeaway"><strong>What we learned:</strong> older tasks can fail because of new learning alone. Protection helped substantially in these observations, but it did not guarantee exact retention.</p>
+      </section>
+
+      <section id="sequence">
+        <p class="section-number">04 · Following the same model forward</p>
+        <h2>An unchanged average hid losses on individual tasks</h2>
+        <p>We loaded the completed beta-0.1 repeat model, which already knew tasks 3, 0, 9, 5, and 17. We then learned three new tasks. Each lesson continued the previous lesson’s final model.</p>
+        <div class="sequence" aria-label="Learning sequence"><span>Saved repeat model</span><span class="arrow">→</span><span>Learn 1</span><span class="arrow">→</span><span>Learn 7</span><span class="arrow">→</span><span>Learn 14</span></div>
+        <figure><p class="figure-title">Figure 3. The original five-task mean and task 17</p><div class="chart"><svg role="img" aria-label="An unchanged average can hide a falling task score" xmlns:xlink="http://www.w3.org/1999/xlink" width="612pt" height="288pt" viewBox="0 0 612 288" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <title>An unchanged average can hide a falling task score</title>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>An unchanged average can hide a falling task score</dc:title>
+    <dc:format>image/svg+xml</dc:format>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="03-sequence-figure_1">
+  <g id="03-sequence-patch_1">
+   <path d="M 0 288
+L 612 288
+L 612 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="03-sequence-axes_1">
+   <g id="03-sequence-patch_2">
+    <path d="M 45.61149 267.353822
+L 587.353862 267.353822
+L 587.353862 3.00024
+L 45.61149 3.00024
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="03-sequence-matplotlib.axis_1">
+    <g id="03-sequence-xtick_1">
+     <g id="03-sequence-line2d_1">
+      <defs>
+       <path id="03-sequence-m750c7003a3" d="M 0 0
+L 0 3.5
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#03-sequence-m750c7003a3" x="70.236143" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_1">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="70.236143" y="282.712104" transform="rotate(-0 70.236143 282.712104)">Start</text>
+     </g>
+    </g>
+    <g id="03-sequence-xtick_2">
+     <g id="03-sequence-line2d_2">
+      <g>
+       <use xlink:href="#03-sequence-m750c7003a3" x="234.400499" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_2">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="234.400499" y="282.712104" transform="rotate(-0 234.400499 282.712104)">After learning 1</text>
+     </g>
+    </g>
+    <g id="03-sequence-xtick_3">
+     <g id="03-sequence-line2d_3">
+      <g>
+       <use xlink:href="#03-sequence-m750c7003a3" x="398.564854" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_3">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="398.564854" y="282.712104" transform="rotate(-0 398.564854 282.712104)">After learning 7</text>
+     </g>
+    </g>
+    <g id="03-sequence-xtick_4">
+     <g id="03-sequence-line2d_4">
+      <g>
+       <use xlink:href="#03-sequence-m750c7003a3" x="562.729209" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_4">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="562.729209" y="282.712104" transform="rotate(-0 562.729209 282.712104)">After learning 14</text>
+     </g>
+    </g>
+   </g>
+   <g id="03-sequence-matplotlib.axis_2">
+    <g id="03-sequence-ytick_1">
+     <g id="03-sequence-line2d_5">
+      <path d="M 45.61149 267.353822
+L 587.353862 267.353822
+" clip-path="url(#03-sequence-pcae333d9d4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="03-sequence-line2d_6">
+      <defs>
+       <path id="03-sequence-m57af789f8e" d="M 0 0
+L -3.5 0
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#03-sequence-m57af789f8e" x="45.61149" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_5">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="271.532963" transform="rotate(-0 38.61149 271.532963)">0</text>
+     </g>
+    </g>
+    <g id="03-sequence-ytick_2">
+     <g id="03-sequence-line2d_7">
+      <path d="M 45.61149 226.684041
+L 587.353862 226.684041
+" clip-path="url(#03-sequence-pcae333d9d4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="03-sequence-line2d_8">
+      <g>
+       <use xlink:href="#03-sequence-m57af789f8e" x="45.61149" y="226.684041" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_6">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="230.863181" transform="rotate(-0 38.61149 230.863181)">10</text>
+     </g>
+    </g>
+    <g id="03-sequence-ytick_3">
+     <g id="03-sequence-line2d_9">
+      <path d="M 45.61149 186.014259
+L 587.353862 186.014259
+" clip-path="url(#03-sequence-pcae333d9d4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="03-sequence-line2d_10">
+      <g>
+       <use xlink:href="#03-sequence-m57af789f8e" x="45.61149" y="186.014259" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_7">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="190.193399" transform="rotate(-0 38.61149 190.193399)">20</text>
+     </g>
+    </g>
+    <g id="03-sequence-ytick_4">
+     <g id="03-sequence-line2d_11">
+      <path d="M 45.61149 145.344477
+L 587.353862 145.344477
+" clip-path="url(#03-sequence-pcae333d9d4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="03-sequence-line2d_12">
+      <g>
+       <use xlink:href="#03-sequence-m57af789f8e" x="45.61149" y="145.344477" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_8">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="149.523617" transform="rotate(-0 38.61149 149.523617)">30</text>
+     </g>
+    </g>
+    <g id="03-sequence-ytick_5">
+     <g id="03-sequence-line2d_13">
+      <path d="M 45.61149 104.674695
+L 587.353862 104.674695
+" clip-path="url(#03-sequence-pcae333d9d4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="03-sequence-line2d_14">
+      <g>
+       <use xlink:href="#03-sequence-m57af789f8e" x="45.61149" y="104.674695" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_9">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="108.853835" transform="rotate(-0 38.61149 108.853835)">40</text>
+     </g>
+    </g>
+    <g id="03-sequence-ytick_6">
+     <g id="03-sequence-line2d_15">
+      <path d="M 45.61149 64.004913
+L 587.353862 64.004913
+" clip-path="url(#03-sequence-pcae333d9d4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="03-sequence-line2d_16">
+      <g>
+       <use xlink:href="#03-sequence-m57af789f8e" x="45.61149" y="64.004913" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_10">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="68.184054" transform="rotate(-0 38.61149 68.184054)">50</text>
+     </g>
+    </g>
+    <g id="03-sequence-ytick_7">
+     <g id="03-sequence-line2d_17">
+      <path d="M 45.61149 23.335131
+L 587.353862 23.335131
+" clip-path="url(#03-sequence-pcae333d9d4)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="03-sequence-line2d_18">
+      <g>
+       <use xlink:href="#03-sequence-m57af789f8e" x="45.61149" y="23.335131" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="03-sequence-text_11">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="27.514272" transform="rotate(-0 38.61149 27.514272)">60</text>
+     </g>
+    </g>
+    <g id="03-sequence-text_12">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="12.118365" y="135.177031" transform="rotate(-90 12.118365 135.177031)">Validation accuracy (%)</text>
+    </g>
+   </g>
+   <g id="03-sequence-line2d_19">
+    <path d="M 70.236143 97.516813
+L 234.400499 93.937872
+L 398.564854 89.870894
+L 562.729209 97.516813
+" clip-path="url(#03-sequence-pcae333d9d4)" style="fill: none; stroke: #245d99; stroke-width: 2.3; stroke-linecap: square"/>
+    <defs>
+     <path id="03-sequence-m64c17debc2" d="M 0 3
+C 0.795609 3 1.55874 2.683901 2.12132 2.12132
+C 2.683901 1.55874 3 0.795609 3 0
+C 3 -0.795609 2.683901 -1.55874 2.12132 -2.12132
+C 1.55874 -2.683901 0.795609 -3 0 -3
+C -0.795609 -3 -1.55874 -2.683901 -2.12132 -2.12132
+C -2.683901 -1.55874 -3 -0.795609 -3 0
+C -3 0.795609 -2.683901 1.55874 -2.12132 2.12132
+C -1.55874 2.683901 -0.795609 3 0 3
+z
+" style="stroke: #245d99"/>
+    </defs>
+    <g clip-path="url(#03-sequence-pcae333d9d4)">
+     <use xlink:href="#03-sequence-m64c17debc2" x="70.236143" y="97.516813" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#03-sequence-m64c17debc2" x="234.400499" y="93.937872" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#03-sequence-m64c17debc2" x="398.564854" y="89.870894" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#03-sequence-m64c17debc2" x="562.729209" y="97.516813" style="fill: #245d99; stroke: #245d99"/>
+    </g>
+   </g>
+   <g id="03-sequence-line2d_20">
+    <path d="M 70.236143 40.416439
+L 234.400499 42.043231
+L 398.564854 54.244165
+L 562.729209 64.004913
+" clip-path="url(#03-sequence-pcae333d9d4)" style="fill: none; stroke: #b85b22; stroke-width: 2.3; stroke-linecap: square"/>
+    <defs>
+     <path id="03-sequence-m80ca55d015" d="M -3 3
+L 3 3
+L 3 -3
+L -3 -3
+z
+" style="stroke: #b85b22; stroke-linejoin: miter"/>
+    </defs>
+    <g clip-path="url(#03-sequence-pcae333d9d4)">
+     <use xlink:href="#03-sequence-m80ca55d015" x="70.236143" y="40.416439" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#03-sequence-m80ca55d015" x="234.400499" y="42.043231" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#03-sequence-m80ca55d015" x="398.564854" y="54.244165" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#03-sequence-m80ca55d015" x="562.729209" y="64.004913" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+    </g>
+   </g>
+   <g id="03-sequence-patch_3">
+    <path d="M 45.61149 267.353822
+L 45.61149 3.00024
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="03-sequence-patch_4">
+    <path d="M 45.61149 267.353822
+L 587.353862 267.353822
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="03-sequence-text_13">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="70.236143" y="88.516813" transform="rotate(-0 70.236143 88.516813)">41.76</text>
+   </g>
+   <g id="03-sequence-text_14">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="234.400499" y="84.937872" transform="rotate(-0 234.400499 84.937872)">42.64</text>
+   </g>
+   <g id="03-sequence-text_15">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="398.564854" y="80.870894" transform="rotate(-0 398.564854 80.870894)">43.64</text>
+   </g>
+   <g id="03-sequence-text_16">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="562.729209" y="88.516813" transform="rotate(-0 562.729209 88.516813)">41.76</text>
+   </g>
+   <g id="03-sequence-text_17">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="70.236143" y="31.416439" transform="rotate(-0 70.236143 31.416439)">55.8</text>
+   </g>
+   <g id="03-sequence-text_18">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="234.400499" y="33.043231" transform="rotate(-0 234.400499 33.043231)">55.4</text>
+   </g>
+   <g id="03-sequence-text_19">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="398.564854" y="45.244165" transform="rotate(-0 398.564854 45.244165)">52.4</text>
+   </g>
+   <g id="03-sequence-text_20">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle" x="562.729209" y="55.004913" transform="rotate(-0 562.729209 55.004913)">50.0</text>
+   </g>
+   <g id="03-sequence-legend_1">
+    <g id="03-sequence-line2d_21">
+     <path d="M 54.61149 238.09601
+L 64.61149 238.09601
+L 74.61149 238.09601
+" style="fill: none; stroke: #245d99; stroke-width: 2.3; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#03-sequence-m64c17debc2" x="64.61149" y="238.09601" style="fill: #245d99; stroke: #245d99"/>
+     </g>
+    </g>
+    <g id="03-sequence-text_21">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="82.61149" y="241.59601" transform="rotate(-0 82.61149 241.59601)">Mean of the same five original tasks</text>
+    </g>
+    <g id="03-sequence-line2d_22">
+     <path d="M 54.61149 252.774135
+L 64.61149 252.774135
+L 74.61149 252.774135
+" style="fill: none; stroke: #b85b22; stroke-width: 2.3; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#03-sequence-m80ca55d015" x="64.61149" y="252.774135" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     </g>
+    </g>
+    <g id="03-sequence-text_22">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="82.61149" y="256.274135" transform="rotate(-0 82.61149 256.274135)">Task 17</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="03-sequence-pcae333d9d4">
+   <rect x="45.61149" y="3.00024" width="541.742372" height="264.353582"/>
+  </clipPath>
+ </defs>
+</svg>
+</div><figcaption>The blue line always averages tasks 3, 0, 9, 5, and 17. Newly learned tasks do not enter that average. Both lines show scores at completed-lesson boundaries. The fixed average returned to 41.76%, while task 17 declined from 55.8% to 50.0%. <a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_sequence_comparison.json">Source</a>.</figcaption></figure>
+        <details><summary>View the complete eight-task score table</summary><div class="table-scroll"><table><thead><tr><th scope="col">Stage</th><th scope="col">Task 3 (%)</th><th scope="col">Task 0 (%)</th><th scope="col">Task 9 (%)</th><th scope="col">Task 5 (%)</th><th scope="col">Task 17 (%)</th><th scope="col">Task 1 (%)</th><th scope="col">Task 7 (%)</th><th scope="col">Task 14 (%)</th></tr></thead><tbody><tr><th scope="row">Starting model</th><td>23.6</td><td>30.8</td><td>42.8</td><td>55.8</td><td>55.8</td><td>Not learned</td><td>Not learned</td><td>Not learned</td></tr><tr><th scope="row">After learning 1</th><td>25.8</td><td>27.6</td><td>47.6</td><td>56.8</td><td>55.4</td><td>54.2</td><td>Not learned</td><td>Not learned</td></tr><tr><th scope="row">After learning 7</th><td>26.2</td><td>32.6</td><td>50.6</td><td>56.4</td><td>52.4</td><td>56.8</td><td>35.2</td><td>Not learned</td></tr><tr><th scope="row">After learning 14</th><td>27.4</td><td>31.6</td><td>45.6</td><td>54.2</td><td>50.0</td><td>49.0</td><td>31.8</td><td>47.6</td></tr></tbody></table></div></details>
+        <p>Tasks 3, 0, and 9 finished above their sequence-start scores. Task 17 fell after each new lesson. Learning task 14 also lowered task 1 from 56.8% to 49.0%, a 7.8-point loss during that lesson.</p>
+        <p>These observations do not support a simple rule that the earliest tasks suffer most. We also sampled the directions in which learning and protection changed the model. Some samples opposed each other, but those sparse measurements did not establish the cause of the score losses.</p>
+        <p class="takeaway"><strong>What we learned:</strong> report each task as well as the average. Improvement on one task can cancel a loss on another in the mean.</p>
+      </section>
+
+      <section id="paired">
+        <p class="section-number">05 · The controlled unlearning comparison</p>
+        <h2>Task 3 stayed at chance through one later lesson</h2>
+        <p>Both branches loaded the same model saved after task 14. Branch A learned task 15. Branch B first unlearned task 3, then learned task 15. Old-task training images were not used. Old validation images were used only to measure scores.</p>
+        <div class="terms"><div class="term"><strong>A · Learning-only control</strong>Same starting checkpoint → learn task 15.</div><div class="term"><strong>B · Unlearning branch</strong>Same starting checkpoint → unlearn task 3 → learn task 15.</div></div>
+        <p>All eight pair checks passed: starting model, starting scores, CPU random state, GPU random state, initial task-15 code, image order, image values, and update count. Each branch completed 395 learning updates. The old task codes, chunk codes, and BatchNorm running values also remained unchanged.</p>
+        <p class="protocol">Fixed settings: seed 0; beta 0.1; gamma 0.01; 100 unlearning updates; ten noise samples per update; learning rate 0.0001 for both operations; five learning epochs; batch size 64. The unlearning loss and protection loss both used actual generated model weights, including their scales and offsets. Earlier unlearning runs used a different noise representation.</p>
+        <figure><p class="figure-title">Figure 4. Task 3 before and during learning task 15</p><div class="chart"><svg role="img" aria-label="Task 3 stays at chance during one later lesson" xmlns:xlink="http://www.w3.org/1999/xlink" width="612pt" height="288pt" viewBox="0 0 612 288" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <title>Task 3 stays at chance during one later lesson</title>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>Task 3 stays at chance during one later lesson</dc:title>
+    <dc:format>image/svg+xml</dc:format>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="04-forgetting-figure_1">
+  <g id="04-forgetting-patch_1">
+   <path d="M 0 288
+L 612 288
+L 612 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="04-forgetting-axes_1">
+   <g id="04-forgetting-patch_2">
+    <path d="M 45.61149 267.353822
+L 608.99976 267.353822
+L 608.99976 7.179381
+L 45.61149 7.179381
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="04-forgetting-matplotlib.axis_1">
+    <g id="04-forgetting-xtick_1">
+     <g id="04-forgetting-line2d_1">
+      <defs>
+       <path id="04-forgetting-m5f74ae264e" d="M 0 0
+L 0 3.5
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#04-forgetting-m5f74ae264e" x="57.948459" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_1">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="57.948459" y="282.712104" transform="rotate(-0 57.948459 282.712104)">Start</text>
+     </g>
+    </g>
+    <g id="04-forgetting-xtick_2">
+     <g id="04-forgetting-line2d_2">
+      <g>
+       <use xlink:href="#04-forgetting-m5f74ae264e" x="140.194922" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_2">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="140.194922" y="282.712104" transform="rotate(-0 140.194922 282.712104)">Before L15</text>
+     </g>
+    </g>
+    <g id="04-forgetting-xtick_3">
+     <g id="04-forgetting-line2d_3">
+      <g>
+       <use xlink:href="#04-forgetting-m5f74ae264e" x="222.441385" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_3">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="222.441385" y="282.712104" transform="rotate(-0 222.441385 282.712104)">Epoch 1</text>
+     </g>
+    </g>
+    <g id="04-forgetting-xtick_4">
+     <g id="04-forgetting-line2d_4">
+      <g>
+       <use xlink:href="#04-forgetting-m5f74ae264e" x="304.687848" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_4">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="304.687848" y="282.712104" transform="rotate(-0 304.687848 282.712104)">Epoch 2</text>
+     </g>
+    </g>
+    <g id="04-forgetting-xtick_5">
+     <g id="04-forgetting-line2d_5">
+      <g>
+       <use xlink:href="#04-forgetting-m5f74ae264e" x="386.934311" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_5">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="386.934311" y="282.712104" transform="rotate(-0 386.934311 282.712104)">Epoch 3</text>
+     </g>
+    </g>
+    <g id="04-forgetting-xtick_6">
+     <g id="04-forgetting-line2d_6">
+      <g>
+       <use xlink:href="#04-forgetting-m5f74ae264e" x="469.180773" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_6">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="469.180773" y="282.712104" transform="rotate(-0 469.180773 282.712104)">Epoch 4</text>
+     </g>
+    </g>
+    <g id="04-forgetting-xtick_7">
+     <g id="04-forgetting-line2d_7">
+      <g>
+       <use xlink:href="#04-forgetting-m5f74ae264e" x="551.427236" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_7">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="551.427236" y="282.712104" transform="rotate(-0 551.427236 282.712104)">Epoch 5</text>
+     </g>
+    </g>
+   </g>
+   <g id="04-forgetting-matplotlib.axis_2">
+    <g id="04-forgetting-ytick_1">
+     <g id="04-forgetting-line2d_8">
+      <path d="M 45.61149 267.353822
+L 608.99976 267.353822
+" clip-path="url(#04-forgetting-p4f6b5fd95f)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="04-forgetting-line2d_9">
+      <defs>
+       <path id="04-forgetting-mee15ce969e" d="M 0 0
+L -3.5 0
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#04-forgetting-mee15ce969e" x="45.61149" y="267.353822" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_8">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="271.532963" transform="rotate(-0 38.61149 271.532963)">0</text>
+     </g>
+    </g>
+    <g id="04-forgetting-ytick_2">
+     <g id="04-forgetting-line2d_10">
+      <path d="M 45.61149 215.318934
+L 608.99976 215.318934
+" clip-path="url(#04-forgetting-p4f6b5fd95f)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="04-forgetting-line2d_11">
+      <g>
+       <use xlink:href="#04-forgetting-mee15ce969e" x="45.61149" y="215.318934" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_9">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="219.498075" transform="rotate(-0 38.61149 219.498075)">10</text>
+     </g>
+    </g>
+    <g id="04-forgetting-ytick_3">
+     <g id="04-forgetting-line2d_12">
+      <path d="M 45.61149 163.284046
+L 608.99976 163.284046
+" clip-path="url(#04-forgetting-p4f6b5fd95f)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="04-forgetting-line2d_13">
+      <g>
+       <use xlink:href="#04-forgetting-mee15ce969e" x="45.61149" y="163.284046" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_10">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="167.463186" transform="rotate(-0 38.61149 167.463186)">20</text>
+     </g>
+    </g>
+    <g id="04-forgetting-ytick_4">
+     <g id="04-forgetting-line2d_14">
+      <path d="M 45.61149 111.249157
+L 608.99976 111.249157
+" clip-path="url(#04-forgetting-p4f6b5fd95f)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="04-forgetting-line2d_15">
+      <g>
+       <use xlink:href="#04-forgetting-mee15ce969e" x="45.61149" y="111.249157" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_11">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="115.428298" transform="rotate(-0 38.61149 115.428298)">30</text>
+     </g>
+    </g>
+    <g id="04-forgetting-ytick_5">
+     <g id="04-forgetting-line2d_16">
+      <path d="M 45.61149 59.214269
+L 608.99976 59.214269
+" clip-path="url(#04-forgetting-p4f6b5fd95f)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="04-forgetting-line2d_17">
+      <g>
+       <use xlink:href="#04-forgetting-mee15ce969e" x="45.61149" y="59.214269" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_12">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="63.39341" transform="rotate(-0 38.61149 63.39341)">40</text>
+     </g>
+    </g>
+    <g id="04-forgetting-ytick_6">
+     <g id="04-forgetting-line2d_18">
+      <path d="M 45.61149 7.179381
+L 608.99976 7.179381
+" clip-path="url(#04-forgetting-p4f6b5fd95f)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="04-forgetting-line2d_19">
+      <g>
+       <use xlink:href="#04-forgetting-mee15ce969e" x="45.61149" y="7.179381" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="04-forgetting-text_13">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="11.358521" transform="rotate(-0 38.61149 11.358521)">50</text>
+     </g>
+    </g>
+    <g id="04-forgetting-text_14">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="12.118365" y="137.266602" transform="rotate(-90 12.118365 137.266602)">Task 3 validation accuracy (%)</text>
+    </g>
+   </g>
+   <g id="04-forgetting-line2d_20">
+    <path d="M 57.948459 124.778228
+L 140.194922 124.778228
+L 222.441385 121.656135
+L 304.687848 121.656135
+L 386.934311 121.656135
+L 469.180773 134.144508
+L 551.427236 84.191015
+" clip-path="url(#04-forgetting-p4f6b5fd95f)" style="fill: none; stroke: #245d99; stroke-width: 2.3; stroke-linecap: square"/>
+    <defs>
+     <path id="04-forgetting-m9ef09c6485" d="M 0 3
+C 0.795609 3 1.55874 2.683901 2.12132 2.12132
+C 2.683901 1.55874 3 0.795609 3 0
+C 3 -0.795609 2.683901 -1.55874 2.12132 -2.12132
+C 1.55874 -2.683901 0.795609 -3 0 -3
+C -0.795609 -3 -1.55874 -2.683901 -2.12132 -2.12132
+C -2.683901 -1.55874 -3 -0.795609 -3 0
+C -3 0.795609 -2.683901 1.55874 -2.12132 2.12132
+C -1.55874 2.683901 -0.795609 3 0 3
+z
+" style="stroke: #245d99"/>
+    </defs>
+    <g clip-path="url(#04-forgetting-p4f6b5fd95f)">
+     <use xlink:href="#04-forgetting-m9ef09c6485" x="57.948459" y="124.778228" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#04-forgetting-m9ef09c6485" x="140.194922" y="124.778228" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#04-forgetting-m9ef09c6485" x="222.441385" y="121.656135" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#04-forgetting-m9ef09c6485" x="304.687848" y="121.656135" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#04-forgetting-m9ef09c6485" x="386.934311" y="121.656135" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#04-forgetting-m9ef09c6485" x="469.180773" y="134.144508" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#04-forgetting-m9ef09c6485" x="551.427236" y="84.191015" style="fill: #245d99; stroke: #245d99"/>
+    </g>
+   </g>
+   <g id="04-forgetting-line2d_21">
+    <path d="M 57.948459 124.778228
+L 140.194922 215.318934
+L 222.441385 215.318934
+L 304.687848 215.318934
+L 386.934311 215.318934
+L 469.180773 215.318934
+L 551.427236 215.318934
+" clip-path="url(#04-forgetting-p4f6b5fd95f)" style="fill: none; stroke: #b85b22; stroke-width: 2.3; stroke-linecap: square"/>
+    <defs>
+     <path id="04-forgetting-m5bb3d55052" d="M -3 3
+L 3 3
+L 3 -3
+L -3 -3
+z
+" style="stroke: #b85b22; stroke-linejoin: miter"/>
+    </defs>
+    <g clip-path="url(#04-forgetting-p4f6b5fd95f)">
+     <use xlink:href="#04-forgetting-m5bb3d55052" x="57.948459" y="124.778228" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#04-forgetting-m5bb3d55052" x="140.194922" y="215.318934" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#04-forgetting-m5bb3d55052" x="222.441385" y="215.318934" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#04-forgetting-m5bb3d55052" x="304.687848" y="215.318934" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#04-forgetting-m5bb3d55052" x="386.934311" y="215.318934" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#04-forgetting-m5bb3d55052" x="469.180773" y="215.318934" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#04-forgetting-m5bb3d55052" x="551.427236" y="215.318934" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+    </g>
+   </g>
+   <g id="04-forgetting-line2d_22">
+    <path d="M 45.61149 215.318934
+L 608.99976 215.318934
+" clip-path="url(#04-forgetting-p4f6b5fd95f)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #253349"/>
+   </g>
+   <g id="04-forgetting-patch_3">
+    <path d="M 45.61149 267.353822
+L 45.61149 7.179381
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="04-forgetting-patch_4">
+    <path d="M 45.61149 267.353822
+L 608.99976 267.353822
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="04-forgetting-text_15">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #245d99" x="559.427236" y="80.191015" transform="rotate(-0 559.427236 80.191015)">35.2%</text>
+   </g>
+   <g id="04-forgetting-text_16">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #b85b22" x="559.427236" y="211.318934" transform="rotate(-0 559.427236 211.318934)">10.0%</text>
+   </g>
+   <g id="04-forgetting-legend_1">
+    <g id="04-forgetting-line2d_23">
+     <path d="M 54.61149 20.277818
+L 64.61149 20.277818
+L 74.61149 20.277818
+" style="fill: none; stroke: #245d99; stroke-width: 2.3; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#04-forgetting-m9ef09c6485" x="64.61149" y="20.277818" style="fill: #245d99; stroke: #245d99"/>
+     </g>
+    </g>
+    <g id="04-forgetting-text_17">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="82.61149" y="23.777818" transform="rotate(-0 82.61149 23.777818)">A: learning only</text>
+    </g>
+    <g id="04-forgetting-line2d_24">
+     <path d="M 54.61149 34.955943
+L 64.61149 34.955943
+L 74.61149 34.955943
+" style="fill: none; stroke: #b85b22; stroke-width: 2.3; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#04-forgetting-m5bb3d55052" x="64.61149" y="34.955943" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     </g>
+    </g>
+    <g id="04-forgetting-text_18">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="82.61149" y="38.455943" transform="rotate(-0 82.61149 38.455943)">B: unlearn 3, then learn 15</text>
+    </g>
+    <g id="04-forgetting-line2d_25">
+     <path d="M 54.61149 49.634068
+L 64.61149 49.634068
+L 74.61149 49.634068
+" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #253349"/>
+    </g>
+    <g id="04-forgetting-text_19">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="82.61149" y="53.134068" transform="rotate(-0 82.61149 53.134068)">Chance: 10%</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="04-forgetting-p4f6b5fd95f">
+   <rect x="45.61149" y="7.179381" width="563.38827" height="260.174442"/>
+  </clipPath>
+ </defs>
+</svg>
+</div><figcaption>“Before L15” means after unlearning in B and before any training in A. An epoch is one pass through task 15’s training images. Task 3 reached 10.0% after unlearning and stayed there at all five later epoch evaluations. The learning-only branch finished at 35.2%. Dashed line: 10% chance accuracy. <a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_paired_comparison.json">Source</a>.</figcaption></figure>
+        <div class="note"><p><strong>The result we can report:</strong> the requested task lost accuracy and did not recover during this one later lesson. Chance accuracy does not show whether useful information remains in the model.</p></div>
+
+        <h3>The retained-task average was close, but individual effects differed</h3>
+        <p>Immediately after unlearning, the seven retained tasks had lost 1.54 points on average. At the end of task-15 learning, they finished 0.34 points lower on average in B than A. That small final average difference does not mean every retained task was unaffected.</p>
+        <figure><p class="figure-title">Figure 5. Final retained-task differences between branches</p><div class="chart"><svg role="img" aria-label="Retained tasks respond differently to the paired unlearning branch" xmlns:xlink="http://www.w3.org/1999/xlink" width="612pt" height="302.4pt" viewBox="0 0 612 302.4" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <title>Retained tasks respond differently to the paired unlearning branch</title>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>Retained tasks respond differently to the paired unlearning branch</dc:title>
+    <dc:format>image/svg+xml</dc:format>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="05-retained-figure_1">
+  <g id="05-retained-patch_1">
+   <path d="M 0 302.4
+L 612 302.4
+L 612 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="05-retained-axes_1">
+   <g id="05-retained-patch_2">
+    <path d="M 54.987115 265.17226
+L 608.99976 265.17226
+L 608.99976 3.00024
+L 54.987115 3.00024
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="05-retained-matplotlib.axis_1">
+    <g id="05-retained-xtick_1">
+     <g id="05-retained-line2d_1">
+      <path d="M 68.837431 265.17226
+L 68.837431 3.00024
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="05-retained-line2d_2">
+      <defs>
+       <path id="05-retained-mcc78591926" d="M 0 0
+L 0 3.5
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#05-retained-mcc78591926" x="68.837431" y="265.17226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_1">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="68.837431" y="281.290385" transform="rotate(-0 68.837431 281.290385)">−7.5</text>
+     </g>
+    </g>
+    <g id="05-retained-xtick_2">
+     <g id="05-retained-line2d_3">
+      <path d="M 138.089012 265.17226
+L 138.089012 3.00024
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="05-retained-line2d_4">
+      <g>
+       <use xlink:href="#05-retained-mcc78591926" x="138.089012" y="265.17226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_2">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="138.089012" y="281.290385" transform="rotate(-0 138.089012 281.290385)">−5.0</text>
+     </g>
+    </g>
+    <g id="05-retained-xtick_3">
+     <g id="05-retained-line2d_5">
+      <path d="M 207.340592 265.17226
+L 207.340592 3.00024
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="05-retained-line2d_6">
+      <g>
+       <use xlink:href="#05-retained-mcc78591926" x="207.340592" y="265.17226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_3">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="207.340592" y="281.290385" transform="rotate(-0 207.340592 281.290385)">−2.5</text>
+     </g>
+    </g>
+    <g id="05-retained-xtick_4">
+     <g id="05-retained-line2d_7">
+      <path d="M 276.592173 265.17226
+L 276.592173 3.00024
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="05-retained-line2d_8">
+      <g>
+       <use xlink:href="#05-retained-mcc78591926" x="276.592173" y="265.17226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_4">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="276.592173" y="281.290385" transform="rotate(-0 276.592173 281.290385)">0.0</text>
+     </g>
+    </g>
+    <g id="05-retained-xtick_5">
+     <g id="05-retained-line2d_9">
+      <path d="M 345.843754 265.17226
+L 345.843754 3.00024
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="05-retained-line2d_10">
+      <g>
+       <use xlink:href="#05-retained-mcc78591926" x="345.843754" y="265.17226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_5">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="345.843754" y="281.290385" transform="rotate(-0 345.843754 281.290385)">2.5</text>
+     </g>
+    </g>
+    <g id="05-retained-xtick_6">
+     <g id="05-retained-line2d_11">
+      <path d="M 415.095334 265.17226
+L 415.095334 3.00024
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="05-retained-line2d_12">
+      <g>
+       <use xlink:href="#05-retained-mcc78591926" x="415.095334" y="265.17226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_6">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="415.095334" y="281.290385" transform="rotate(-0 415.095334 281.290385)">5.0</text>
+     </g>
+    </g>
+    <g id="05-retained-xtick_7">
+     <g id="05-retained-line2d_13">
+      <path d="M 484.346915 265.17226
+L 484.346915 3.00024
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="05-retained-line2d_14">
+      <g>
+       <use xlink:href="#05-retained-mcc78591926" x="484.346915" y="265.17226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_7">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="484.346915" y="281.290385" transform="rotate(-0 484.346915 281.290385)">7.5</text>
+     </g>
+    </g>
+    <g id="05-retained-xtick_8">
+     <g id="05-retained-line2d_15">
+      <path d="M 553.598496 265.17226
+L 553.598496 3.00024
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="05-retained-line2d_16">
+      <g>
+       <use xlink:href="#05-retained-mcc78591926" x="553.598496" y="265.17226" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_8">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="553.598496" y="281.290385" transform="rotate(-0 553.598496 281.290385)">10.0</text>
+     </g>
+    </g>
+    <g id="05-retained-text_9">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle" x="331.993438" y="296.904135" transform="rotate(-0 331.993438 296.904135)">Final score difference: B minus A (percentage points)</text>
+    </g>
+   </g>
+   <g id="05-retained-matplotlib.axis_2">
+    <g id="05-retained-ytick_1">
+     <g id="05-retained-line2d_17">
+      <defs>
+       <path id="05-retained-m1b8a5593c7" d="M 0 0
+L -3.5 0
+" style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#05-retained-m1b8a5593c7" x="54.987115" y="25.750705" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_10">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="47.987115" y="30.309767" transform="rotate(-0 47.987115 30.309767)">Task 0</text>
+     </g>
+    </g>
+    <g id="05-retained-ytick_2">
+     <g id="05-retained-line2d_18">
+      <g>
+       <use xlink:href="#05-retained-m1b8a5593c7" x="54.987115" y="61.862553" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_11">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="47.987115" y="66.421616" transform="rotate(-0 47.987115 66.421616)">Task 9</text>
+     </g>
+    </g>
+    <g id="05-retained-ytick_3">
+     <g id="05-retained-line2d_19">
+      <g>
+       <use xlink:href="#05-retained-m1b8a5593c7" x="54.987115" y="97.974402" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_12">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="47.987115" y="102.533464" transform="rotate(-0 47.987115 102.533464)">Task 5</text>
+     </g>
+    </g>
+    <g id="05-retained-ytick_4">
+     <g id="05-retained-line2d_20">
+      <g>
+       <use xlink:href="#05-retained-m1b8a5593c7" x="54.987115" y="134.08625" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_13">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="47.987115" y="138.645313" transform="rotate(-0 47.987115 138.645313)">Task 17</text>
+     </g>
+    </g>
+    <g id="05-retained-ytick_5">
+     <g id="05-retained-line2d_21">
+      <g>
+       <use xlink:href="#05-retained-m1b8a5593c7" x="54.987115" y="170.198098" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_14">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="47.987115" y="174.757161" transform="rotate(-0 47.987115 174.757161)">Task 1</text>
+     </g>
+    </g>
+    <g id="05-retained-ytick_6">
+     <g id="05-retained-line2d_22">
+      <g>
+       <use xlink:href="#05-retained-m1b8a5593c7" x="54.987115" y="206.309947" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_15">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="47.987115" y="210.869009" transform="rotate(-0 47.987115 210.869009)">Task 7</text>
+     </g>
+    </g>
+    <g id="05-retained-ytick_7">
+     <g id="05-retained-line2d_23">
+      <g>
+       <use xlink:href="#05-retained-m1b8a5593c7" x="54.987115" y="242.421795" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="05-retained-text_16">
+      <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end" x="47.987115" y="246.980858" transform="rotate(-0 47.987115 246.980858)">Task 14</text>
+     </g>
+    </g>
+   </g>
+   <g id="05-retained-patch_3">
+    <path d="M 276.592173 14.91715
+L 204.570529 14.91715
+L 204.570529 36.584259
+L 276.592173 36.584259
+z
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: #b85b22"/>
+   </g>
+   <g id="05-retained-patch_4">
+    <path d="M 276.592173 51.028998
+L 121.468632 51.028998
+L 121.468632 72.696108
+L 276.592173 72.696108
+z
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: #b85b22"/>
+   </g>
+   <g id="05-retained-patch_5">
+    <path d="M 276.592173 87.140847
+L 542.518243 87.140847
+L 542.518243 108.807956
+L 276.592173 108.807956
+z
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: #245d99"/>
+   </g>
+   <g id="05-retained-patch_6">
+    <path d="M 276.592173 123.252695
+L 354.153943 123.252695
+L 354.153943 144.919805
+L 276.592173 144.919805
+z
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: #245d99"/>
+   </g>
+   <g id="05-retained-patch_7">
+    <path d="M 276.592173 159.364544
+L 127.008759 159.364544
+L 127.008759 181.031653
+L 276.592173 181.031653
+z
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: #b85b22"/>
+   </g>
+   <g id="05-retained-patch_8">
+    <path d="M 276.592173 195.476392
+L 304.292805 195.476392
+L 304.292805 217.143502
+L 276.592173 217.143502
+z
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: #245d99"/>
+   </g>
+   <g id="05-retained-patch_9">
+    <path d="M 276.592173 231.588241
+L 215.650782 231.588241
+L 215.650782 253.25535
+L 276.592173 253.25535
+z
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: #b85b22"/>
+   </g>
+   <g id="05-retained-line2d_24">
+    <path d="M 276.592173 265.17226
+L 276.592173 3.00024
+" clip-path="url(#05-retained-pe9c4856bfc)" style="fill: none; stroke: #253349; stroke-linecap: square"/>
+   </g>
+   <g id="05-retained-patch_10">
+    <path d="M 54.987115 265.17226
+L 608.99976 265.17226
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="05-retained-text_17">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end" x="197.645371" y="28.786017" transform="rotate(-0 197.645371 28.786017)">-2.6</text>
+   </g>
+   <g id="05-retained-text_18">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end" x="114.543474" y="64.897866" transform="rotate(-0 114.543474 64.897866)">-5.6</text>
+   </g>
+   <g id="05-retained-text_19">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="549.443401" y="101.009714" transform="rotate(-0 549.443401 101.009714)">+9.6</text>
+   </g>
+   <g id="05-retained-text_20">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="361.079101" y="137.121563" transform="rotate(-0 361.079101 137.121563)">+2.8</text>
+   </g>
+   <g id="05-retained-text_21">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end" x="120.083601" y="173.233411" transform="rotate(-0 120.083601 173.233411)">-5.4</text>
+   </g>
+   <g id="05-retained-text_22">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start" x="311.217963" y="209.345259" transform="rotate(-0 311.217963 209.345259)">+1.0</text>
+   </g>
+   <g id="05-retained-text_23">
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end" x="208.725624" y="245.457108" transform="rotate(-0 208.725624 245.457108)">-2.2</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="05-retained-pe9c4856bfc">
+   <rect x="54.987115" y="3.00024" width="554.012645" height="262.17202"/>
+  </clipPath>
+ </defs>
+</svg>
+</div><figcaption>Each bar is B’s final score minus A’s final score. A positive bar means the unlearning branch scored higher; a negative bar means it scored lower. Task 3 is excluded because it is the requested forget target. The average across these seven bars is −0.34 points. Task 15 is new and is reported separately below. These are single-pair differences, without confidence intervals.</figcaption></figure>
+        <p>Task 9 was 5.6 points lower in B, while task 5 was 9.6 points higher. The new task 15 reached <strong>54.4% in A and 49.0% in B</strong>. This pair did not show improved new-task learning after unlearning.</p>
+        <details><summary>View every starting, post-unlearning, and final score</summary><div class="table-scroll"><table><thead><tr><th scope="col">Task</th><th scope="col">Start (%)</th><th scope="col">After U3 (%)</th><th scope="col">A final (%)</th><th scope="col">B final (%)</th><th scope="col">B minus A (points)</th></tr></thead><tbody><tr><th scope="row">Task 3 (target)</th><td>27.4</td><td>10.0</td><td>35.2</td><td>10.0</td><td>-25.2</td></tr><tr><th scope="row">Task 0</th><td>31.6</td><td>30.0</td><td>36.8</td><td>34.2</td><td>-2.6</td></tr><tr><th scope="row">Task 9</th><td>45.6</td><td>42.4</td><td>47.0</td><td>41.4</td><td>-5.6</td></tr><tr><th scope="row">Task 5</th><td>54.2</td><td>53.0</td><td>46.0</td><td>55.6</td><td>+9.6</td></tr><tr><th scope="row">Task 17</th><td>50.0</td><td>50.0</td><td>45.0</td><td>47.8</td><td>+2.8</td></tr><tr><th scope="row">Task 1</th><td>49.0</td><td>46.8</td><td>52.0</td><td>46.6</td><td>-5.4</td></tr><tr><th scope="row">Task 7</th><td>31.8</td><td>30.8</td><td>29.4</td><td>30.4</td><td>+1.0</td></tr><tr><th scope="row">Task 14</th><td>47.6</td><td>46.0</td><td>45.8</td><td>43.6</td><td>-2.2</td></tr><tr><th scope="row">Task 15 (new)</th><td>Not learned</td><td>Not learned</td><td>54.4</td><td>49.0</td><td>-5.4</td></tr></tbody></table></div></details>
+
+        <h3>Final scores also hid temporary damage</h3>
+        <figure><p class="figure-title">Figure 6. Scores during the 100 unlearning updates</p><div class="chart"><svg role="img" aria-label="Retained scores initially fall and then mostly recover during unlearning" xmlns:xlink="http://www.w3.org/1999/xlink" width="612pt" height="288pt" viewBox="0 0 612 288" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <title>Retained scores initially fall and then mostly recover during unlearning</title>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>Retained scores initially fall and then mostly recover during unlearning</dc:title>
+    <dc:format>image/svg+xml</dc:format>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="06-unlearning-figure_1">
+  <g id="06-unlearning-patch_1">
+   <path d="M 0 288
+L 612 288
+L 612 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="06-unlearning-axes_1">
+   <g id="06-unlearning-patch_2">
+    <path d="M 45.61149 245.740072
+L 608.99976 245.740072
+L 608.99976 7.179381
+L 45.61149 7.179381
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="06-unlearning-matplotlib.axis_1">
+    <g id="06-unlearning-xtick_1">
+     <g id="06-unlearning-line2d_1">
+      <defs>
+       <path id="06-unlearning-m182c4d7d82" d="M 0 0
+L 0 3.5
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="56.241457" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_1">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="56.241457" y="261.098354" transform="rotate(-0 56.241457 261.098354)">0</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_2">
+     <g id="06-unlearning-line2d_2">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="162.541131" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_2">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="162.541131" y="261.098354" transform="rotate(-0 162.541131 261.098354)">20</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_3">
+     <g id="06-unlearning-line2d_3">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="268.840805" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_3">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="268.840805" y="261.098354" transform="rotate(-0 268.840805 261.098354)">40</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_4">
+     <g id="06-unlearning-line2d_4">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="375.140478" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_4">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="375.140478" y="261.098354" transform="rotate(-0 375.140478 261.098354)">60</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_5">
+     <g id="06-unlearning-line2d_5">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="481.440152" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_5">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="481.440152" y="261.098354" transform="rotate(-0 481.440152 261.098354)">80</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_6">
+     <g id="06-unlearning-line2d_6">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="587.739825" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_6">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="587.739825" y="261.098354" transform="rotate(-0 587.739825 261.098354)">100</text>
+     </g>
+    </g>
+    <g id="06-unlearning-text_7">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="327.305625" y="282.504135" transform="rotate(-0 327.305625 282.504135)">Unlearning update</text>
+    </g>
+   </g>
+   <g id="06-unlearning-matplotlib.axis_2">
+    <g id="06-unlearning-ytick_1">
+     <g id="06-unlearning-line2d_7">
+      <path d="M 45.61149 245.740072
+L 608.99976 245.740072
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_8">
+      <defs>
+       <path id="06-unlearning-m31bac4d1b4" d="M 0 0
+L -3.5 0
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_8">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="249.919213" transform="rotate(-0 38.61149 249.919213)">0</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_2">
+     <g id="06-unlearning-line2d_9">
+      <path d="M 45.61149 205.979957
+L 608.99976 205.979957
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_10">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="205.979957" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_9">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="210.159098" transform="rotate(-0 38.61149 210.159098)">10</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_3">
+     <g id="06-unlearning-line2d_11">
+      <path d="M 45.61149 166.219842
+L 608.99976 166.219842
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_12">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="166.219842" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_10">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="170.398982" transform="rotate(-0 38.61149 170.398982)">20</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_4">
+     <g id="06-unlearning-line2d_13">
+      <path d="M 45.61149 126.459727
+L 608.99976 126.459727
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_14">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="126.459727" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_11">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="130.638867" transform="rotate(-0 38.61149 130.638867)">30</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_5">
+     <g id="06-unlearning-line2d_15">
+      <path d="M 45.61149 86.699611
+L 608.99976 86.699611
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_16">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="86.699611" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_12">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="90.878752" transform="rotate(-0 38.61149 90.878752)">40</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_6">
+     <g id="06-unlearning-line2d_17">
+      <path d="M 45.61149 46.939496
+L 608.99976 46.939496
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_18">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="46.939496" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_13">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="51.118637" transform="rotate(-0 38.61149 51.118637)">50</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_7">
+     <g id="06-unlearning-line2d_19">
+      <path d="M 45.61149 7.179381
+L 608.99976 7.179381
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_20">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="7.179381" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_14">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="11.358521" transform="rotate(-0 38.61149 11.358521)">60</text>
+     </g>
+    </g>
+    <g id="06-unlearning-text_15">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="12.118365" y="126.459727" transform="rotate(-90 12.118365 126.459727)">Validation accuracy (%)</text>
+    </g>
+   </g>
+   <g id="06-unlearning-line2d_21">
+    <path d="M 56.241457 69.773162
+L 61.556441 112.941287
+L 109.391294 83.178001
+L 162.541131 83.518802
+L 215.690968 81.360396
+L 268.840805 79.42919
+L 321.990641 78.293187
+L 375.140478 77.725185
+L 428.290315 76.816383
+L 481.440152 76.475582
+L 534.589988 75.680379
+L 587.739825 75.90758
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #245d99; stroke-width: 2; stroke-linecap: square"/>
+    <defs>
+     <path id="06-unlearning-m44967a68ba" d="M 0 3
+C 0.795609 3 1.55874 2.683901 2.12132 2.12132
+C 2.683901 1.55874 3 0.795609 3 0
+C 3 -0.795609 2.683901 -1.55874 2.12132 -2.12132
+C 1.55874 -2.683901 0.795609 -3 0 -3
+C -0.795609 -3 -1.55874 -2.683901 -2.12132 -2.12132
+C -2.683901 -1.55874 -3 -0.795609 -3 0
+C -3 0.795609 -2.683901 1.55874 -2.12132 2.12132
+C -1.55874 2.683901 -0.795609 3 0 3
+z
+" style="stroke: #245d99"/>
+    </defs>
+    <g clip-path="url(#06-unlearning-p6499c304a1)">
+     <use xlink:href="#06-unlearning-m44967a68ba" x="56.241457" y="69.773162" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="61.556441" y="112.941287" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="109.391294" y="83.178001" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="162.541131" y="83.518802" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="215.690968" y="81.360396" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="268.840805" y="79.42919" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="321.990641" y="78.293187" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="375.140478" y="77.725185" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="428.290315" y="76.816383" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="481.440152" y="76.475582" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="534.589988" y="75.680379" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="587.739825" y="75.90758" style="fill: #245d99; stroke: #245d99"/>
+    </g>
+   </g>
+   <g id="06-unlearning-line2d_22">
+    <path d="M 56.241457 136.797357
+L 61.556441 190.075911
+L 109.391294 200.413541
+L 162.541131 205.979957
+L 215.690968 205.979957
+L 268.840805 205.979957
+L 321.990641 205.979957
+L 375.140478 205.979957
+L 428.290315 205.979957
+L 481.440152 205.979957
+L 534.589988 205.979957
+L 587.739825 205.979957
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #b85b22; stroke-width: 2; stroke-linecap: square"/>
+    <defs>
+     <path id="06-unlearning-ma85e011309" d="M -3 3
+L 3 3
+L 3 -3
+L -3 -3
+z
+" style="stroke: #b85b22; stroke-linejoin: miter"/>
+    </defs>
+    <g clip-path="url(#06-unlearning-p6499c304a1)">
+     <use xlink:href="#06-unlearning-ma85e011309" x="56.241457" y="136.797357" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="61.556441" y="190.075911" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="109.391294" y="200.413541" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="162.541131" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="215.690968" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="268.840805" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="321.990641" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="375.140478" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="428.290315" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="481.440152" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="534.589988" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="587.739825" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+    </g>
+   </g>
+   <g id="06-unlearning-line2d_23">
+    <path d="M 45.61149 205.979957
+L 608.99976 205.979957
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke-dasharray: 3.33,1.44; stroke-dashoffset: 0; stroke: #253349; stroke-width: 0.9"/>
+   </g>
+   <g id="06-unlearning-patch_3">
+    <path d="M 45.61149 245.740072
+L 45.61149 7.179381
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="06-unlearning-patch_4">
+    <path d="M 45.61149 245.740072
+L 608.99976 245.740072
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="06-unlearning-legend_1">
+    <g id="06-unlearning-line2d_24">
+     <path d="M 405.077885 20.277818
+L 415.077885 20.277818
+L 425.077885 20.277818
+" style="fill: none; stroke: #245d99; stroke-width: 2; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#06-unlearning-m44967a68ba" x="415.077885" y="20.277818" style="fill: #245d99; stroke: #245d99"/>
+     </g>
+    </g>
+    <g id="06-unlearning-text_16">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="433.077885" y="23.777818" transform="rotate(-0 433.077885 23.777818)">Mean of the seven retained tasks</text>
+    </g>
+    <g id="06-unlearning-line2d_25">
+     <path d="M 405.077885 34.955943
+L 415.077885 34.955943
+L 425.077885 34.955943
+" style="fill: none; stroke: #b85b22; stroke-width: 2; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#06-unlearning-ma85e011309" x="415.077885" y="34.955943" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     </g>
+    </g>
+    <g id="06-unlearning-text_17">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="433.077885" y="38.455943" transform="rotate(-0 433.077885 38.455943)">Task 3 (forget target)</text>
+    </g>
+    <g id="06-unlearning-line2d_26">
+     <path d="M 405.077885 49.634068
+L 415.077885 49.634068
+L 425.077885 49.634068
+" style="fill: none; stroke-dasharray: 3.33,1.44; stroke-dashoffset: 0; stroke: #253349; stroke-width: 0.9"/>
+    </g>
+    <g id="06-unlearning-text_18">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="433.077885" y="53.134068" transform="rotate(-0 433.077885 53.134068)">Chance: 10%</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="06-unlearning-p6499c304a1">
+   <rect x="45.61149" y="7.179381" width="563.38827" height="238.560692"/>
+  </clipPath>
+ </defs>
+</svg>
+</div><figcaption>Dots show the recorded scoring points: updates 0, 1, and then every ten updates. Task 3 first reached 10.0% at the recorded update-20 evaluation. Retained scores fell sharply at first and mostly recovered by update 100. Lines connect observations; scores between those points were not measured.</figcaption></figure>
+        <p>At the first unlearning update, task 17 fell from 50.0% to 28.2%, a temporary 21.8-point loss. Its score recovered to 50.0% by the end of unlearning. A final-only report would miss that disturbance.</p>
+        <p>The paper’s <em>spill</em> measure adds the absolute changes across retained tasks immediately after an unlearning request. Applying that definition here gives <strong>10.8 percentage points</strong>, summed across seven tasks. This is different from both the 1.54-point average retained loss and the 0.34-point final difference between branches. Our measured relapse, the change in task-3 accuracy from after unlearning to the end of this short sequence, was 0.0 points. <a href="https://arxiv.org/html/2509.17530v1#S4.SS4">Paper, equations 4 and 5</a>.</p>
+        <p class="takeaway"><strong>What we learned:</strong> functional forgetting can persist through later learning, while effects on retained tasks vary over time and across tasks.</p>
+      </section>
+
+      <section id="claims">
+        <p class="section-number">06 · Interpreting the evidence</p>
+        <h2>Our results partly agree with the paper</h2>
+        <p>The authors report chance-level forget accuracy, low damage to retained tasks, resistance to later relapse, and improved learning in longer sequences. They also report a membership inference test of privacy. <a href="https://arxiv.org/html/2509.17530v1#S4.SS4">Paper, discussion and Tables 1–3</a>.</p>
+        <div class="table-scroll"><table class="assessment"><thead><tr><th scope="col">Claim</th><th scope="col">Our assessment</th><th scope="col">Reason</th></tr></thead><tbody>
+          <tr><th scope="row">Requested task falls to chance</th><td>Supported in one request</td><td>Task 3 fell from 27.4% to 10.0%.</td></tr>
+          <tr><th scope="row">No recovery during later learning</th><td>Supported over one later lesson</td><td>Task 3 stayed at 10.0% through all task-15 epochs.</td></tr>
+          <tr><th scope="row">Other tasks remain stable</th><td>Mixed evidence</td><td>Final mean losses were limited, but individual and temporary drops were larger.</td></tr>
+          <tr><th scope="row">Unlearning improves later learning</th><td>Not supported in this pair</td><td>Task 15 scored 5.4 points lower after unlearning. A longer saturation experiment was not performed.</td></tr>
+          <tr><th scope="row">Private or recoverable information is removed</th><td>Not assessed</td><td>No membership inference or controlled recovery test was run.</td></tr>
+        </tbody></table></div>
+        <p>These findings neither reproduce nor refute the paper as a whole. Our detailed pair uses one seed, moves task-3 unlearning to a later checkpoint, and uses beta 0.1 instead of the paper’s Tiny ImageNet beta 0.01. We use a constant learning rate of 0.0001; the paper states 0.001 with a scheduler. The full 30-request experiment, three-seed averages, and baseline comparisons have not been reproduced. <a href="https://arxiv.org/html/2509.17530v1#S4.SS1">Paper, implementation and Appendix C</a>.</p>
+        <h3>What this work has established</h3>
+        <ol>
+          <li>Ordinary learning can lower older-task scores. A learning-only control is necessary when measuring unlearning damage.</li>
+          <li>Weight protection helped substantially in the beta trials, but one result cannot establish a stable optimum.</li>
+          <li>Individual task scores and intermediate measurements provide information that averages and final scores miss.</li>
+          <li>In one matched pair, task-3 accuracy fell to chance and remained there through one subsequent lesson.</li>
+        </ol>
+        <div class="note"><p><strong>The open research question:</strong> can useful task-3 information be recovered from the saved unlearned model with a small, fixed adaptation budget? A suitable control must distinguish residual task-3 knowledge from ordinary learning and transfer from other tasks. This experiment has not been run. Further experiments are paused for reflection.</p></div>
+      </section>
+
+      <section id="evidence" class="source-links">
+        <p class="section-number">07 · Sources and scope</p>
+        <h2>How to check this report</h2>
+        <p>The charts were generated from saved JSON measurements in the repository. The later R2 reports were downloaded with file-hash verification. Pair controls were recomputed from the branch reports; remote checkpoint fingerprints were checked. The checkpoint models themselves were not independently loaded during the report review.</p>
+        <ul><li><a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_beta_batch_comparison.json">Five-value beta batch</a></li><li><a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_beta01_repeat_comparison.json">Beta 0.1 repeat comparison</a></li><li><a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_sequence_comparison.json">Learning sequence: tasks 1, 7, and 14</a></li><li><a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_paired_comparison.json">Paired U3 and L15 comparison</a></li><li><a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_pair_learning_only_report.json">Branch A: learning-only report</a></li><li><a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_pair_unlearn_then_learn_report.json">Branch B: unlearn-then-learn report</a></li></ul>
+        <p><a href="data/chart-data.json">Download the plotted measurements</a> · <a href="data/source-manifest.json">Source-file fingerprints</a> · <a href="https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory">Full experiment trajectory</a></p>
+        <p>Individual figures: <a href="assets/01-repeat.svg">1</a>, <a href="assets/02-beta.svg">2</a>, <a href="assets/03-sequence.svg">3</a>, <a href="assets/04-forgetting.svg">4</a>, <a href="assets/05-retained.svg">5</a>, <a href="assets/06-unlearning.svg">6</a>. Vector images can be downloaded for presentations.</p>
+        <p><strong>Reference:</strong> Sayanta Adhikari, Vishnuprasadh Kumaravelu, and P. K. Srijith. <em>An Unlearning Framework for Continual Learning</em>. arXiv:2509.17530v1, 2025. <a href="https://arxiv.org/html/2509.17530v1">Read the paper</a>.</p>
+        <p class="small">This is the requested public write-up of the recorded experiments. The experiment trajectory remains the detailed record. Model checkpoints and private storage credentials are not included in this page.</p>
+      </section>
+    </main>
+    <footer><span>CARK · Research progress through 7 October 2026</span><button type="button" id="print-report">Print / save as PDF</button></footer>
+  </article>
+  <script>document.getElementById('print-report').addEventListener('click',function(){window.print();});</script>
+</body>
+</html>

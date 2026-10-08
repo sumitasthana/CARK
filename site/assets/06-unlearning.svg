@@ -1,0 +1,354 @@
+<svg role="img" aria-label="Retained scores initially fall and then mostly recover during unlearning" xmlns:xlink="http://www.w3.org/1999/xlink" width="612pt" height="288pt" viewBox="0 0 612 288" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <title>Retained scores initially fall and then mostly recover during unlearning</title>
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>Retained scores initially fall and then mostly recover during unlearning</dc:title>
+    <dc:format>image/svg+xml</dc:format>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="06-unlearning-figure_1">
+  <g id="06-unlearning-patch_1">
+   <path d="M 0 288
+L 612 288
+L 612 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="06-unlearning-axes_1">
+   <g id="06-unlearning-patch_2">
+    <path d="M 45.61149 245.740072
+L 608.99976 245.740072
+L 608.99976 7.179381
+L 45.61149 7.179381
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="06-unlearning-matplotlib.axis_1">
+    <g id="06-unlearning-xtick_1">
+     <g id="06-unlearning-line2d_1">
+      <defs>
+       <path id="06-unlearning-m182c4d7d82" d="M 0 0
+L 0 3.5
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="56.241457" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_1">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="56.241457" y="261.098354" transform="rotate(-0 56.241457 261.098354)">0</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_2">
+     <g id="06-unlearning-line2d_2">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="162.541131" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_2">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="162.541131" y="261.098354" transform="rotate(-0 162.541131 261.098354)">20</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_3">
+     <g id="06-unlearning-line2d_3">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="268.840805" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_3">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="268.840805" y="261.098354" transform="rotate(-0 268.840805 261.098354)">40</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_4">
+     <g id="06-unlearning-line2d_4">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="375.140478" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_4">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="375.140478" y="261.098354" transform="rotate(-0 375.140478 261.098354)">60</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_5">
+     <g id="06-unlearning-line2d_5">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="481.440152" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_5">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="481.440152" y="261.098354" transform="rotate(-0 481.440152 261.098354)">80</text>
+     </g>
+    </g>
+    <g id="06-unlearning-xtick_6">
+     <g id="06-unlearning-line2d_6">
+      <g>
+       <use xlink:href="#06-unlearning-m182c4d7d82" x="587.739825" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_6">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="587.739825" y="261.098354" transform="rotate(-0 587.739825 261.098354)">100</text>
+     </g>
+    </g>
+    <g id="06-unlearning-text_7">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="327.305625" y="282.504135" transform="rotate(-0 327.305625 282.504135)">Unlearning update</text>
+    </g>
+   </g>
+   <g id="06-unlearning-matplotlib.axis_2">
+    <g id="06-unlearning-ytick_1">
+     <g id="06-unlearning-line2d_7">
+      <path d="M 45.61149 245.740072
+L 608.99976 245.740072
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_8">
+      <defs>
+       <path id="06-unlearning-m31bac4d1b4" d="M 0 0
+L -3.5 0
+" style="stroke: #253349; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="245.740072" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_8">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="249.919213" transform="rotate(-0 38.61149 249.919213)">0</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_2">
+     <g id="06-unlearning-line2d_9">
+      <path d="M 45.61149 205.979957
+L 608.99976 205.979957
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_10">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="205.979957" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_9">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="210.159098" transform="rotate(-0 38.61149 210.159098)">10</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_3">
+     <g id="06-unlearning-line2d_11">
+      <path d="M 45.61149 166.219842
+L 608.99976 166.219842
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_12">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="166.219842" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_10">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="170.398982" transform="rotate(-0 38.61149 170.398982)">20</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_4">
+     <g id="06-unlearning-line2d_13">
+      <path d="M 45.61149 126.459727
+L 608.99976 126.459727
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_14">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="126.459727" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_11">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="130.638867" transform="rotate(-0 38.61149 130.638867)">30</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_5">
+     <g id="06-unlearning-line2d_15">
+      <path d="M 45.61149 86.699611
+L 608.99976 86.699611
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_16">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="86.699611" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_12">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="90.878752" transform="rotate(-0 38.61149 90.878752)">40</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_6">
+     <g id="06-unlearning-line2d_17">
+      <path d="M 45.61149 46.939496
+L 608.99976 46.939496
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_18">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="46.939496" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_13">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="51.118637" transform="rotate(-0 38.61149 51.118637)">50</text>
+     </g>
+    </g>
+    <g id="06-unlearning-ytick_7">
+     <g id="06-unlearning-line2d_19">
+      <path d="M 45.61149 7.179381
+L 608.99976 7.179381
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #e6e9ed; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="06-unlearning-line2d_20">
+      <g>
+       <use xlink:href="#06-unlearning-m31bac4d1b4" x="45.61149" y="7.179381" style="fill: #253349; stroke: #253349; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="06-unlearning-text_14">
+      <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #253349" x="38.61149" y="11.358521" transform="rotate(-0 38.61149 11.358521)">60</text>
+     </g>
+    </g>
+    <g id="06-unlearning-text_15">
+     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #253349" x="12.118365" y="126.459727" transform="rotate(-90 12.118365 126.459727)">Validation accuracy (%)</text>
+    </g>
+   </g>
+   <g id="06-unlearning-line2d_21">
+    <path d="M 56.241457 69.773162
+L 61.556441 112.941287
+L 109.391294 83.178001
+L 162.541131 83.518802
+L 215.690968 81.360396
+L 268.840805 79.42919
+L 321.990641 78.293187
+L 375.140478 77.725185
+L 428.290315 76.816383
+L 481.440152 76.475582
+L 534.589988 75.680379
+L 587.739825 75.90758
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #245d99; stroke-width: 2; stroke-linecap: square"/>
+    <defs>
+     <path id="06-unlearning-m44967a68ba" d="M 0 3
+C 0.795609 3 1.55874 2.683901 2.12132 2.12132
+C 2.683901 1.55874 3 0.795609 3 0
+C 3 -0.795609 2.683901 -1.55874 2.12132 -2.12132
+C 1.55874 -2.683901 0.795609 -3 0 -3
+C -0.795609 -3 -1.55874 -2.683901 -2.12132 -2.12132
+C -2.683901 -1.55874 -3 -0.795609 -3 0
+C -3 0.795609 -2.683901 1.55874 -2.12132 2.12132
+C -1.55874 2.683901 -0.795609 3 0 3
+z
+" style="stroke: #245d99"/>
+    </defs>
+    <g clip-path="url(#06-unlearning-p6499c304a1)">
+     <use xlink:href="#06-unlearning-m44967a68ba" x="56.241457" y="69.773162" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="61.556441" y="112.941287" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="109.391294" y="83.178001" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="162.541131" y="83.518802" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="215.690968" y="81.360396" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="268.840805" y="79.42919" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="321.990641" y="78.293187" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="375.140478" y="77.725185" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="428.290315" y="76.816383" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="481.440152" y="76.475582" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="534.589988" y="75.680379" style="fill: #245d99; stroke: #245d99"/>
+     <use xlink:href="#06-unlearning-m44967a68ba" x="587.739825" y="75.90758" style="fill: #245d99; stroke: #245d99"/>
+    </g>
+   </g>
+   <g id="06-unlearning-line2d_22">
+    <path d="M 56.241457 136.797357
+L 61.556441 190.075911
+L 109.391294 200.413541
+L 162.541131 205.979957
+L 215.690968 205.979957
+L 268.840805 205.979957
+L 321.990641 205.979957
+L 375.140478 205.979957
+L 428.290315 205.979957
+L 481.440152 205.979957
+L 534.589988 205.979957
+L 587.739825 205.979957
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke: #b85b22; stroke-width: 2; stroke-linecap: square"/>
+    <defs>
+     <path id="06-unlearning-ma85e011309" d="M -3 3
+L 3 3
+L 3 -3
+L -3 -3
+z
+" style="stroke: #b85b22; stroke-linejoin: miter"/>
+    </defs>
+    <g clip-path="url(#06-unlearning-p6499c304a1)">
+     <use xlink:href="#06-unlearning-ma85e011309" x="56.241457" y="136.797357" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="61.556441" y="190.075911" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="109.391294" y="200.413541" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="162.541131" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="215.690968" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="268.840805" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="321.990641" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="375.140478" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="428.290315" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="481.440152" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="534.589988" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     <use xlink:href="#06-unlearning-ma85e011309" x="587.739825" y="205.979957" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+    </g>
+   </g>
+   <g id="06-unlearning-line2d_23">
+    <path d="M 45.61149 205.979957
+L 608.99976 205.979957
+" clip-path="url(#06-unlearning-p6499c304a1)" style="fill: none; stroke-dasharray: 3.33,1.44; stroke-dashoffset: 0; stroke: #253349; stroke-width: 0.9"/>
+   </g>
+   <g id="06-unlearning-patch_3">
+    <path d="M 45.61149 245.740072
+L 45.61149 7.179381
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="06-unlearning-patch_4">
+    <path d="M 45.61149 245.740072
+L 608.99976 245.740072
+" style="fill: none; stroke: #b4bcc5; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="06-unlearning-legend_1">
+    <g id="06-unlearning-line2d_24">
+     <path d="M 405.077885 20.277818
+L 415.077885 20.277818
+L 425.077885 20.277818
+" style="fill: none; stroke: #245d99; stroke-width: 2; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#06-unlearning-m44967a68ba" x="415.077885" y="20.277818" style="fill: #245d99; stroke: #245d99"/>
+     </g>
+    </g>
+    <g id="06-unlearning-text_16">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="433.077885" y="23.777818" transform="rotate(-0 433.077885 23.777818)">Mean of the seven retained tasks</text>
+    </g>
+    <g id="06-unlearning-line2d_25">
+     <path d="M 405.077885 34.955943
+L 415.077885 34.955943
+L 425.077885 34.955943
+" style="fill: none; stroke: #b85b22; stroke-width: 2; stroke-linecap: square"/>
+     <g>
+      <use xlink:href="#06-unlearning-ma85e011309" x="415.077885" y="34.955943" style="fill: #b85b22; stroke: #b85b22; stroke-linejoin: miter"/>
+     </g>
+    </g>
+    <g id="06-unlearning-text_17">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="433.077885" y="38.455943" transform="rotate(-0 433.077885 38.455943)">Task 3 (forget target)</text>
+    </g>
+    <g id="06-unlearning-line2d_26">
+     <path d="M 405.077885 49.634068
+L 415.077885 49.634068
+L 425.077885 49.634068
+" style="fill: none; stroke-dasharray: 3.33,1.44; stroke-dashoffset: 0; stroke: #253349; stroke-width: 0.9"/>
+    </g>
+    <g id="06-unlearning-text_18">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start" x="433.077885" y="53.134068" transform="rotate(-0 433.077885 53.134068)">Chance: 10%</text>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="06-unlearning-p6499c304a1">
+   <rect x="45.61149" y="7.179381" width="563.38827" height="238.560692"/>
+  </clipPath>
+ </defs>
+</svg>
