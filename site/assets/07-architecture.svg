@@ -1,0 +1,41 @@
+<svg id="architecture-picture" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" role="img" aria-labelledby="architecture-title architecture-description">
+  <title id="architecture-title">Hypernetwork generation and task-specific image classification</title>
+  <desc id="architecture-description">A 32-number task code and a 32-number chunk code form a 64-number input. Shared fully connected layers of 128 → 256 → 512 widths generate chunks through three output heads. The 200 chunks are assembled, reshaped, scaled, and offset into 23,520,842 ResNet50 parameters. A 64 by 64 RGB image enters the classifier. Its ten scores predict one of the known task's ten classes. Separate BatchNorm running statistics are stored for each task.</desc>
+  <defs><marker id="architecture-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#526074"/></marker></defs>
+  <style>#architecture-picture text{font-family:system-ui,sans-serif;fill:#253349;font-size:17px}#architecture-picture .architecture-label{font-size:20px;font-weight:700}#architecture-picture .architecture-small{font-size:15px}.architecture-box{fill:#f2f6fa;stroke:#91adc8;stroke-width:1.5}.architecture-flow{fill:none;stroke:#526074;stroke-width:2;marker-end:url(#architecture-arrow)}</style>
+  <rect x="1" y="1" width="958" height="718" rx="7" fill="white"/>
+  <text x="30" y="32" class="architecture-label">1. Generate classifier weights for a known task</text>
+  <rect class="architecture-box" x="30" y="54" width="220" height="78" rx="6"/>
+  <text x="140" y="85" text-anchor="middle">Task code: 32 numbers</text><text x="140" y="113" text-anchor="middle" class="architecture-small">One learned code per task</text>
+  <rect class="architecture-box" x="30" y="152" width="220" height="78" rx="6"/>
+  <text x="140" y="183" text-anchor="middle">Chunk code: 32 numbers</text><text x="140" y="211" text-anchor="middle" class="architecture-small">Identifies a piece of the weights</text>
+  <path class="architecture-flow" d="M250 93 H282 V142 H310"/><path class="architecture-flow" d="M250 191 H282 V142 H310"/>
+  <rect class="architecture-box" x="315" y="102" width="200" height="80" rx="6"/>
+  <text x="415" y="134" text-anchor="middle">Join the two codes</text><text x="415" y="163" text-anchor="middle">64-number input</text>
+  <path class="architecture-flow" d="M515 142 H553"/>
+  <rect class="architecture-box" x="558" y="85" width="370" height="114" rx="6"/>
+  <text x="743" y="119" text-anchor="middle" class="architecture-label">Shared hypernetwork layers</text>
+  <text x="743" y="153" text-anchor="middle">128 → 256 → 512 units</text><text x="743" y="180" text-anchor="middle" class="architecture-small">Fully connected; ReLU after each layer</text>
+  <path class="architecture-flow" d="M743 199 V245 H176 V269"/><path class="architecture-flow" d="M743 199 V245 H480 V269"/><path class="architecture-flow" d="M743 199 V245 H784 V269"/>
+  <rect class="architecture-box" x="30" y="274" width="292" height="78" rx="6"/>
+  <text x="176" y="305" text-anchor="middle">Ordinary weight head</text><text x="176" y="333" text-anchor="middle" class="architecture-small">174 chunks</text>
+  <rect class="architecture-box" x="334" y="274" width="292" height="78" rx="6"/>
+  <text x="480" y="305" text-anchor="middle">BatchNorm parameter head</text><text x="480" y="333" text-anchor="middle" class="architecture-small">2 chunks</text>
+  <rect class="architecture-box" x="638" y="274" width="292" height="78" rx="6"/>
+  <text x="784" y="305" text-anchor="middle">Residual projection head</text><text x="784" y="333" text-anchor="middle" class="architecture-small">24 chunks</text>
+  <path class="architecture-flow" d="M176 352 V378 H480 V394"/><path class="architecture-flow" d="M480 352 V394"/><path class="architecture-flow" d="M784 352 V378 H480 V394"/>
+  <rect class="architecture-box" x="145" y="399" width="670" height="78" rx="6"/>
+  <text x="480" y="430" text-anchor="middle">Assemble 200 chunks; reshape, scale, and add offsets</text>
+  <text x="480" y="458" text-anchor="middle">23,520,842 generated classifier parameters</text>
+  <path class="architecture-flow" d="M480 477 V564"/><text x="497" y="507" class="architecture-small">Generated weights</text>
+  <text x="30" y="543" class="architecture-label">2. Classify an image using these weights</text>
+  <rect class="architecture-box" x="30" y="569" width="210" height="78" rx="6"/>
+  <text x="135" y="601" text-anchor="middle">64 × 64 RGB image</text><text x="135" y="629" text-anchor="middle" class="architecture-small">Pixel values in [0, 1]</text>
+  <path class="architecture-flow" d="M240 608 H314"/>
+  <rect class="architecture-box" x="319" y="569" width="322" height="78" rx="6"/>
+  <text x="480" y="600" text-anchor="middle" class="architecture-label">Modified ResNet50</text><text x="480" y="628" text-anchor="middle" class="architecture-small">Task-specific BatchNorm statistics</text>
+  <path class="architecture-flow" d="M641 608 H709"/>
+  <rect class="architecture-box" x="714" y="569" width="216" height="78" rx="6"/>
+  <text x="822" y="601" text-anchor="middle">10 class scores</text><text x="822" y="629" text-anchor="middle" class="architecture-small">Highest score selects the class</text>
+  <text x="30" y="686" class="architecture-small">The task is supplied at evaluation. One generated parameter set is used for that task.</text>
+</svg>

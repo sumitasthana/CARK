@@ -31,7 +31,7 @@
     .terms{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}.term{padding:16px 18px;background:#f7f8fa;border:1px solid var(--line);border-radius:4px;font-size:15px}.term strong{display:block;margin-bottom:4px}
     .sequence{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0}.sequence span{padding:6px 12px;background:#eef3f8;border-radius:4px;font-size:15px;font-weight:650}.sequence .arrow{padding:0;background:none;color:var(--muted)}
     figure{margin:28px 0 18px;border:1px solid var(--line);border-radius:5px;padding:18px;background:#fff}.figure-title{font-size:16px;font-weight:700;margin:0 0 12px}.chart{overflow-x:auto}.chart svg{display:block;width:100%;height:auto;min-width:520px}
-    figcaption{font-size:14px;line-height:1.65;color:var(--muted);margin:12px 0 0}.takeaway{font-size:16px}.takeaway strong{color:var(--ink)}
+    figcaption{font-size:14px;line-height:1.65;color:var(--muted);margin:12px 0 0}.takeaway{font-size:16px}.takeaway strong{color:var(--ink)}#architecture-picture{min-width:760px}
     details{margin:16px 0 24px}summary{font-size:14px;color:var(--blue);cursor:pointer;display:list-item;width:fit-content;padding:6px 0}
     .table-scroll{overflow-x:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;min-width:500px}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}thead th{background:#edf2f6;font-weight:700}tbody th{font-weight:600}tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}.assessment{font-size:15px;min-width:700px}
     .protocol{font-size:15px;color:var(--muted)}.small{font-size:14px;color:var(--muted)}.source-links{font-size:15px}.source-links ul{columns:2;column-gap:30px}.source-links li{break-inside:avoid}
@@ -41,6 +41,7 @@
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
     @media print{body{background:white;font-size:10pt}.topbar,nav.contents,button,.skip{display:none}.report{border:0;margin:0;max-width:none}header,main,footer{padding-left:0;padding-right:0}header{padding-top:0}h1{font-size:26pt}h2{font-size:17pt}section{padding-top:20px}figure{break-inside:avoid;padding:8px}.chart svg{min-width:0}details{display:block}details>summary{display:none}details>*{display:block!important}.table-scroll{overflow:visible}table,.assessment{min-width:0;font-size:8pt}a{color:inherit}.terms{grid-template-columns:1fr 1fr}footer{background:white}}
   </style>
+  <style>@media print{#architecture-picture{min-width:0}}</style>
 </head>
 <body>
   <a class="skip" href="#report">Skip to report</a>
@@ -57,7 +58,7 @@
         <div class="keynumber"><strong>One pair</strong><span>Evidence from one seed and one later lesson</span></div>
       </div>
     </header>
-    <nav class="contents" aria-label="Report contents"><a href="#question">Research question</a><a href="#repeatability">Repeated runs</a><a href="#protection">Protection</a><a href="#sequence">Successive lessons</a><a href="#paired">Paired test</a><a href="#claims">Paper comparison</a><a href="#evidence">Evidence</a></nav>
+    <nav class="contents" aria-label="Report contents"><a href="#question">Research question</a><a href="#methods">Dataset, settings, and architecture</a><a href="#repeatability">Repeated runs</a><a href="#protection">Protection</a><a href="#sequence">Successive lessons</a><a href="#paired">Paired test</a><a href="#claims">Paper comparison</a><a href="#evidence">Evidence</a></nav>
     <main id="report">
       <section id="question">
         <p class="section-number">01 · The purpose</p>
@@ -83,8 +84,81 @@
         <p class="small">Historical settings and results: <a href="https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory-2026-10-05-to-06">5–6 October record</a>. The figures below use saved measurements from the later diagnostics. “Older task” means a task learned before the lesson being measured, not an older dataset.</p>
       </section>
 
+      <section id="methods">
+        <p class="section-number">02 · Experimental methods</p>
+        <h2>Dataset, training settings, and neural network architecture</h2>
+        <p>These settings describe the later task-17 diagnostics, learning-only sequence, and paired task-3 unlearning experiment shown in this report. Earlier archived runs had different settings. The architecture below follows the code revision recorded in the paired run, not later uncommitted changes.</p>
+
+        <h3>Dataset and evaluation protocol</h3>
+        <div class="table-scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Setting</th><th scope="col">Meaning for the experiment</th></tr></thead><tbody>
+          <tr><th scope="row">Dataset</th><td>Tiny ImageNet-200, downloaded from the Stanford archive.</td><td>200 classes; 100,000 training images and 10,000 labeled validation images in total.</td></tr>
+          <tr><th scope="row">Image format</th><td>64 × 64 pixels, three RGB color channels.</td><td>Images enter the classifier at their original size.</td></tr>
+          <tr><th scope="row">Task partition</th><td>20 disjoint tasks, ten classes each. Saved class partition generated with seed 42.</td><td>The same classes remain assigned to the same task. Partition seed 42 is separate from training seed 0.</td></tr>
+          <tr><th scope="row">Images per task</th><td>5,000 training images and 500 validation images.</td><td>500 training images and 50 validation images per class.</td></tr>
+          <tr><th scope="row">Preprocessing</th><td>Convert to RGB and a tensor with pixel values in [0, 1]. No augmentation or mean/standard-deviation normalization.</td><td>No random crops, flips, or pretrained-model preprocessing are used in these runs.</td></tr>
+          <tr><th scope="row">Task-aware evaluation</th><td>Supply the task identifier; predict among that task’s ten classes.</td><td>This is not a single 200-class prediction problem. Expected random-guess accuracy is 10%.</td></tr>
+          <tr><th scope="row">Reported accuracy</th><td>Top-1 accuracy on the labeled validation split.</td><td>One correct class per image. The legacy report key “test” refers to validation; the public test split has no labels.</td></tr>
+        </tbody></table></div>
+        <p class="small">Sources: <a href="https://cs231n.stanford.edu/tiny-imagenet-200.zip">Stanford dataset archive</a>, <a href="https://github.com/sumitasthana/CARK/blob/bda6040bff7d3927d78f8289f3ecd584e529508f/uncle/streams.py">dataset construction</a>, and <a href="https://github.com/sumitasthana/CARK/blob/bda6040bff7d3927d78f8289f3ecd584e529508f/uncle/task_partition.json">saved class partition</a>.</p>
+
+        <h3>Training and computing settings</h3>
+        <div class="table-scroll"><table><thead><tr><th scope="col">Setting</th><th scope="col">Value</th><th scope="col">Scope</th></tr></thead><tbody>
+          <tr><th scope="row">Training seed</th><td>0.</td><td>All detailed comparisons here use one seed.</td></tr>
+          <tr><th scope="row">Initialization</th><td>Hyperfan-in option. No pretrained ImageNet weights.</td><td>Inherited from the saved source model. Continuations load its weights rather than initialize a fresh model.</td></tr>
+          <tr><th scope="row">Optimizer</th><td>Adam, created anew for each learning or unlearning request.</td><td>The optimizer changes the trainable hypernetwork values to reduce the chosen loss.</td></tr>
+          <tr><th scope="row">Learning rate</th><td>0.0001, constant; no scheduler.</td><td>Both learning and paired unlearning use this value.</td></tr>
+          <tr><th scope="row">Learning budget</th><td>Five epochs, training batch size 64.</td><td>79 batches per epoch, including the last partial batch; 395 updates per lesson.</td></tr>
+          <tr><th scope="row">Evaluation batch size</th><td>256.</td><td>Evaluation measures accuracy without updating model weights.</td></tr>
+          <tr><th scope="row">Learning protection beta</th><td>Batch: 0, 0.001, 0.01, 0.1, 1. Repeat, sequence, and pair: 0.1.</td><td>Beta multiplies the old-task protection penalty during learning.</td></tr>
+          <tr><th scope="row">Paired unlearning budget</th><td>100 updates; ten independent Gaussian noise vectors per update.</td><td>Only branch B unlearns task 3.</td></tr>
+          <tr><th scope="row">Unlearning gamma</th><td>0.01.</td><td>Gamma multiplies the noise loss. The protection term has coefficient one.</td></tr>
+          <tr><th scope="row">Recorded environment</th><td>Google Colab; NVIDIA A100-SXM4-40GB; Python 3.13.15; PyTorch 2.11.0+cu130; CUDA 13.0.</td><td>Recorded in the detailed reports. The repeated runs used different sessions; paired branches shared one session.</td></tr>
+        </tbody></table></div>
+
+        <h3>How the hypernetwork produces an image classifier</h3>
+        <p>The hypernetwork generates classifier weights from two short codes. A task code identifies which task the classifier will solve. A chunk code identifies which piece of the classifier’s weights to generate. Joining two 32-number codes gives a 64-number input. A chunk is a group of weight values, not a group of images.</p>
+        <figure><p class="figure-title">Diagram A. Weight generation and image classification</p><div class="chart">$architecture_diagram</div><figcaption>The top flow generates weights; the bottom flow uses them to classify an image. For one task, the shared hypernetwork processes 200 task/chunk pairs. Three output heads generate different parameter types. BatchNorm running statistics are stored separately for each task and are not generated by the hypernetwork. <a href="assets/07-architecture.svg">Download the architecture diagram</a>.</figcaption></figure>
+        <div class="table-scroll"><table><thead><tr><th scope="col">Component</th><th scope="col">Recorded architecture</th><th scope="col">Role</th></tr></thead><tbody>
+          <tr><th scope="row">Task code</th><td>32 learned values per task.</td><td>Selects a task-specific classifier.</td></tr>
+          <tr><th scope="row">Chunk codes</th><td>200 codes of 32 values each, shared across tasks.</td><td>Identify pieces of the generated parameters.</td></tr>
+          <tr><th scope="row">Shared hypernetwork layers</th><td>Fully connected layers: 64 → 128 → 256 → 512, with ReLU after each layer.</td><td>Transform codes into features for the output heads. ReLU sets negative values to zero.</td></tr>
+          <tr><th scope="row">Output heads</th><td>174 ordinary-weight chunks, two BatchNorm chunks, and 24 residual-projection chunks.</td><td>Generate convolution/classifier parameters, BatchNorm scale/shift parameters, and skip-path projection weights.</td></tr>
+          <tr><th scope="row">Generated classifier</th><td>Modified ResNet50; $generated_parameters parameters per task.</td><td>Weights are assembled from chunks, reshaped, scaled, and given the required offsets.</td></tr>
+          <tr><th scope="row">Hypernetwork size in the paired report</th><td>$hypernetwork_parameters parameters, including chunk codes and nine task codes after adding task 15.</td><td>This count is separate from the generated classifier parameter count.</td></tr>
+        </tbody></table></div>
+
+        <h3>ResNet50 layers used in these runs</h3>
+        <p>ResNet connects convolution blocks with skip paths that add an earlier representation to a later one. A projection changes the skip-path shape when needed. Our target uses Torchvision’s ResNet50 structure with a smaller first convolution and a ten-class output.</p>
+        <div class="table-scroll"><table><thead><tr><th scope="col">Stage</th><th scope="col">Structure</th><th scope="col">Output per image</th></tr></thead><tbody>
+          <tr><th scope="row">Input</th><td>RGB image.</td><td>3 channels × 64 × 64 pixels.</td></tr>
+          <tr><th scope="row">Stem</th><td>3 × 3 convolution, stride 1, 64 channels; BatchNorm; ReLU; 3 × 3 max-pool with stride 2.</td><td>64 channels × 32 × 32.</td></tr>
+          <tr><th scope="row">Residual stage 1</th><td>Three bottleneck blocks.</td><td>256 channels × 32 × 32.</td></tr>
+          <tr><th scope="row">Residual stage 2</th><td>Four bottleneck blocks.</td><td>512 channels × 16 × 16.</td></tr>
+          <tr><th scope="row">Residual stage 3</th><td>Six bottleneck blocks.</td><td>1,024 channels × 8 × 8.</td></tr>
+          <tr><th scope="row">Residual stage 4</th><td>Three bottleneck blocks.</td><td>2,048 channels × 4 × 4.</td></tr>
+          <tr><th scope="row">Pooling and classifier</th><td>Adaptive average pooling to 1 × 1; flatten; linear layer from 2,048 features to ten scores.</td><td>Ten class scores; the highest score gives the prediction.</td></tr>
+        </tbody></table></div>
+        <p class="small">A bottleneck block uses 1 × 1, 3 × 3, and 1 × 1 convolutions. The table describes the pinned experiment code, which used the original adaptive average pooling. Sources: <a href="https://github.com/sumitasthana/CARK/blob/bda6040bff7d3927d78f8289f3ecd584e529508f/uncle/hypernet.py">recorded target and hypernetwork implementation</a> and <a href="https://docs.pytorch.org/vision/stable/_modules/torchvision/models/resnet.html">Torchvision ResNet source</a>.</p>
+
+        <h3>What changes during training</h3>
+        <div class="table-scroll"><table><thead><tr><th scope="col">Model state</th><th scope="col">Learning a new task</th><th scope="col">Unlearning task 3 in the pair</th></tr></thead><tbody>
+          <tr><th scope="row">Shared hypernetwork layers and output heads</th><td>Updated.</td><td>Updated.</td></tr>
+          <tr><th scope="row">Task codes</th><td>New task code updated; earlier codes frozen.</td><td>All task codes frozen.</td></tr>
+          <tr><th scope="row">Chunk codes</th><td>Learned with the first task, then frozen for these continuations.</td><td>Frozen.</td></tr>
+          <tr><th scope="row">BatchNorm running statistics</th><td>Updated only for the task currently being learned.</td><td>Frozen for every task.</td></tr>
+          <tr><th scope="row">ResNet classifier weights</th><td>Generated from the hypernetwork; not independently optimized.</td><td>Change through updates to the shared generator.</td></tr>
+        </tbody></table></div>
+        <p>BatchNorm has two kinds of values: generated scale/shift parameters, which can change with the hypernetwork, and running means/variances stored separately for each task. Freezing the latter does not freeze all BatchNorm parameters.</p>
+
+        <h3>Learning and unlearning objectives</h3>
+        <div class="note"><p><strong>Learning loss:</strong> classification error + beta × protection.</p><p><strong>Paired unlearning loss:</strong> gamma × noise distance + protection.</p></div>
+        <p>Classification error is cross-entropy, which penalizes incorrect class predictions. Protection sums squared changes in generated weights relative to a frozen copy taken before the request, then averages over protected tasks. Noise distance averages the summed squared distance from task-3 weights to ten fresh Gaussian vectors with mean zero and variance one. Both objectives compare actual generated weights, including scales and offsets.</p>
+        <p>During unlearning, the seven tasks other than task 3 are protected. During later task-15 learning, all eight earlier tasks are protected, including task 3 at its post-unlearning state in B. Earlier-task training images are not replayed; protection uses generated weights. Gradients pass through the classifier to update the hypernetwork.</p>
+        <p class="small">Sources: <a href="https://github.com/sumitasthana/CARK/blob/bda6040bff7d3927d78f8289f3ecd584e529508f/uncle/trainer.py">learning and protection code</a>, <a href="https://github.com/sumitasthana/CARK/blob/bda6040bff7d3927d78f8289f3ecd584e529508f/uncle/paired_diagnostic.py">paired unlearning code</a>, and <a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_pair_learning_only_report.json">saved configuration and architecture measurements</a>.</p>
+      </section>
+
       <section id="repeatability">
-        <p class="section-number">02 · Task-17 repeatability check</p>
+        <p class="section-number">03 · Task-17 repeatability check</p>
         <h2>Repeat training of task 17 produced a 7-point difference on task 9</h2>
         <p><strong>Question:</strong> if we load the same checkpoint and teach the same new task again, how much do the final scores change? We repeated the beta-0.1 task-17 trial in a fresh GPU session. The starting model already knew tasks 3, 0, 9, and 5. Only task 17 was trained; the four earlier tasks were evaluated.</p>
         <div class="table-scroll"><table><thead><tr><th scope="col">Condition</th><th scope="col">Comparison between runs</th></tr></thead><tbody>
@@ -103,7 +177,7 @@
       </section>
 
       <section id="protection">
-        <p class="section-number">03 · Task-17 protection comparison</p>
+        <p class="section-number">04 · Task-17 protection comparison</p>
         <h2>Nonzero protection reduced older-task losses during task-17 training</h2>
         <p><strong>Question:</strong> does increasing beta reduce the loss of earlier-task accuracy when the model learns task 17? We compared beta values 0, 0.001, 0.01, 0.1, and 1 from the checkpoint after tasks 3, 0, 9, and 5. Each trial restarted from that checkpoint; one beta trial did not continue another. There was no unlearning request.</p>
         <figure><p class="figure-title">Figure 2. New-task learning and older-task retention</p><div class="chart">$beta_chart</div><figcaption>Left: final task-17 accuracy. Right: average score change for the same four older tasks, relative to their starting scores. A negative change means loss. Beta 0.01, marked with an asterisk, is a reused result from an earlier session; the other four trials shared one runtime. Each beta has one result in this table. <a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_beta_batch_comparison.json">Source</a>.</figcaption></figure>
@@ -114,7 +188,7 @@
       </section>
 
       <section id="sequence">
-        <p class="section-number">04 · Learning-only sequence: tasks 1, 7, and 14</p>
+        <p class="section-number">05 · Learning-only sequence: tasks 1, 7, and 14</p>
         <h2>Task 17 lost 5.8 points although the original five-task average was unchanged</h2>
         <p><strong>Question:</strong> do older-task losses accumulate during successive lessons without deliberate unlearning? We loaded the beta-0.1 repeat model after tasks 3, 0, 9, 5, and 17. We trained tasks 1, 7, and 14 in order, keeping beta 0.1. Each lesson started from the preceding lesson’s final model. Task 17 was not trained again.</p>
         <div class="sequence" aria-label="Learning sequence"><span>Saved repeat model</span><span class="arrow">→</span><span>Learn 1</span><span class="arrow">→</span><span>Learn 7</span><span class="arrow">→</span><span>Learn 14</span></div>
@@ -131,7 +205,7 @@
       </section>
 
       <section id="paired">
-        <p class="section-number">05 · Paired comparison: unlearn task 3, then learn task 15</p>
+        <p class="section-number">06 · Paired comparison: unlearn task 3, then learn task 15</p>
         <h2>Task-3 accuracy fell to 10% and stayed at 10% during task-15 training</h2>
         <p><strong>Question:</strong> can deliberate unlearning reduce task-3 accuracy to chance, and does that accuracy increase again while learning a new task? Both branches loaded the checkpoint after task 14, containing tasks 3, 0, 9, 5, 17, 1, 7, and 14. The two branches ran in the same GPU session.</p>
         <div class="terms"><div class="term"><strong>A · Learning-only control</strong>Same starting checkpoint → learn task 15.</div><div class="term"><strong>B · Unlearning branch</strong>Same starting checkpoint → unlearn task 3 → learn task 15.</div></div>
@@ -141,7 +215,7 @@
           <tr><th scope="row">Starting conditions</th><td>Starting model, starting scores, and CPU and GPU random states matched.</td></tr>
           <tr><th scope="row">Task-15 training</th><td>Initial task-15 code, image order, image values, and update count matched. Both branches completed 395 weight updates.</td></tr>
           <tr><th scope="row">Learning settings</th><td>Seed 0, beta 0.1, learning rate 0.0001, five epochs, and batch size 64.</td></tr>
-          <tr><th scope="row">Unlearning settings in B</th><td>100 weight updates, ten fresh random noise samples per update, learning rate 0.0001, and gamma 0.01. Gamma multiplies the protection penalty during unlearning.</td></tr>
+          <tr><th scope="row">Unlearning settings in B</th><td>100 weight updates, ten fresh random noise samples per update, learning rate 0.0001, and gamma 0.01. Gamma multiplies the noise loss during unlearning.</td></tr>
           <tr><th scope="row">Fixed model state</th><td>Earlier-task codes, shared chunk codes, and earlier-task BatchNorm running values were unchanged. Task and chunk codes are inputs used by the hypernetwork to generate classifier weights.</td></tr>
           <tr><th scope="row">Unlearning objective</th><td>The noise and protection penalties used actual generated classifier weights, including scaling and offsets.</td></tr>
         </tbody></table></div></details>
@@ -169,7 +243,7 @@
       </section>
 
       <section id="claims">
-        <p class="section-number">06 · Interpreting the evidence</p>
+        <p class="section-number">07 · Interpreting the evidence</p>
         <h2>Comparison with the UnCLe paper: supported, mixed, and untested claims</h2>
         <p>The authors report chance-level forget accuracy, low damage to retained tasks, resistance to later relapse, and improved learning in longer sequences. They also report a membership inference test of privacy. <a href="https://arxiv.org/html/2509.17530v1#S4.SS4">Paper, discussion and Tables 1–3</a>.</p>
         <div class="table-scroll"><table class="assessment"><thead><tr><th scope="col">Claim</th><th scope="col">Our assessment</th><th scope="col">Reason</th></tr></thead><tbody>
@@ -199,7 +273,7 @@
       </section>
 
       <section id="evidence" class="source-links">
-        <p class="section-number">07 · Sources and scope</p>
+        <p class="section-number">08 · Sources and scope</p>
         <h2>Measurement sources and verification limits</h2>
         <p>The charts were generated from saved JSON measurements in the repository. The later R2 reports were downloaded with file-hash verification. Pair controls were recomputed from the branch reports; remote checkpoint fingerprints were checked. The checkpoint models themselves were not independently loaded during the report review.</p>
         $source_list

@@ -33,10 +33,10 @@ class ExperimentSiteTests(unittest.TestCase):
         text=self.assets['index.html'].decode()
         parser.feed(text)
         self.assertEqual(len(parser.ids),len(set(parser.ids)))
-        self.assertEqual(len(parser.charts),6)
+        self.assertEqual(len(parser.charts),7)
         for chart in parser.charts:
             self.assertEqual(chart['role'],'img')
-            self.assertTrue(chart['aria-label'])
+            self.assertTrue(chart.get('aria-label') or chart.get('aria-labelledby'))
         for link in parser.links:
             if link.startswith('#'): self.assertIn(link[1:],parser.ids)
             elif link and not link.startswith('https://'): self.assertIn(link,self.assets)

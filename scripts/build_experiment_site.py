@@ -79,6 +79,20 @@ def build():
     plt.rcParams.update({'font.family':'DejaVu Sans','font.size':12,'svg.fonttype':'none',
         'axes.labelsize':12,'axes.titleweight':'bold','axes.titlesize':13})
     assets, values = {}, {}
+    config, environment = a['config'], a['environment']
+    assert config['hidden'] == [128, 256, 512]
+    assert config['code_dim'] == 32 and config['chunks'] == 200
+    diagram_values = {'code_dim': config['code_dim'], 'pair_dim': 2 * config['code_dim'],
+        'hidden': ' → '.join(map(str, config['hidden'])), 'chunks': config['chunks'],
+        'generated_count': f"{environment['generated_parameters']:,}",
+        'weight_chunks': environment['chunks_per_head']['weights'],
+        'bn_chunks': environment['chunks_per_head']['batchnorm'],
+        'residual_chunks': environment['chunks_per_head']['residual']}
+    diagram = Template((ROOT/'scripts/templates/architecture.svg').read_text(encoding='utf-8')).substitute(diagram_values)
+    assets['assets/07-architecture.svg'] = diagram.encode()
+    values['architecture_diagram'] = diagram
+    values['generated_parameters'] = f"{environment['generated_parameters']:,}"
+    values['hypernetwork_parameters'] = f"{environment['hypernetwork_parameters']:,}"
 
     fig, ax = plt.subplots(figsize=(9,4), layout='constrained')
     tasks = ['3','0','9','5','17']
@@ -219,7 +233,7 @@ def main():
         else:
             target.parent.mkdir(parents=True,exist_ok=True)
             target.write_bytes(content)
-    print(('Checked' if args.check else 'Built')+f' HTML report, six figures, and source data ({len(assets)} files).')
+    print(('Checked' if args.check else 'Built')+f' HTML report, six charts, architecture diagram, and source data ({len(assets)} files).')
 
 
 if __name__=='__main__': main()
