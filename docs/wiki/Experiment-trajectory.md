@@ -12,9 +12,9 @@ The five-value beta batch is complete. With beta 0, task 17 reached 54.0%, but t
 
 The beta-0.1 repeat is complete and was read directly from R2, together with both individual reports. It learned task 17 to 55.8%, but the older-task average fell by 2.1 points and task 9 lost 5.6 points relative to the starting model. The first beta-0.1 trial had a 1.0-point average gain and a 0.4-point largest drop. Both reports have matching source hashes, starting scores, full configurations, code versions, and recorded environment dictionaries. The repeat does not confirm near-zero forgetting or explain the session variation.
 
-The recommendation is to close this bounded beta diagnostic and stop further beta tuning or repeated session probes for now. Keep beta 0.1 as a provisional setting for the next learning-only sequence, recording every older-task score after each new lesson. This tests whether the protection remains useful over multiple lessons, which this single-task continuation cannot establish. A later paired unlearning comparison needs a learning-only control from the same starting checkpoint to distinguish ordinary forgetting from the effect of deliberate unlearning. Multiple training seeds and checkpoints remain necessary for a generalized claim.
+The beta diagnostic and three-lesson learning-only sequence are now complete. Keep beta 0.1 as a provisional setting and stop further beta tuning or session probes for now. The sequence's original five-task average finished unchanged, but task 17 lost 5.8 points and task 1 lost 7.8 points during the last lesson. A paired unlearning comparison from the same starting checkpoint is the next research step, so ordinary forgetting can be distinguished from the effect of deliberate unlearning. Multiple training seeds and checkpoints remain necessary for a generalized claim.
 
-The next sequence is implemented in notebook 15, section 9, with `MODE = "SEQUENCE"` as the default. Load the completed beta-0.1 repeat model after tasks 3, 0, 9, 5, and 17, then learn 1, 7, and 14 in that order, carrying each final model forward. Task 17 is not trained again. This follows the next learning operations in Table 4's Tiny ImageNet sequence 1 while keeping this diagnostic learning-only. Beta stays 0.1; other settings come from the saved repeat model. No sequence result has been reported yet.
+The completed sequence used notebook 15, section 9, with `MODE = "SEQUENCE"`. It loaded the completed beta-0.1 repeat model after tasks 3, 0, 9, 5, and 17, then learned 1, 7, and 14 in that order, carrying each final model forward. Task 17 was not trained again. This follows the next learning operations in Table 4's Tiny ImageNet sequence 1 while keeping this diagnostic learning-only. Beta stayed 0.1; other settings came from the saved repeat model.
 
 The same three lessons measure four hypotheses: forgetting accumulates across lessons; earlier-learned tasks lose more; a mean hides individual task damage; and learning/protection gradients conflict in sampled parameter groups. Save a fixed five-task average relative to the sequence's start, per-task changes, losses from best recorded scores within this sequence, and the existing first-batch gradient sample from each epoch. Task age and gradient observations are associations, not causal comparisons. The final report and per-lesson checkpoints go to R2. Local verification with a small model checked the checkpoint chain and all three lessons; it is not an actual A100 experiment.
 
@@ -31,11 +31,36 @@ The earlier cross-session replay problem remains unexplained. Its first recorded
 - [R2 continuation reported on 7 October](#r2-continuation-reported-on-7-october)
 - [Beta batch completed on 7 October](#beta-batch-completed-on-7-october)
 - [Beta 0.1 repeat read from R2](#beta-01-repeat-read-from-r2)
+- [Learning sequence 1, 7, 14 completed](#learning-sequence-1-7-14-completed)
 - [History through 4 October](#history-through-4-october)
 - [Historical run notes through 29 September](#historical-run-notes-through-29-september)
 - [Learning audit and its qualification](#learning-audit-and-its-qualification)
 - [Hyperfan implementation and CPU checks](#hyperfan-implementation-and-cpu-checks)
 - [Paper recheck and diagnostic validation](#paper-recheck-and-diagnostic-validation)
+
+## Learning sequence 1, 7, 14 completed
+
+The user supplied the R2 key for the completed sequence comparison. Direct review downloaded that file and all three individual lesson reports with SHA-256 verification. Each report has status `complete`, five epochs, matching final scores and source fingerprint, and a remote checkpoint metadata fingerprint matching the aggregate. The checkpoint chain matches the selected repeat model, followed by the outputs of lessons 1 and 7. Models were not downloaded or independently loaded during this review.
+
+| Stage | Task 3 (%) | Task 0 (%) | Task 9 (%) | Task 5 (%) | Task 17 (%) | Task 1 (%) | Task 7 (%) | Task 14 (%) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Starting repeat model | 23.6 | 30.8 | 42.8 | 55.8 | 55.8 | Not learned | Not learned | Not learned |
+| After learning 1 | 25.8 | 27.6 | 47.6 | 56.8 | 55.4 | 54.2 | Not learned | Not learned |
+| After learning 7 | 26.2 | 32.6 | 50.6 | 56.4 | 52.4 | 56.8 | 35.2 | Not learned |
+| After learning 14 | 27.4 | 31.6 | 45.6 | 54.2 | 50.0 | 49.0 | 31.8 | 47.6 |
+
+The fixed original five-task mean was 41.76% initially, 42.64% after task 1, 43.64% after task 7, and 41.76% after task 14. The largest drop relative to those tasks' sequence-start scores increased from 3.2 to 3.4 to 5.8 points. Task 17 declined after every new lesson. Task 1 lost 7.8 points during learning 14, from 56.8% to 49.0%, and finished 5.2 points below its own first completed lesson. Task 7 lost 3.4 points during learning 14, from 35.2% to 31.8%. Its largest loss from a within-sequence epoch peak was 13.0 points; this includes variation during its own training and is not solely forgetting caused by subsequent tasks.
+
+Hypothesis findings:
+
+- Cumulative forgetting: observed for task 17, but not as a falling fixed-cohort average. No original task collapsed toward 10% in this sequence.
+- Earlier task age: no simple pattern supports greater damage to the earliest tasks. Tasks 3, 0, and 9 improved relative to the starting repeat model, while later task 17 declined. Task identity and age remain confounded.
+- Averages hiding damage: supported descriptively. The unchanged final original-task mean hides losses of 5.8 points on task 17 and 1.6 points on task 5.
+- Gradient conflict: 15 first-batch samples were recorded, one per epoch. The protection gradient is zero at each lesson's first update, so each group has four defined cosine samples per lesson. Across the 12 defined samples, the shared trunk has four negative cosines; the weight head has none. Mean trunk cosines by lesson are approximately 0.032, -0.001, and 0.006. These samples do not show persistent strong opposition or establish the cause of individual score drops. Per-group gradient sizes and ratios remain in the evidence.
+
+Decision: close this learning-only diagnostic. It supplies observed ordinary-forgetting measurements and a saved eight-task model for a subsequent paired unlearning test. Protection helps, but retention is not exact and no generalized result is established. The next test should compare a learning-only branch with an unlearning-plus-learning branch from the same checkpoint. The precise unlearning request and protection implementation need to be fixed before training; moving an unlearning request to this later checkpoint would be a diagnostic variant of the paper's sequence, not an exact reproduction.
+
+Evidence: [sequence comparison](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_sequence_comparison.json), [task 1 report](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_sequence_task_1_report.json), [task 7 report](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_sequence_task_7_report.json), and [task 14 report](https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/20261007_sequence_task_14_report.json). R2 aggregate: `uncle/learning_loss_diagnostic/20261007_learning_sequence_beta01_01/sequence_comparison.json`. Final checkpoint: the same prefix followed by `/lesson_03_task_14/checkpoint.pt`.
 
 ## Beta 0.1 repeat read from R2
 
