@@ -14,7 +14,7 @@ Read the [7 October research summary](Experiment-trajectory-2026-10-07#research-
 
 ## Record by date
 
-The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserved recovery images, matched-model preparation, completed R2 cleanup, and the resumable paired-study notebooks. The user has reported shared L0 completion for seed 0; no recovery or paired-generalization result has been reported.
+The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserved recovery images, matched-model preparation, completed R2 cleanup, and the resumable paired-study notebooks. R2 now holds 0.56 GB after historical-model cleanup; the paired study keeps approximately 4.84 GB of source models by default. The user has reported shared L0 completion for seed 0; no recovery or paired-generalization result has been reported.
 
 | Reporting date or period | What is covered |
 | --- | --- |
