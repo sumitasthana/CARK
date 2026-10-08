@@ -2,7 +2,9 @@
 
 Updated 7 October 2026. This page is the experiment record. It contains completed results, their limits, and the next controlled comparison. Files linked as evidence are measurements or original transcriptions, not separate experiment reports.
 
-## Current finding and next experiment
+## Current findings and paused experiments
+
+The user paused further experiments to reflect on agreement with the paper. No recovery run or new training is authorized by that reflection request. Completed evidence is preserved. The comparison below separates limited support from untested claims; the proposed recovery probe remains future work.
 
 Learning a new task can lower older-task scores even without an unlearning request, but the size of that loss varies between the two reported beta-0.01 continuations. The earlier Drive run learned task 17 to 53.4% and lost 6.25 percentage points on older tasks on average. The later R2 run learned task 17 to 52.2% and lost 0.05 points on older tasks on average. Task 5 still fell by 3.8 points in the later run. Task 9 finished at 32.6% in the earlier run and 50.0% in the later run. Neither result establishes consistent retention.
 
@@ -32,6 +34,7 @@ The earlier cross-session replay problem remains unexplained. Its first recorded
 
 ## Contents
 
+- [Reflection against the paper's claims](#reflection-against-the-papers-claims)
 - [Session replay](#session-replay-5-october)
 - [Learning without unlearning](#learning-without-unlearning-5-and-6-october)
 - [Hyperfan learning runs](#hyperfan-learning-runs-6-october)
@@ -46,6 +49,27 @@ The earlier cross-session replay problem remains unexplained. Its first recorded
 - [Learning audit and its qualification](#learning-audit-and-its-qualification)
 - [Hyperfan implementation and CPU checks](#hyperfan-implementation-and-cpu-checks)
 - [Paper recheck and diagnostic validation](#paper-recheck-and-diagnostic-validation)
+
+## Reflection against the paper's claims
+
+Overall assessment: the completed diagnostics partly agree with the paper. They support reducing the requested task to chance and maintaining that low accuracy through one subsequent lesson. They do not establish broad retention, improved later learning, privacy protection, or information erasure. This is not a full reproduction.
+
+The paper reports chance-level forget accuracy, low spill, resistance to relapse, and better learning after unlearning in longer sequences. It also reports membership inference results. Its primary tables average three seeds. [Paper, discussion and Tables 1 through 3](https://arxiv.org/html/2509.17530v1#S4.SS4)
+
+| Claim or mechanism | Our observations | Assessment |
+| --- | --- | --- |
+| Protection reduces ordinary forgetting | Beta 0 lost 26.5 points on older tasks on average. Nonzero beta trials lost much less; beta 0.1's two task-17 trials ranged from a 1.0-point gain to a 2.1-point loss. | Mechanism supported descriptively; optimum and repeatability unresolved. |
+| Requested task falls to chance | In the corrected paired runner, task 3 fell from 27.4% to 10.0%. | Supported for this one request. |
+| Forgotten task stays low after later learning | Task 3 stayed at 10.0% through all five L15 epochs. | Supported through one lesson, not a long permanence test. |
+| Other tasks remain stable | U3 caused a 1.54-point mean retained-task loss at its end, with a 3.2-point largest final drop. Task 17 temporarily lost 21.8 points at update 1. The later paired final mean difference was -0.34 points, masking larger task-level differences. | Partial retention, not consistently stable individual accuracy. |
+| Unlearning improves new-task learning | Task 15 reached 54.4% in A and 49.0% in B. | Not supported in this pair; does not refute a longer-sequence saturation claim. |
+| Privacy or absence of residual information | No membership inference, recovery, or matched never-learned control has been tested. | Not assessed. Chance accuracy cannot establish erasure. |
+
+Use the paper's definitions when comparing metrics. Its spill is the sum of absolute old-task accuracy changes immediately after an unlearning request. Applying that definition to our seven retained tasks yields 10.8 percentage points. Our 1.54-point mean retained loss and 0.34-point paired final difference are different quantities. Our relapse over the one subsequent lesson is 0.0 points. These single-request results must not be equated with the paper's averages over full sequences and multiple seeds. [Paper, equations 4 and 5](https://arxiv.org/html/2509.17530v1#S4.SS4)
+
+Reasons this does not settle agreement or disagreement: our detailed pair uses seed 0, changes when U3 occurs, uses beta 0.1 rather than the paper's Tiny ImageNet beta 0.01, and uses constant LR 0.0001 rather than the stated 0.001 with a scheduler. Hyperfan classifier, bias, and BatchNorm choices remain documented implementation choices. Earlier raw-output unlearning runs also used a different noise representation from the corrected pair. There is no direct ablation attributing the later success solely to that correction. Full 30-request, multiple-seed results and baseline comparisons have not been reproduced. [Paper, implementation and Appendix C](https://arxiv.org/html/2509.17530v1#S4.SS1)
+
+The defensible research statement is: in one controlled diagnostic, task-3 accuracy was suppressed to chance and remained there during one later lesson, while retained-task effects varied and later-task accuracy was lower than the learning-only control. Whether task-specific information remains recoverable is still unanswered. Further experiments are paused at the user's request.
 
 ## Paired U3 and L15 completed
 
