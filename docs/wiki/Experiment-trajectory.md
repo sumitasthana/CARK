@@ -14,11 +14,11 @@ Read the [7 October research summary](Experiment-trajectory-2026-10-07#research-
 
 ## Record by date
 
-The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserved recovery images and matched-model preparation. The user has reported shared L0 completion for seed 0; no recovery experiment has been reported.
+The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserved recovery images, matched-model preparation, completed R2 cleanup, and the resumable paired-study notebooks. The user has reported shared L0 completion for seed 0; no recovery or paired-generalization result has been reported.
 
 | Reporting date or period | What is covered |
 | --- | --- |
-| [8 October 2026](Experiment-trajectory-2026-10-08) | CPU image-split notebook and matched-model preparation notebook; proposed controls, fixed criteria, software checks, and seed-0 shared L0 completion. |
+| [8 October 2026](Experiment-trajectory-2026-10-08) | Recovery setup and seed-0 shared L0 completion; verified R2 cleanup; paired-study preparation, resume, and CPU review notebooks. |
 | [7 October 2026](Experiment-trajectory-2026-10-07) | R2 continuation, beta batch and repeat, learning sequence, paired unlearning comparison, and reflection against the paper. |
 | [5 and 6 October 2026](Experiment-trajectory-2026-10-05-to-06) | Session replay, learning-only runs, Hyperfan pilot, task-17 continuation, and implementation reviews. |
 | [Through 4 October 2026](Experiment-trajectory-2026-10-04) | Earlier reproduction stages, parameter studies, full sequence, replay variation, and weight audit. |
