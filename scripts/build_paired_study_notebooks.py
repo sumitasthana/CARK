@@ -139,6 +139,9 @@ def guarded_setup(cell):
     import traceback
     traceback.print_exc(file=sys.stdout)
     sys.stdout.flush()
+    if "dashboard" in globals():
+        dashboard.finish("Setup failed; see traceback")
+        dashboard.restore()
     if RELEASE_GPU_WHEN_DONE and IN_COLAB:
         from google.colab import runtime
         print("Setup failed before training. Releasing the GPU runtime.")
@@ -169,6 +172,22 @@ def selected_queue():
             return [by_id[key] for key in SELECTED_JOB_IDS]
         # Give only the session scheduler a filtered queue, without changing module globals.
         scheduler_globals = dict(run_queue.__globals__, inspect_queue=selected_inspect_queue)
+        if "dashboard" in globals():
+            dashboard.configure(plan, storage, jobs(plan))
+            original_run_job = run_queue.__globals__["run_job"]
+            original_request = original_run_job.__globals__["run_request"]
+            def display_request(trainer, action, task, *args, **kwargs):
+                dashboard.request(action, task)
+                return original_request(trainer, action, task, *args, **kwargs)
+            job_globals = dict(original_run_job.__globals__, run_request=display_request)
+            display_job = types.FunctionType(original_run_job.__code__, job_globals,
+                "display_job", original_run_job.__defaults__, original_run_job.__closure__)
+            display_job.__kwdefaults__ = dict(original_run_job.__kwdefaults__ or {})
+            def run_display_job(saved_plan, job, *args, **kwargs):
+                dashboard.start_job(job)
+                kwargs["on_boundary"] = dashboard.saved
+                return display_job(saved_plan, job, *args, **kwargs)
+            scheduler_globals["run_job"] = run_display_job
         run_selected_queue = types.FunctionType(run_queue.__code__, scheduler_globals,
             "run_selected_queue", run_queue.__defaults__, run_queue.__closure__)
         run_selected_queue.__kwdefaults__ = dict(run_queue.__kwdefaults__ or {})
@@ -178,6 +197,10 @@ def selected_queue():
             print(row["status"].ljust(10), row["id"], row["active"] or "")
         print("All other study jobs remain saved but will not run in this session.")
     ''')
+
+
+def compact_progress():
+    return code((Path(__file__).with_name('paired_progress.py')).read_text(encoding='utf-8'))
 
 
 def prepare(revision):
@@ -322,7 +345,8 @@ def gpu(revision):
         print("GPU:", torch.cuda.get_device_name(0))
         print("Session limit:", MAX_SESSION_MINUTES, "minutes; reserve:", SAVE_RESERVE_MINUTES)
         '''),
-        md('## 3. Connect and recover the queue'), guarded_setup(resilient_connection()), guarded_setup(load_plan()),
+        md('## 3. Connect and recover the queue'), compact_progress(),
+        guarded_setup(resilient_connection()), guarded_setup(load_plan()),
         guarded_setup(selected_queue()),
         md('''
         ## 4. Run the next work units
@@ -349,8 +373,10 @@ def gpu(revision):
         '''),
         code('''
         from uncle.streams import build_tasks
+        dashboard.attach_here()
         task_cache = {}
         def tasks_factory(job):
+            dashboard.start_job(job)
             wanted = tuple(sorted(set(plan["orders"][job["order"]]) |
                 ({job["new_task"]} if job["source"] else set())))
             if wanted not in task_cache:
@@ -375,6 +401,9 @@ def gpu(revision):
             print("Verified earlier R2 boundaries remain available. Do not change the study settings to resume.")
             raise
         finally:
+            dashboard.finish("Session saved; run all again to continue" if session is not None
+                else "Interrupted; resume from the latest verified R2 save")
+            dashboard.restore()
             task_cache.clear()
             import gc
             gc.collect()

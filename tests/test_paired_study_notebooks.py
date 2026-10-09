@@ -26,6 +26,57 @@ def cells(name):
 
 
 class NotebookFlows(unittest.TestCase):
+    def test_compact_progress_hooks_replace_and_restore_display_only(self):
+        import uncle.paired_study as paired
+        import uncle.study_training as training
+        import uncle.storage as storage_module
+        import torchvision.datasets.utils as dataset_utils
+        scope={}
+        source=(ROOT/'scripts/paired_progress.py').read_text(encoding='utf-8')
+        exec(source.split('\ndashboard = StudyDashboard(SEED)')[0],scope)
+        dashboard=scope['StudyDashboard'](1,emit=lambda markup:None)
+        modules=[(paired,'progress_bar'),(training,'progress_bar'),
+                 (storage_module,'_transfer_bar'),(dataset_utils,'tqdm')]
+        original=[getattr(module,name) for module,name in modules]
+        try:
+            dashboard.install()
+            for (module,name),before in zip(modules,original):
+                self.assertIsNot(getattr(module,name),before)
+            with dataset_utils.tqdm(total=100,unit='B',unit_scale=True) as bar:
+                bar.update(100)
+            self.assertFalse(dashboard.bars)
+        finally:
+            dashboard.restore()
+        for (module,name),before in zip(modules,original):
+            self.assertIs(getattr(module,name),before)
+
+    def test_dashboard_scheduler_forwards_training_and_verified_boundary_callbacks(self):
+        from unittest.mock import Mock
+        plan=make_plan('fixed',ROOT/'uncle/task_partition.json','paired_generalization_v2')
+        selected=['sources/order_01/seed_0','controls/order_01/seed_0/learn_15',
+            'branches/order_01/seed_0/forget_3/learn_15']
+        rows=[dict(job,status='pending',active=None) for job in jobs(plan)]
+        request=Mock(return_value='original result')
+        original_scope={'run_request':request}
+        exec('def run_job(plan, job, tasks, *, on_boundary=None, **kwargs):\n'
+            '    result = run_request(tasks, "forget", "3", "protected", device="cpu")\n'
+            '    on_boundary(job, {"status": "resumable"})\n'
+            '    return result\n',original_scope)
+        dashboard=Mock()
+        scope={'SELECTED_JOB_IDS':selected,'jobs':jobs,'run_queue':run_queue,
+            'plan':plan,'storage':Mock(),'dashboard':dashboard}
+        with contextlib.redirect_stdout(io.StringIO()), \
+             patch('uncle.paired_study.inspect_queue',return_value=rows), \
+             patch.dict(run_queue.__globals__,{'run_job':original_scope['run_job']}):
+            exec(''.join(builder.selected_queue()['source']),scope)
+            wrapped=scope['run_selected_queue'].__globals__['run_job']
+            job=next(job for job in jobs(plan) if job['id']==selected[-1])
+            self.assertEqual(wrapped(plan,job,'trainer'),'original result')
+        request.assert_called_once_with('trainer','forget','3','protected',device='cpu')
+        dashboard.request.assert_called_once_with('forget','3')
+        dashboard.saved.assert_called_once_with(job,{'status':'resumable'})
+        self.assertIs(original_scope['run_request'],request)
+
     def test_selected_queue_reuses_completed_work_and_excludes_other_branches(self):
         import copy
         from unittest.mock import Mock
