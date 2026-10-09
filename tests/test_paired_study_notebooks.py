@@ -13,6 +13,8 @@ import torch
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 sys.path.insert(0,str(Path(__file__).resolve().parent))
+sys.path.insert(0,str(ROOT/'scripts'))
+import build_paired_study_notebooks as builder
 from test_paired_study import Objects
 from uncle.storage import R2Store
 from uncle.paired_study import StudyStore,make_plan,jobs,inspect_queue,run_queue,review
@@ -24,6 +26,37 @@ def cells(name):
 
 
 class NotebookFlows(unittest.TestCase):
+    def test_multipart_retry_is_bounded_and_does_not_retry_access_denied(self):
+        import types
+        from boto3.exceptions import S3UploadFailedError
+        source=''.join(builder.resilient_connection()['source'])
+        source=source[source.index('# Transport-only fix:'):]
+        calls=[]
+        def upload(*args,**kwargs):
+            calls.append(kwargs['Config'])
+            if len(calls)<3:
+                raise S3UploadFailedError('An error occurred (InvalidPart)')
+            return 'uploaded'
+        store=types.SimpleNamespace(client=types.SimpleNamespace(upload_file=upload))
+        with contextlib.redirect_stdout(io.StringIO()), patch('time.sleep'):
+            scope={'store':store}
+            exec(source,scope)
+            self.assertEqual(store.client.upload_file('model.pt','bucket','key'),'uploaded')
+        self.assertEqual(len(calls),3)
+        self.assertFalse(calls[0].use_threads)
+        self.assertEqual(calls[0].multipart_chunksize,64*1024*1024)
+        for message,expected in [('(InvalidPart)',3),('(AccessDenied)',1)]:
+            attempts=[]
+            def fail(*args,**kwargs):
+                attempts.append(1)
+                raise S3UploadFailedError(message)
+            store=types.SimpleNamespace(client=types.SimpleNamespace(upload_file=fail))
+            with contextlib.redirect_stdout(io.StringIO()), patch('time.sleep'):
+                exec(source,{'store':store})
+                with self.assertRaises(S3UploadFailedError):
+                    store.client.upload_file('model.pt','bucket','key')
+            self.assertEqual(len(attempts),expected)
+
     def test_setup_prints_error_before_runtime_release(self):
         import types
         import importlib.util

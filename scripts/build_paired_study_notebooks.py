@@ -93,6 +93,42 @@ def load_plan():
     ''')
 
 
+def resilient_connection():
+    cell = connection()
+    extra = code('''
+        # Transport-only fix: preserve the saved training revision and resume contract.
+        from boto3.s3.transfer import TransferConfig
+        from boto3.exceptions import S3UploadFailedError
+        from botocore.exceptions import ClientError
+        import time
+        transfer_config = TransferConfig(multipart_threshold=64 * 1024 * 1024,
+            multipart_chunksize=64 * 1024 * 1024, max_concurrency=1,
+            use_threads=False, preferred_transfer_client="classic")
+        original_upload_file = store.client.upload_file
+        def upload_with_multipart_retry(*args, **kwargs):
+            kwargs["Config"] = transfer_config
+            for attempt in range(1, 4):
+                try:
+                    return original_upload_file(*args, **kwargs)
+                except (S3UploadFailedError, ClientError) as error:
+                    error_code = getattr(error, "response", {}).get("Error", {}).get("Code")
+                    invalid_part = error_code == "InvalidPart" or (
+                        isinstance(error, S3UploadFailedError) and "(InvalidPart)" in str(error))
+                    if not invalid_part or attempt == 3:
+                        raise
+                    print("R2 InvalidPart: restarting the full upload, attempt", attempt + 1,
+                        "of 3. Saved progress has not advanced.", flush=True)
+                    callback_owner = getattr(kwargs.get("Callback"), "__self__", None)
+                    if callback_owner is not None and hasattr(callback_owner, "reset"):
+                        callback_owner.reset()
+                    time.sleep(2 * attempt)
+        store.client.upload_file = upload_with_multipart_retry
+        print("R2 uploads: sequential 64 MiB parts; at most three InvalidPart attempts.")
+    ''')
+    cell['source'] += extra['source']
+    return cell
+
+
 def guarded_setup(cell):
     source = ''.join(cell['source'])
     wrapped = 'try:\n' + textwrap.indent(source, '    ')
@@ -241,7 +277,7 @@ def gpu(revision):
         print("GPU:", torch.cuda.get_device_name(0))
         print("Session limit:", MAX_SESSION_MINUTES, "minutes; reserve:", SAVE_RESERVE_MINUTES)
         '''),
-        md('## 3. Connect and recover the queue'), guarded_setup(connection()), guarded_setup(load_plan()),
+        md('## 3. Connect and recover the queue'), guarded_setup(resilient_connection()), guarded_setup(load_plan()),
         md('''
         ## 4. Run the next work units
 
