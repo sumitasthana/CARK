@@ -1,8 +1,10 @@
 # Experiment trajectory
 
-Updated 8 October 2026. This is the index for the dated experiment record. Each page keeps the questions, settings, results, evidence links, and decisions together.
+Updated 9 October 2026. This is the index for the dated experiment record. Each page keeps the questions, settings, results, evidence links, and decisions together.
 
 ## Latest findings
+
+The [9 October R2 check](Experiment-trajectory-2026-10-09) confirms two of 45 paired-generalization jobs complete: the order-01, seed-0 source and its learning-only task-15 control. The task-3 unlearning branch has a resumable save at step 0. The other 42 jobs are pending; no paired comparison is complete yet.
 
 Study-model preparation has started: the user reported seed 0 completing shared L0 at 51.4% validation accuracy, with its checkpoint and report verified in R2. The next stage prepares the never-learned-task-3 sequence from that checkpoint. Recovery remains untested.
 
@@ -18,6 +20,7 @@ The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserve
 
 | Reporting date or period | What is covered |
 | --- | --- |
+| [9 October 2026](Experiment-trajectory-2026-10-09) | Live R2 progress check for paired generalization: two completed jobs, one resumable job, and 42 pending jobs. |
 | [8 October 2026](Experiment-trajectory-2026-10-08) | Recovery setup and seed-0 shared L0 completion; verified R2 cleanup; paired-study preparation, resume, and CPU review notebooks. |
 | [7 October 2026](Experiment-trajectory-2026-10-07) | R2 continuation, beta batch and repeat, learning sequence, paired unlearning comparison, and reflection against the paper. |
 | [5 and 6 October 2026](Experiment-trajectory-2026-10-05-to-06) | Session replay, learning-only runs, Hyperfan pilot, task-17 continuation, and implementation reviews. |
