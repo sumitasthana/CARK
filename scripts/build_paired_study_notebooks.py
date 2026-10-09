@@ -409,10 +409,10 @@ def reporting(revision):
         '''),
         md('## 1. Load the fixed code'), bootstrap(revision),
         md('## 2. Select the study'), code('''
-        STUDY_ID = "paired_generalization_v1"
+        STUDY_ID = "paired_generalization_v2"
         BUCKET = "uncle-experiments"
         CLEAN_COMPLETED_RESUME_SLOTS = False  # Review is read-only until the final export cell.
-        SAVE_SUMMARY_TO_R2 = False
+        SAVE_SUMMARY_TO_R2 = True
         if torch.cuda.is_available():
             raise RuntimeError("Switch to a CPU runtime for analysis.")
         '''),
@@ -501,9 +501,13 @@ def reporting(revision):
                         "retained_task":task, "difference_pp":difference})
         if SAVE_SUMMARY_TO_R2:
             from tqdm.auto import tqdm
+            export_prefix = PREFIX + "/summaries/" + EXPORT.name
             for path in tqdm(sorted(EXPORT.iterdir()), desc="Save review artifacts", unit="file"):
-                store.upload(path, PREFIX + "/summaries/" + EXPORT.name + "/" + path.name)
+                store.upload(path, export_prefix + "/" + path.name)
             print("Review artifacts uploaded and verified.")
+            print("R2 review artifacts: s3://" + BUCKET + "/" + export_prefix + "/")
+        else:
+            print("R2 summary saving is disabled. These exports exist only in this runtime.")
         print("Local review artifacts:", EXPORT)
         print("No models trained, modified, or deleted by this review.")
         '''),

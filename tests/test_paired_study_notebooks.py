@@ -128,6 +128,9 @@ class NotebookFlows(unittest.TestCase):
             self.assertIn('uncle/paired_generalization/paired_generalization_v1/study.json',store.client.objects)
             report=cells('20_paired_study_review.ipynb')
             exec(report[1],scope)
+            self.assertTrue(scope['SAVE_SUMMARY_TO_R2'])
+            self.assertEqual(scope['STUDY_ID'],'paired_generalization_v2')
+            scope['STUDY_ID']=scope['plan']['study_id']
             scope['BUCKET']='test'
             exec(report[3],scope)
             exec(report[4],scope)
@@ -135,7 +138,6 @@ class NotebookFlows(unittest.TestCase):
             import matplotlib
             matplotlib.use('Agg')
             exec(report[6],scope)
-            scope['SAVE_SUMMARY_TO_R2']=True
             exec(report[7],scope)
             self.assertEqual(scope['result']['status'],'partial')
             self.assertEqual(scope['result']['valid_pairs'],0)
