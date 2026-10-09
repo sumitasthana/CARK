@@ -144,12 +144,23 @@ class NotebookFlows(unittest.TestCase):
             self.assertFalse(any(key.endswith('.pt') for key in store.client.objects))
             self.assertFalse(any(key.endswith('.pt') for key in store.client.download_keys))
 
-    def test_gpu_notebook_requires_explicit_training_and_cpu_notebooks_reject_gpu(self):
+    def test_seed_only_configuration_selects_matching_jobs_and_requires_gpu(self):
         with contextlib.redirect_stdout(io.StringIO()):
             scope={'Path':Path,'REPO':ROOT,'IN_COLAB':False,'torch':torch,'json':json}
             gpu=cells('19_paired_study_run.ipynb')
-            with self.assertRaisesRegex(RuntimeError,'Training is off'):
-                exec(gpu[1],scope)
+            for seed in (0,1,2):
+                source=gpu[1].replace('SEED = 0  #',f'SEED = {seed}  #')
+                with patch('torch.cuda.is_available',return_value=True), patch('torch.cuda.get_device_name',return_value='mock A100'):
+                    exec(source,scope)
+                self.assertTrue(scope['RUN_TRAINING'])
+                self.assertEqual(scope['MAX_JOBS'],4)
+                self.assertEqual(len(scope['SELECTED_JOB_IDS']),4)
+                self.assertTrue(all(f'/seed_{seed}' in key for key in scope['SELECTED_JOB_IDS']))
+            with patch('torch.cuda.is_available',return_value=False):
+                with self.assertRaisesRegex(RuntimeError,'Select a GPU'):
+                    exec(gpu[1],scope)
+            with self.assertRaisesRegex(ValueError,'Choose SEED'):
+                exec(gpu[1].replace('SEED = 0  #','SEED = 3  #'),scope)
             for name in ('18_paired_study_prepare.ipynb','20_paired_study_review.ipynb'):
                 with patch('torch.cuda.is_available',return_value=True):
                     with self.assertRaisesRegex(RuntimeError,'CPU runtime'):

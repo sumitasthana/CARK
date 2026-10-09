@@ -276,9 +276,10 @@ def gpu(revision):
         md('''
         # 19. Run or resume the paired generalization study
 
-        Run notebook 18 in PREPARE mode first. This notebook reads its saved configuration.
-        Start with one work unit per session. Reopening it resumes verified unfinished work and
-        skips completed jobs. It trains source histories independently for every order and seed.
+        The existing paired_generalization_v2 study is already prepared in R2.
+        Change only SEED in section 2 and run all cells on A100. Training is enabled by default.
+        Reopening with the same seed resumes verified unfinished work and skips completed jobs.
+        A new seed trains its own source history. Do not rerun PREPARE for this existing study.
 
         Learning saves after each epoch. Unlearning saves at the configured step interval.
         A runtime loss can discard work since the last verified R2 boundary. An interrupted
@@ -293,13 +294,16 @@ def gpu(revision):
         md('## 2. Set the session budget'), code('''
         STUDY_ID = "paired_generalization_v2"
         BUCKET = "uncle-experiments"
-        RUN_TRAINING = False  # Set True to execute this bounded GPU session.
-        MAX_JOBS = 2
+        SEED = 0  # Change only this value: 0, 1, or 2. Then run all cells.
+        if type(SEED) is not int or SEED not in (0, 1, 2):
+            raise ValueError("Choose SEED = 0, 1, or 2 from the saved study.")
+        RUN_TRAINING = True
+        MAX_JOBS = 4
         SELECTED_JOB_IDS = [
-            "sources/order_01/seed_0",
-            "controls/order_01/seed_0/learn_15",
-            "branches/order_01/seed_0/forget_3/learn_15",
-            "branches/order_01/seed_0/forget_14/learn_15",
+            f"sources/order_01/seed_{SEED}",
+            f"controls/order_01/seed_{SEED}/learn_15",
+            f"branches/order_01/seed_{SEED}/forget_3/learn_15",
+            f"branches/order_01/seed_{SEED}/forget_14/learn_15",
         ]
         MAX_SESSION_MINUTES = 120
         SAVE_RESERVE_MINUTES = 15
@@ -323,12 +327,13 @@ def gpu(revision):
         md('''
         ## 4. Run the next work units
 
-        This deadline queue reuses order 01, seed 0 and its completed L15 control.
-        It finishes U3 then L15, followed by U14 then L15. Other seeds, orders,
-        and forget targets are deferred. Keep the same study ID and saved plan.
-        MAX_JOBS = 2 allows both branches if the session budget permits; an unfinished
-        branch stops the session and resumes next time. Two completed comparisons
-        from one seed are a pilot, not evidence of variation across seeds.
+        Change only SEED in section 2, then run all cells on A100. This queue uses
+        order 01 and the selected seed: source, L15-only control, U3 then L15,
+        followed by U14 then L15. Completed jobs are reused. Other orders and forget
+        targets are deferred. Keep the same study ID and saved plan.
+        MAX_JOBS = 4 allows all four jobs if the session budget permits; an unfinished
+        job stops the session and resumes next time with the same seed. A new seed
+        needs its own eight-lesson source. One session may not finish it.
 
         Tiny ImageNet is downloaded to local runtime storage only when needed, with a download
         progress bar. It is reused across the session. Evaluation, learning, unlearning, R2 transfers,
