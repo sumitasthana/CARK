@@ -26,6 +26,41 @@ def cells(name):
 
 
 class NotebookFlows(unittest.TestCase):
+    def test_selected_queue_reuses_completed_work_and_excludes_other_branches(self):
+        import copy
+        from unittest.mock import Mock
+        with tempfile.TemporaryDirectory() as directory, contextlib.redirect_stdout(io.StringIO()):
+            plan=make_plan('fixed',ROOT/'uncle/task_partition.json','paired_generalization_v2')
+            unchanged=copy.deepcopy(plan)
+            selected=['sources/order_01/seed_0','controls/order_01/seed_0/learn_15',
+                'branches/order_01/seed_0/forget_3/learn_15',
+                'branches/order_01/seed_0/forget_14/learn_15']
+            rows=[dict(job,status='complete' if job['id'] in selected[:2] else
+                'resumable' if job['id']==selected[2] else 'pending',active=None) for job in jobs(plan)]
+            fake_inspect=Mock(return_value=rows)
+            storage=Mock(root=Path(directory),cleanup_completed=False)
+            scope={'SELECTED_JOB_IDS':selected,'jobs':jobs,'run_queue':run_queue,
+                'plan':plan,'storage':storage}
+            with patch('uncle.paired_study.inspect_queue',fake_inspect):
+                exec(''.join(builder.selected_queue()['source']),scope)
+            attempted=[]
+            def fake_run(saved_plan,job,*args,**kwargs):
+                self.assertEqual(saved_plan,unchanged)
+                attempted.append(job['id'])
+                return {'status':'complete'}
+            scheduler=scope['run_selected_queue']
+            scheduler.__globals__['run_job']=fake_run
+            result=scheduler(plan,storage,lambda job:None,max_jobs=2,
+                max_minutes=2,reserve_minutes=1,device='cpu',progress=False)
+            self.assertEqual(attempted,selected[2:])
+            self.assertEqual(result['total_jobs'],4)
+            self.assertEqual(result['completed_jobs'],4)
+            self.assertEqual(plan,unchanged)
+            self.assertIs(run_queue.__globals__['inspect_queue'],inspect_queue)
+            scope['SELECTED_JOB_IDS']=['branches/order_01/seed_0/forget_3/learn_15']
+            with self.assertRaisesRegex(ValueError,'Include the source'):
+                scope['selected_inspect_queue'](plan,storage,progress=False)
+
     def test_multipart_retry_is_bounded_and_does_not_retry_access_denied(self):
         import types
         from boto3.exceptions import S3UploadFailedError

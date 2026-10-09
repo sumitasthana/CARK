@@ -86,6 +86,9 @@ def load_plan():
             raise ValueError("Class partition differs from the saved study.")
         storage = StudyStore(store, plan, CACHE, cleanup_completed=CLEAN_COMPLETED_RESUME_SLOTS)
         rows = inspect_queue(plan, storage, progress=True)
+        if globals().get("SELECTED_JOB_IDS"):
+            rows = [row for row in rows if row["id"] in SELECTED_JOB_IDS]
+            print("Showing selected jobs only; the full saved study remains unchanged.")
         from collections import Counter
         print("Queue:", dict(Counter(row["status"] for row in rows)))
         for row in rows:
@@ -143,6 +146,38 @@ def guarded_setup(cell):
     raise
 '''
     return code(wrapped)
+
+
+def selected_queue():
+    return code('''
+        # Select execution only. The immutable plan and job contracts stay unchanged.
+        import types
+        from uncle.paired_study import inspect_queue as full_inspect_queue
+        def selected_inspect_queue(saved_plan, saved_storage, *, progress=True):
+            all_jobs = jobs(saved_plan)
+            known = {job["id"]: job for job in all_jobs}
+            if not SELECTED_JOB_IDS or len(set(SELECTED_JOB_IDS)) != len(SELECTED_JOB_IDS):
+                raise ValueError("Select a nonempty list of distinct job IDs.")
+            if set(SELECTED_JOB_IDS) - known.keys():
+                raise ValueError("Selected job is outside the saved study.")
+            selected = set(SELECTED_JOB_IDS)
+            if any(known[key]["source"] and known[key]["source"] not in selected
+                   for key in selected):
+                raise ValueError("Include the source job for each selected continuation.")
+            rows = full_inspect_queue(saved_plan, saved_storage, progress=progress)
+            by_id = {row["id"]: row for row in rows}
+            return [by_id[key] for key in SELECTED_JOB_IDS]
+        # Give only the session scheduler a filtered queue, without changing module globals.
+        scheduler_globals = dict(run_queue.__globals__, inspect_queue=selected_inspect_queue)
+        run_selected_queue = types.FunctionType(run_queue.__code__, scheduler_globals,
+            "run_selected_queue", run_queue.__defaults__, run_queue.__closure__)
+        run_selected_queue.__kwdefaults__ = dict(run_queue.__kwdefaults__ or {})
+        selected_rows = selected_inspect_queue(plan, storage, progress=True)
+        print("Selected deadline queue:")
+        for row in selected_rows:
+            print(row["status"].ljust(10), row["id"], row["active"] or "")
+        print("All other study jobs remain saved but will not run in this session.")
+    ''')
 
 
 def prepare(revision):
@@ -256,10 +291,16 @@ def gpu(revision):
         '''),
         md('## 1. Load the fixed code'), bootstrap(revision),
         md('## 2. Set the session budget'), code('''
-        STUDY_ID = "paired_generalization_v1"
+        STUDY_ID = "paired_generalization_v2"
         BUCKET = "uncle-experiments"
         RUN_TRAINING = False  # Set True to execute this bounded GPU session.
-        MAX_JOBS = 1
+        MAX_JOBS = 2
+        SELECTED_JOB_IDS = [
+            "sources/order_01/seed_0",
+            "controls/order_01/seed_0/learn_15",
+            "branches/order_01/seed_0/forget_3/learn_15",
+            "branches/order_01/seed_0/forget_14/learn_15",
+        ]
         MAX_SESSION_MINUTES = 120
         SAVE_RESERVE_MINUTES = 15
         CLEAN_COMPLETED_RESUME_SLOTS = True
@@ -278,8 +319,16 @@ def gpu(revision):
         print("Session limit:", MAX_SESSION_MINUTES, "minutes; reserve:", SAVE_RESERVE_MINUTES)
         '''),
         md('## 3. Connect and recover the queue'), guarded_setup(resilient_connection()), guarded_setup(load_plan()),
+        guarded_setup(selected_queue()),
         md('''
         ## 4. Run the next work units
+
+        This deadline queue reuses order 01, seed 0 and its completed L15 control.
+        It finishes U3 then L15, followed by U14 then L15. Other seeds, orders,
+        and forget targets are deferred. Keep the same study ID and saved plan.
+        MAX_JOBS = 2 allows both branches if the session budget permits; an unfinished
+        branch stops the session and resumes next time. Two completed comparisons
+        from one seed are a pilot, not evidence of variation across seeds.
 
         Tiny ImageNet is downloaded to local runtime storage only when needed, with a download
         progress bar. It is reused across the session. Evaluation, learning, unlearning, R2 transfers,
@@ -308,7 +357,7 @@ def gpu(revision):
 
         session = None
         try:
-            session = run_queue(plan, storage, tasks_factory, max_jobs=MAX_JOBS,
+            session = run_selected_queue(plan, storage, tasks_factory, max_jobs=MAX_JOBS,
                 max_minutes=MAX_SESSION_MINUTES, reserve_minutes=SAVE_RESERVE_MINUTES,
                 device="cuda", progress=True)
             print(json.dumps(session, indent=2))

@@ -4,7 +4,7 @@ Updated 9 October 2026. This is the index for the dated experiment record. Each 
 
 ## Latest findings
 
-The [9 October R2 check](Experiment-trajectory-2026-10-09) confirms two of 45 paired-generalization jobs complete: the order-01, seed-0 source and its learning-only task-15 control. The task-3 unlearning branch has a resumable save at step 0. The other 42 jobs are pending; no paired comparison is complete yet.
+The [9 October R2 check](Experiment-trajectory-2026-10-09) confirms two of 45 paired-generalization jobs complete: the order-01, seed-0 source and its learning-only task-15 control. A later check confirmed task-3 unlearning saved at step 60. Notebook 19 now limits execution to U3/L15 and U14/L15 from that same source and control for the user's deadline. Other jobs are deferred; no paired comparison is complete yet.
 
 Study-model preparation has started: the user reported seed 0 completing shared L0 at 51.4% validation accuracy, with its checkpoint and report verified in R2. The next stage prepares the never-learned-task-3 sequence from that checkpoint. Recovery remains untested.
 
