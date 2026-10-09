@@ -4,7 +4,7 @@ Updated 9 October 2026. This is the index for the dated experiment record. Each 
 
 ## Latest findings
 
-The [9 October R2 check](Experiment-trajectory-2026-10-09) confirms two of 45 paired-generalization jobs complete: the order-01, seed-0 source and its learning-only task-15 control. A later check confirmed task-3 unlearning saved at step 60. Notebook 19 now limits execution to U3/L15 and U14/L15 from that same source and control for the user's deadline. Other jobs are deferred; no paired comparison is complete yet.
+The [9 October pilot record](Experiment-trajectory-2026-10-09) contains user-reported seed-0 results for both selected comparisons. U3/L15 matched the learning-only control on task 15; U14/L15 was 2.6 percentage points lower. Mean retained-task differences were -1.086 and -1.6 points, but individual tasks fell by up to 11.0 and 14.2 points. The original multi-seed matrix remains incomplete. Forgotten-task accuracies were not included in the supplied excerpt, so successful forgetting and its persistence are not established by these figures.
 
 Study-model preparation has started: the user reported seed 0 completing shared L0 at 51.4% validation accuracy, with its checkpoint and report verified in R2. The next stage prepares the never-learned-task-3 sequence from that checkpoint. Recovery remains untested.
 

@@ -17,3 +17,29 @@ The user requested a smaller run because the study must be wrapped up today, aut
 Notebook 19 now selects only the order-01, seed-0 source, its L15 control, U3 followed by L15, and U14 followed by L15. The source and control are reused. U3/L15 runs before U14/L15. All other 41 jobs remain in the saved study but are excluded from execution. The study plan, job contracts, fixed training revision, and checkpoints are unchanged. Selection is applied only to the session scheduler, so the existing step-60 state remains resumable. MAX_JOBS is now two; the 120-minute soft budget and 15-minute save reserve remain. An unfinished branch stops the session and resumes in a later session.
 
 Five mocked notebook checks passed, including exact selected-job execution, source/control reuse, unchanged plan and original scheduler, missing-source refusal, multipart retry, and existing CPU flows. No GPU training was performed by this change. The resulting two comparisons, if completed, are a single-seed pilot. Notebook 20 still reports the full study as partial and does not treat this subset as the completed multi-seed matrix. The next step is to reopen the updated notebook 19 on A100, enable training, and run all cells with the same study ID. Do not run PREPARE again.
+
+## User-reported results for the two selected comparisons
+
+The user supplied notebook-20 output for both order-01, seed-0 comparisons. The review output reports one valid seed for each setting. These results were supplied by the user and have not been independently reread from R2 for this update. The supplied local export path is `/content/cark-paired-study/outputs/paired_study/paired_generalization_v2/summaries/20261009T175649556604Z`; this names an export directory and does not independently establish run completion time or remote export persistence.
+
+Both branches reuse the source sequence L3, L0, L9, L5, L17, L1, L7, L14 and the same L15-only control. Differences below are final validation accuracy in the unlearn-then-learn branch minus the learning-only control, in percentage points. The retained-task mean excludes the forgotten task.
+
+| Continuation | Task-15 difference | Mean retained-task difference | Largest retained-task drop |
+| --- | ---: | ---: | --- |
+| U3 then L15 | 0.0 | -1.086 | Task 9: 11.0 |
+| U14 then L15 | -2.6 | -1.6 | Task 17: 14.2 |
+
+| Retained task | U3 then L15 difference | U14 then L15 difference |
+| --- | ---: | ---: |
+| 0 | +10.6 | +18.6 |
+| 3 | Forgotten, excluded | -2.2 |
+| 5 | +4.8 | -2.4 |
+| 7 | +2.2 | -3.0 |
+| 9 | -11.0 | -7.0 |
+| 14 | 0.0 | Forgotten, excluded |
+| 17 | -8.0 | -14.2 |
+| 1 | -6.2 | -1.0 |
+
+The selected two-comparison pilot now has results, while the original multi-seed study remains incomplete. `Complete setting: False` means the planned seeds 1 and 2 are missing, not that the seed-0 comparison failed. Standard deviation is unavailable because each setting has one seed. Average retained-task differences are small relative to some individual drops; positive changes on other tasks offset the losses. The two comparisons share a control and have different retained-task sets, so they are not independent repetitions of one setting.
+
+The supplied excerpt omits absolute task-15 accuracies, the forgotten task's accuracy after unlearning and after L15, and the forgetting gate. It therefore does not establish successful forgetting or persistence of forgetting through L15. No erasure, recovery, privacy, or across-seed robustness claim follows from these results. Next: inspect those missing fields in the saved CPU review reports and finalize the single-seed pilot report. Additional GPU training is not required to inspect saved evidence. Wiki publication remains on its scheduled days.
