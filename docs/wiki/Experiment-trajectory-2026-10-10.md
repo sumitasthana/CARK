@@ -29,3 +29,18 @@ The Excel tracker now includes a Planned jobs sheet with all 45 original jobs. E
 The user supplied session `20261010T163836495156Z`, with status saved and elapsed time 6,584.078991 seconds (1 h 49 m 44 s). The seed-2 source and L15 control completed. U3/L15 returned resumable with Unlearn 3 active; the exact saved step was not supplied. U14/L15 remains pending. The panel reports 10 of 12 jobs, 4 of 6 comparisons, and 35 of 39 requests complete. Its latest verified boundary is `2026-10-10T18:28:12.115066+00:00`. This update records user-supplied output; remote state was not independently reread here.
 
 Next: reconnect to A100, keep SEED 2 and the same study ID/settings, and run all. The completed source and control are skipped, U3/L15 resumes, and U14/L15 follows if the session budget permits. Two branch jobs and four requests remain unfinished; U3 already has partial progress. Once the panel shows 12/12 jobs and 6/6 comparisons complete, stop GPU execution and run notebook 20 on CPU. Its verified R2 exports provide the three-seed means, variation, retained-task changes, and forgotten-task gate/relapse checks. Do not start deferred orders or targets for this narrowed study.
+
+## Requested draft report and verified seed-1 effects
+
+The user explicitly requested a report using available results and placeholders for unfinished comparisons. A fresh CPU review read verified R2 reports and checkpoint metadata without downloading models. Four selected comparisons pass all recorded pairing checks; seed-2 U3/L15 remains resumable and U14/L15 pending. In all four completed comparisons, the target accuracy falls from above chance to 10.0% after unlearning and remains 10.0% after L15. The fixed 12% forgetting gate is met, with no recorded relapse above that gate during the evaluated L15 epochs. These results establish observed classification suppression over one new lesson; they do not establish erasure or recovery resistance.
+
+| Seed | Branch | L15 control | L15 branch | L15 difference | Mean retained difference | Largest final retained drop |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 0 | U3/L15 | 50.8 | 50.8 | 0.0 | -1.086 | 11.0 |
+| 0 | U14/L15 | 50.8 | 48.2 | -2.6 | -1.600 | 14.2 |
+| 1 | U3/L15 | 44.0 | 47.2 | +3.2 | -1.571 | 11.6 |
+| 1 | U14/L15 | 44.0 | 47.8 | +3.8 | -1.743 | 14.0 |
+
+Accuracy columns are percentages; differences and drops are percentage points. Provisional task-15 means and sample SD across seeds 0 and 1 are +1.60 ± 2.26 points for U3/L15 and +0.60 ± 4.53 for U14/L15. These are partial summaries; final three-seed means remain pending. The CPU review independently verifies the previously user-supplied seed-0 values and fills the missing seed-1 effects and forgotten-task scores. Nine recorded sessions total 46,118.438499 seconds, rounded to 12 h 48 m 38 s.
+
+The requested draft is [Paired study draft](../reports/Paired-study-2026-10-10-draft.md), with a committed evidence snapshot, PNG/SVG figure, and rebuild script. It separates actual diagnostic settings, validated results, provisional averages, limitations, and placeholders for both seed-2 branches and final runtime/conclusions. Figure and numeric checks passed. No GPU training was performed to create the draft.

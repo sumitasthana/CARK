@@ -4,7 +4,7 @@ Updated 10 October 2026. This is the index for the dated experiment record. Each
 
 ## Latest findings
 
-The [10 October progress record](Experiment-trajectory-2026-10-10) records the user's latest panel at 10/12 selected jobs, 4/6 comparisons, and 35/39 requests complete. Seed 2's source and control are complete; U3/L15 is resumable and U14/L15 is pending. Continue with SEED 2, then review all three seeds on CPU when both branches finish. New seed-1 and seed-2 paired accuracy effects have not been supplied yet.
+The [10 October progress record](Experiment-trajectory-2026-10-10) and requested [draft report](../reports/Paired-study-2026-10-10-draft.md) include four verified comparisons across seeds 0 and 1. All four targets reach 10% accuracy and remain there after L15, with no recorded relapse above the 12% gate. Task-15 effects vary across seeds: U3/L15 gives 0.0 and +3.2 points; U14/L15 gives -2.6 and +3.8 points. Individual retained-task losses remain substantial. Seed-2 branches and final three-seed averages are pending.
 
 The [9 October pilot record](Experiment-trajectory-2026-10-09) contains user-reported seed-0 results for both selected comparisons. U3/L15 matched the learning-only control on task 15; U14/L15 was 2.6 percentage points lower. Mean retained-task differences were -1.086 and -1.6 points, but individual tasks fell by up to 11.0 and 14.2 points. The original multi-seed matrix remains incomplete. Forgotten-task accuracies were not included in the supplied excerpt, so successful forgetting and its persistence are not established by these figures.
 
