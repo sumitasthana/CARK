@@ -203,10 +203,13 @@ The draft is based on verified R2 reports under `uncle/paired_generalization/{pl
     assert '\u2014' not in text
     path = directory / 'Paired-study-2026-10-10-draft.md'
     path.write_text(text, encoding='utf-8')
+    from render_report_html import render_report_html
+    html_path = render_report_html(path)
     assert len(rows) == 4, 'Reconcile new completions before regenerating this partial draft.'
     assert all(all(row['pair_checks'].values()) for row in rows)
     assert sum('Pending' in line for line in table) == 2
     print(path)
+    print(html_path)
     print(f'Verified draft: {len(rows)} completed pairs, two pending rows; {len(result["session_records"])} session logs.')
 
 
