@@ -50,3 +50,11 @@ The user requested an HTML copy for easier reading. The [HTML draft](../reports/
 ## Report readability revision
 
 The user found the numbers, language, and chart confusing. The Markdown and HTML drafts now separate three questions: forgetting the requested task, learning task 15, and changes to other tasks. Each result table defines its measure and gives a reading example. A directly labeled bar chart shows absolute task-15 accuracy separately for each completed seed. The main report reserves final averages for the completed three-seed study and marks the two unfinished comparisons as pending. Technical settings and individual-task differences appear after the findings. This revision changes presentation only; it uses the same verified four-comparison snapshot and introduces no new training results.
+
+## Seed 2: only the final learning request remains
+
+The user reported session `20261010T201745955185Z` saved after 6,384.282779 seconds (1 h 46 m 24 s). The seed-2 U3/L15 branch is complete. The U14/L15 branch is resumable at Learn 15. The selected study now has 11/12 jobs, 5/6 comparisons, and 38/39 requests saved complete. Seed 2 has 3/4 jobs, 1/2 comparisons, and 12/13 requests complete. The latest verified R2 save reported by the notebook is 2026-10-10T22:03:47.034314+00:00. No new accuracy scores were included, so the report's numeric result tables retain their earlier four-comparison evidence snapshot. Progress counts are updated separately.
+
+The session used max_jobs 4, a 120-minute soft session limit, and a 15-minute save reserve. Its recorded plan SHA-256 is `a51f342dfdf1faef9dd22f06426db5ad1e5ac7800a6b9318df055400cf310171`. Adding this user-supplied duration to the nine reviewed session logs gives 52,502.721278 seconds, rounded to 14 h 35 m 3 s across ten recorded sessions. The latest session has not been independently reviewed from R2 in this update. This is recorded runner time, not billed GPU time.
+
+Next: reconnect to A100, keep SEED 2 and the same study ID, and run all. Completed jobs are skipped. The last Learn 15 request resumes from its verified save. When the panel reaches 12/12 jobs, 6/6 comparisons, and 39/39 requests, run notebook 20 on CPU and save its R2 summaries. Review the final scores before filling the report's remaining numeric placeholders.

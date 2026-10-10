@@ -61,7 +61,7 @@ A **percentage point** is the difference between two percentage scores: 47.2% mi
 
 ![Task 15 accuracy for the baseline and both forgetting branches, labeled separately for each completed run](figures/paired-study-2026-10-10.png)
 
-The chart shows the same scores as the table. Each bar has its accuracy written beside it. Run 3 is omitted because its comparisons are unfinished.
+The chart shows the same scores as the table. Each bar has its accuracy written beside it. Run 3 is omitted because its scores are not yet available in this snapshot.
 
 ## 3. What happened to the other learned tasks?
 
@@ -84,16 +84,16 @@ The main concern is therefore the loss on individual tasks, even when task 15 le
 
 | Work | Complete | Remaining |
 | --- | --- | --- |
-| Training jobs | 10 of 12 | 2 branch jobs for Run 3 |
-| Baseline-versus-forgetting comparisons | 4 of 6 | 2 comparisons for Run 3 |
-| Learn or forget requests | 35 of 39 | 4 requests, with partial work already saved |
+| Training jobs | 11 of 12 | 1 branch job for Run 3 |
+| Baseline-versus-forgetting comparisons | 5 of 6 | 1 comparison for Run 3 |
+| Learn or forget requests | 38 of 39 | Final learn-15 request, with partial work already saved |
 
-Run 3 has finished its eight-task source model and its learn-15 baseline. Its forget-3 branch has a saved checkpoint and can resume. Its forget-14 branch is pending. These counts describe completed work; they do not predict remaining GPU time.
+Progress update supplied by the user: latest verified R2 save 10 October 2026 at 22:03:47 UTC. Run 3 has finished its source model, learn-15 baseline, and forget-3/learn-15 branch. Its forget-14 request is complete; the following learn-15 request can resume. These progress counts are newer than the score snapshot above. The newly completed comparison scores have not yet been supplied or reviewed. These counts do not predict remaining GPU time.
 
 | Final result to add | Status |
 | --- | --- |
-| Run 3: forget task 3, then learn task 15 | Pending completion |
-| Run 3: forget task 14, then learn task 15 | Pending completion |
+| Run 3: forget task 3, then learn task 15 | Complete; scores awaiting review |
+| Run 3: forget task 14, then learn task 15 | Final learn-15 request resumable |
 | Average task-15 effect across all three seeds, separately for each forgotten task | Pending |
 | Average effect on other tasks, separately for each forgotten task | Pending |
 | Variation across all three seeds | Pending |
@@ -127,7 +127,7 @@ We will calculate the final three-seed averages when Run 3 finishes. Even three 
 
 The weight-generating network produces the classifier's parameters. Learning updates this network and the new task's code. Forgetting updates the network while keeping the task codes fixed. A protection loss tries to limit changes to other tasks' generated parameters. This diagnostic study uses beta 0.1, compared with the repository's paper-based Tiny ImageNet default of 0.01. It is not a paper reproduction, and older experiment-06 results are not included in these results.
 
-The nine saved session logs total **12 h 48 m 38 s**. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time.
+The nine saved session logs total **12 h 48 m 38 s**. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time. The later user-supplied session lasted 1 h 46 m 24 s. Including it brings recorded runner time to **14 h 35 m 3 s across ten sessions**; this latest session has not yet been independently reviewed from R2.
 
 Checkpoints save after learning epochs and at 20-step forgetting boundaries. A restart resumes from the last verified R2 save; work after that save may repeat. Completed jobs are skipped.
 
