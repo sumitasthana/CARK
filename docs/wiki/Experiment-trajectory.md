@@ -1,10 +1,10 @@
 # Experiment trajectory
 
-Updated 9 October 2026. This is the index for the dated experiment record. Each page keeps the questions, settings, results, evidence links, and decisions together.
+Updated 10 October 2026. This is the index for the dated experiment record. Each page keeps the questions, settings, results, evidence links, and decisions together.
 
 ## Latest findings
 
-The user reported seed 1's order-01 source and L15 control complete after a normal budget-limited session. Its U3/L15 branch is resumable; U14/L15 was not attempted. Continue with SEED 1 before moving to seed 2. No seed-1 paired effect has been supplied yet.
+The [10 October progress record](Experiment-trajectory-2026-10-10) confirms both seed-1 branches complete in a verified R2 session log. The user's panel reports 8/12 selected jobs and 4/6 comparisons complete. Only seed 2 remains. Seven logged sessions total 9 h 11 m 8 s, and the Excel tracker is updated. No seed-1 paired accuracy effect has been supplied yet.
 
 The [9 October pilot record](Experiment-trajectory-2026-10-09) contains user-reported seed-0 results for both selected comparisons. U3/L15 matched the learning-only control on task 15; U14/L15 was 2.6 percentage points lower. Mean retained-task differences were -1.086 and -1.6 points, but individual tasks fell by up to 11.0 and 14.2 points. The original multi-seed matrix remains incomplete. Forgotten-task accuracies were not included in the supplied excerpt, so successful forgetting and its persistence are not established by these figures.
 
@@ -22,6 +22,7 @@ The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserve
 
 | Reporting date or period | What is covered |
 | --- | --- |
+| [10 October 2026](Experiment-trajectory-2026-10-10) | Seed-1 comparisons complete; only seed 2 remains; seventh session verified and Excel tracker updated. |
 | [9 October 2026](Experiment-trajectory-2026-10-09) | Live R2 progress check for paired generalization: two completed jobs, one resumable job, and 42 pending jobs. |
 | [8 October 2026](Experiment-trajectory-2026-10-08) | Recovery setup and seed-0 shared L0 completion; verified R2 cleanup; paired-study preparation, resume, and CPU review notebooks. |
 | [7 October 2026](Experiment-trajectory-2026-10-07) | R2 continuation, beta batch and repeat, learning sequence, paired unlearning comparison, and reflection against the paper. |
