@@ -71,3 +71,18 @@ The user supplied session record `20261009T222425633613Z`, with status saved and
 The session ran for 6,321.9689 seconds, approximately 105 minutes 22 seconds, with MAX_JOBS four, a 120-minute soft budget, and a 15-minute save reserve. This is consistent with stopping at the 105-minute work deadline and saving at a boundary. The normal completion messages report saved progress followed by Colab runtime release; no error was supplied. These messages do not independently establish actual GPU release.
 
 Next: reopen notebook 19 on A100, keep study ID `paired_generalization_v2` and SEED 1, and run all cells. Completed source and control jobs are skipped. U3/L15 resumes from its verified boundary, then U14/L15 runs if the next session budget permits. Keep SEED 1 until both branches complete. Notebook 20 can then review seed-0 and seed-1 comparisons on CPU. No new seed-1 paired effect can be reported from this session excerpt.
+
+## Verified recorded session durations
+
+A read-only R2 audit at 10:39 p.m. America/New_York on 9 October downloaded and content-verified all six JSON session logs under `uncle/paired_generalization/paired_generalization_v2/sessions/`. All six contained valid elapsed durations. Local evidence is in `outputs/r2-review/session-times-2026-10-09/sessions.json`.
+
+| Session start, Eastern daylight time | Work recorded | Outcome | Elapsed time |
+| --- | --- | --- | --- |
+| 8 October, 19:11:32 | Seed 0 source | Complete | 1 h 33 m 33 s |
+| 8 October, 21:57:48 | Seed 0 L15 control | Interrupted: S3UploadFailedError | 25 m 10 s |
+| 8 October, 22:46:40 | Seed 0 L15 control | Complete | 19 m 28 s |
+| 9 October, 12:02:20 | Seed 0 U3/L15 and U14/L15 | Both complete | 1 h 38 m 26 s |
+| 9 October, 14:07:49 | Seed 1 source | Resumable | 1 h 47 m 54 s |
+| 9 October, 18:24:25 | Seed 1 source, L15 control, U3/L15 | Source and control complete; branch resumable | 1 h 45 m 22 s |
+
+The sum of the unrounded elapsed times is 26,993.584321 seconds, rounded to 7 h 29 m 54 s. The interrupted upload session is included. This is logged runner wall time, including data preparation inside the runner, training, evaluation, and checkpoint transfers. It excludes earlier notebook setup, gaps between sessions, active sessions not yet logged, and sessions that disconnected before their final log reached R2. It is not a complete measure of billed GPU time. This audit independently verifies the latest supplied seed-1 session record and seed-0 branch completion; it does not assess additional accuracy results.
