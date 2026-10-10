@@ -4,6 +4,8 @@ Updated 9 October 2026. This is the index for the dated experiment record. Each 
 
 ## Latest findings
 
+The user reported seed 1's order-01 source and L15 control complete after a normal budget-limited session. Its U3/L15 branch is resumable; U14/L15 was not attempted. Continue with SEED 1 before moving to seed 2. No seed-1 paired effect has been supplied yet.
+
 The [9 October pilot record](Experiment-trajectory-2026-10-09) contains user-reported seed-0 results for both selected comparisons. U3/L15 matched the learning-only control on task 15; U14/L15 was 2.6 percentage points lower. Mean retained-task differences were -1.086 and -1.6 points, but individual tasks fell by up to 11.0 and 14.2 points. The original multi-seed matrix remains incomplete. Forgotten-task accuracies were not included in the supplied excerpt, so successful forgetting and its persistence are not established by these figures.
 
 Study-model preparation has started: the user reported seed 0 completing shared L0 at 51.4% validation accuracy, with its checkpoint and report verified in R2. The next stage prepares the never-learned-task-3 sequence from that checkpoint. Recovery remains untested.
