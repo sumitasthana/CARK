@@ -2,6 +2,7 @@
 import argparse
 from datetime import datetime, timezone
 import json
+import statistics
 from pathlib import Path
 
 
@@ -19,7 +20,8 @@ def main():
     rows = [row for row in result['comparisons'] if row['status'] == 'complete'
         and row['order'] == 'order_01' and row['forget_task'] in ('3', '14')]
     lookup = {(row['seed'], row['forget_task']): row for row in rows}
-    pending = {row['job']: row['status'] for row in result['unfinished_jobs']}
+    assert len(rows) == 6, 'Final report requires all six selected comparisons.'
+    assert all(all(row['pair_checks'].values()) for row in rows)
     snapshot = datetime.fromtimestamp(args.review.stat().st_mtime, timezone.utc).isoformat()
     total_seconds = sum(row.get('session_seconds', 0) for row in result['session_records'])
     rounded = round(total_seconds)
@@ -34,7 +36,7 @@ def main():
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    fig, axes = plt.subplots(2, 1, figsize=(9, 5.8), sharex=True)
+    fig, axes = plt.subplots(3, 1, figsize=(9, 8.4), sharex=True)
     labels = ['Learn task 15 only', 'Forget task 3, then learn 15', 'Forget task 14, then learn 15']
     for seed, ax in enumerate(axes):
         values = [lookup[(seed, '3')]['new_task_a'], lookup[(seed, '3')]['new_task_b'], lookup[(seed, '14')]['new_task_b']]
@@ -49,7 +51,7 @@ def main():
         ax.set_axisbelow(True)
     axes[-1].set_xlabel('Task 15 accuracy (%) | Higher is better')
     fig.suptitle('Can the model still learn task 15?', fontsize=16, fontweight='bold')
-    fig.text(.5, .015, 'Run 3 (seed 2): both comparisons pending. No missing result is plotted as zero.', ha='center', fontsize=10)
+    fig.text(.5, .015, 'All three seeds complete. Compare each forgetting branch with its own run baseline.', ha='center', fontsize=10)
     fig.tight_layout(rect=(0, .04, 1, .94))
     for extension in ('png', 'svg'):
         fig.savefig(directory / f'figures/paired-study-2026-10-10.{extension}', dpi=180)
@@ -57,11 +59,11 @@ def main():
     svg_path.write_text('\n'.join(line.rstrip() for line in svg_path.read_text(encoding='utf-8').splitlines()) + '\n', encoding='utf-8')
     plt.close(fig)
 
-    retained_table = ['| Task | Seed 0: U3/L15 | Seed 0: U14/L15 | Seed 1: U3/L15 | Seed 1: U14/L15 |',
-        '| --- | ---: | ---: | ---: | ---: |']
+    combinations = [(seed, target) for seed in plan['seeds'] for target in ('3', '14')]
+    retained_table = ['| Task | ' + ' | '.join(f'Run {seed + 1}: forget {target}' for seed, target in combinations) + ' |', '| --- | ' + ' | '.join(['---:'] * len(combinations)) + ' |']
     for task in plan['orders']['order_01']:
         values = []
-        for seed, target in [(0, '3'), (0, '14'), (1, '3'), (1, '14')]:
+        for seed, target in combinations:
             row = lookup.get((seed, target))
             values.append('Forgotten; excluded' if task == target else
                 f'{row["retained_differences"][task]:+.1f}' if row else 'Pending')
@@ -78,21 +80,29 @@ def main():
             if row:
                 forgetting.append(f'| {label}: task {target} | {row["starting_target_accuracy"]:.1f}% | {row["after_unlearning_accuracy"]:.1f}% | {row["final_target_accuracy"]:.1f}% |')
                 worst = min(row['retained_differences'], key=row['retained_differences'].get)
-                harm.append(f'| {label}: forget {target}, then learn 15 | {abs(row["retained_mean_difference"]):.2f} points lower | Task {worst}: {row["largest_paired_retained_drop"]:.1f} points lower |')
+                harm.append(f'| {label}: forget {target}, then learn 15 | {abs(row["retained_mean_difference"]):.2f} points {'lower' if row['retained_mean_difference'] < 0 else 'higher'} | Task {worst}: {row["largest_paired_retained_drop"]:.1f} points lower |')
             else:
                 forgetting.append(f'| {label}: task {target} | Pending | Pending | Pending |')
                 harm.append(f'| {label}: forget {target}, then learn 15 | Pending | Pending |')
+    averages = ['| Forgetting request | Average task-15 change | Task-15 standard deviation | Average change on other tasks | Other-task standard deviation |', '| --- | ---: | ---: | ---: | ---: |']
+    for target in ('3', '14'):
+        selected = [lookup[(seed, target)] for seed in plan['seeds']]
+        new = [r['new_task_difference'] for r in selected]
+        other = [r['retained_mean_difference'] for r in selected]
+        averages.append(f'| Forget {target}, then learn 15 | {statistics.mean(new):+.2f} points | {statistics.stdev(new):.2f} points | {statistics.mean(other):+.2f} points | {statistics.stdev(other):.2f} points |')
+    seed2 = lookup[(2, '3')], lookup[(2, '14')]
+    seed2_sentence = f"In Run 3, forgetting task 3 changes task-15 accuracy by {seed2[0]['new_task_difference']:+.1f} points relative to its baseline. Forgetting task 14 changes it by {seed2[1]['new_task_difference']:+.1f} points."
     text = f'''# What happens when we forget a task and then learn task 15?
 
-**Draft, 10 October 2026. Training is complete for all three runs. The score tables below still cover the first two runs; final scores are awaiting review.** This report uses the saved results available at this snapshot. It does not include later training.
+**Completed selected study, 10 October 2026. All three runs and all six comparisons have been reviewed.** This report uses the saved results available at this snapshot. It does not include later training.
 
-## What we know so far
+## Main findings
 
-- **Forgetting:** task 3 and task 14 both reach 10% accuracy after forgetting. They stay at 10% after learning task 15 in both completed runs.
-- **Learning task 15:** the model still learns task 15. Forgetting first sometimes improves its score and sometimes reduces it. We cannot yet claim a consistent benefit.
-- **Other tasks:** their average score falls slightly, but some individual tasks lose 11 to 14.2 points. A small average loss does not mean every task is protected.
+- **Forgetting:** task 3 and task 14 both reach 10% accuracy after forgetting. They stay at 10% after learning task 15 in all three runs.
+- **Learning task 15:** the model still learns task 15. forgetting task 3 gives the same or higher score in all three runs. Forgetting task 14 sometimes improves the score and sometimes reduces it. The task-3 average is strongly influenced by Run 3.
+- **Other tasks:** five of the six branches have a lower average score on other tasks. The largest loss on an individual task ranges from 2.6 to 14.2 points. A small average loss does not mean every task is protected.
 
-These are results from two completed runs. The final average across all three runs is still pending.
+These results cover seeds 0, 1, and 2. Averages below are calculated separately for each forgetting request.
 
 ## What exactly are we comparing?
 
@@ -116,9 +126,9 @@ Accuracy is the percentage of validation images classified correctly. Each task 
 
 {chr(10).join(forgetting)}
 
-**Reading this table:** in Run 1, task 3 falls from 35.6% to 10.0% after forgetting. It is still at 10.0% after the model learns task 15. The other three completed comparisons show the same final 10.0% score.
+**Reading this table:** in Run 1, task 3 falls from 35.6% to 10.0% after forgetting. It is still at 10.0% after the model learns task 15. The other five completed comparisons show the same final 10.0% score.
 
-The study accepts a forgotten-task score at or below 12%. All four completed comparisons meet this threshold. None of the saved evaluations during task-15 learning rises above it. This shows reduced classification accuracy over this tested continuation. It does **not** prove that the task's information has been erased or cannot be recovered.
+The study accepts a forgotten-task score at or below 12%. All six completed comparisons meet this threshold. None of the saved evaluations during task-15 learning rises above it. This shows reduced classification accuracy over this tested continuation. It does **not** prove that the task's information has been erased or cannot be recovered.
 
 ## 2. Could the model still learn task 15?
 
@@ -130,11 +140,13 @@ In Run 1, forgetting task 3 makes no difference: both scores are 50.8%. Forgetti
 
 In Run 2, forgetting task 3 gives **3.2 points higher** accuracy than the baseline. Forgetting task 14 gives **3.8 points higher** accuracy.
 
+{seed2_sentence}
+
 A **percentage point** is the difference between two percentage scores: 47.2% minus 44.0% is 3.2 points. These differences are not relative percentage improvements.
 
 ![Task 15 accuracy for the baseline and both forgetting branches, labeled separately for each completed run](figures/paired-study-2026-10-10.png)
 
-The chart shows the same scores as the table. Each bar has its accuracy written beside it. Run 3 is omitted because its scores are not yet available in this snapshot.
+The chart shows the same scores as the table. Each bar has its accuracy written beside it. All three runs are shown.
 
 ## 3. What happened to the other learned tasks?
 
@@ -146,34 +158,25 @@ Here we compare each forgetting branch with the baseline **after both have learn
 
 The main concern is therefore the loss on individual tasks, even when task 15 learns successfully. The task with the largest loss also changes between runs.
 
-## How much remains?
+## Three-seed averages
 
-| Work | Complete | Remaining |
-| --- | --- | --- |
-| Training jobs | 12 of 12 | None |
-| Baseline-versus-forgetting comparisons | 6 of 6 | None; final scores awaiting review |
-| Learn or forget requests | 39 of 39 | None |
+For each run, we subtract the baseline accuracy from the forgetting branch accuracy. We then average those three differences. This keeps each branch matched to its own starting model.
 
-Completion update supplied by the user: latest verified R2 save 10 October 2026 at 22:42:48 UTC. All source models, baselines, and forgetting branches are complete for seeds 0, 1, and 2. These completion counts are newer than the score snapshot above. Seed-2 scores have not yet been supplied or reviewed.
+{chr(10).join(averages)}
 
-| Final result to add | Status |
-| --- | --- |
-| Run 3: forget task 3, then learn task 15 | Complete; scores awaiting review |
-| Run 3: forget task 14, then learn task 15 | Complete; scores awaiting review |
-| Average task-15 effect across all three seeds, separately for each forgotten task | Pending |
-| Average effect on other tasks, separately for each forgotten task | Pending |
-| Variation across all three seeds | Pending |
-| Final conclusion and total session duration | Pending |
+The standard deviation measures how much the three run results differ from their average. It is not a confidence interval. The individual run scores above remain important because an average can hide opposite effects. Only three seeds were tested.
 
-Training is finished. Use notebook 20 on CPU with the same study ID and SAVE_SUMMARY_TO_R2 enabled to review and save the final summaries. The other sequences from the original plan are deferred and are not required for this narrowed study.
+## Completion and saved summaries
+
+All selected work is complete: **12/12 jobs, 6/6 comparisons, and 39/39 requests**. Notebook 20 has been run on CPU, and the R2 summary objects have been checked. The other sequences and forget-task-5 branches from the original plan remain deferred. No further GPU training is needed for this selected study.
 
 ## What can this experiment support?
 
-So far, the requested task reaches chance-level accuracy and stays there during one subsequent task. Learning task 15 remains possible, but the effect on its accuracy varies between runs. Some other tasks suffer substantial losses.
+So far, the requested task reaches chance-level accuracy and stays there during one subsequent task. Learning task 15 remains possible. Forgetting task 3 has an average task-15 gain of 5.40 points, with run effects of 0.0, +3.2, and +13.0 points. Forgetting task 14 has an average change of -0.20 points, with effects of -2.6, +3.8, and -1.8 points. The large differences between runs limit a general claim. Some other tasks suffer substantial losses.
 
 This study tests **one order and one incoming task**, not all possible sequences. Task 3 and task 14 differ in both task identity and learning position. We therefore cannot say that their differences are caused only by being learned first or last. The two forgetting branches share a baseline within each run, so they are not independent repetitions.
 
-We will calculate the final three-seed averages after reviewing the completed Run 3 scores. Even three seeds provide limited evidence about how broadly the result holds. This study does not test privacy, recovery, or long future learning sequences.
+Even three seeds provide limited evidence about how broadly the result holds. This study does not test privacy, recovery, or long future learning sequences.
 
 ## Technical details and recorded time
 
@@ -193,13 +196,13 @@ We will calculate the final three-seed averages after reviewing the completed Ru
 
 The weight-generating network produces the classifier's parameters. Learning updates this network and the new task's code. Forgetting updates the network while keeping the task codes fixed. A protection loss tries to limit changes to other tasks' generated parameters. This diagnostic study uses beta 0.1, compared with the repository's paper-based Tiny ImageNet default of 0.01. It is not a paper reproduction, and older experiment-06 results are not included in these results.
 
-The nine saved session logs total **{elapsed}**. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time. The two later user-supplied sessions lasted 1 h 46 m 24 s and 35 m 17 s. Including them brings recorded runner time to **15 h 10 m 20 s across eleven sessions**; these latest sessions have not yet been independently reviewed from R2.
+The {len(result['session_records'])} verified saved session logs total **{elapsed}**. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time.
 
 Checkpoints save after learning epochs and at 20-step forgetting boundaries. A restart resumes from the last verified R2 save; work after that save may repeat. Completed jobs are skipped.
 
 ## Detailed evidence
 
-The four completed comparisons pass all recorded checks that the branches use matching starting models and task-15 training conditions. The [saved evidence](evidence/paired-study-2026-10-10.json) contains the exact scores, pairing checks, study plan, and session logs. The [dated experiment record](../wiki/Experiment-trajectory-2026-10-10.md) records the progress history.
+The six completed comparisons pass all recorded checks that the branches use matching starting models and task-15 training conditions. The [saved evidence](evidence/paired-study-2026-10-10.json) contains the exact scores, pairing checks, study plan, and session logs. The [dated experiment record](../wiki/Experiment-trajectory-2026-10-10.md) records the progress history.
 
 For readers checking individual tasks, this table shows branch accuracy minus baseline accuracy after learning task 15, in percentage points. A plus sign means higher accuracy; a minus sign means lower accuracy.
 
@@ -212,12 +215,12 @@ Study ID: `{plan['study_id']}`. Fixed training revision: `{plan['code_version']}
     path.write_text(text, encoding='utf-8')
     from render_report_html import render_report_html
     html_path = render_report_html(path)
-    assert len(rows) == 4, 'Reconcile new completions before regenerating this partial draft.'
+    assert len(rows) == 6
     assert all(all(row['pair_checks'].values()) for row in rows)
-    assert sum('Pending' in line for line in forgetting) == 2
+    assert not any('Pending' in line for line in forgetting)
     print(path)
     print(html_path)
-    print(f'Verified draft: {len(rows)} completed pairs, two pending rows; {len(result["session_records"])} session logs.')
+    print(f'Verified report: {len(rows)} completed pairs; {len(result["session_records"])} session logs.')
 
 
 if __name__ == '__main__':

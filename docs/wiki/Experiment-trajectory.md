@@ -4,7 +4,7 @@ Updated 10 October 2026. This is the index for the dated experiment record. Each
 
 ## Latest findings
 
-The [10 October progress record](Experiment-trajectory-2026-10-10) and requested [draft report](../reports/Paired-study-2026-10-10-draft.md) include four verified comparisons across seeds 0 and 1. All four targets reach 10% accuracy and remain there after L15, with no recorded relapse above the 12% gate. Task-15 effects vary across seeds: U3/L15 gives 0.0 and +3.2 points; U14/L15 gives -2.6 and +3.8 points. Individual retained-task losses remain substantial. The latest user-supplied panel shows all selected training complete: 12/12 jobs, 6/6 comparisons, and 39/39 requests. Seed-2 scores and final three-seed averages await CPU review. Recorded runner time totals 15 h 10 m 20 s across eleven sessions, including the final two user-supplied logs.
+The [10 October record](Experiment-trajectory-2026-10-10) and [completed selected-study report](../reports/Paired-study-2026-10-10-draft.md) now include all six verified comparisons across seeds 0, 1, and 2. Both forgotten tasks finish at 10% accuracy in every seed, with no recorded relapse above the 12% threshold during task-15 learning. The three-seed mean task-15 change is +5.40 points for U3/L15 and -0.20 points for U14/L15. The task-3 mean includes a large +13.0-point seed-2 effect; results vary substantially by seed. Mean retained-task changes are -1.29 and -1.02 points, and the largest individual losses range from 2.6 to 14.2 points. All 12 selected jobs and all 39 requests are complete. All six saved CPU-summary exports and eleven session logs are verified in R2. Recorded runner time totals 15 h 10 m 20 s. These results do not establish information erasure or recovery resistance.
 
 The [9 October pilot record](Experiment-trajectory-2026-10-09) contains user-reported seed-0 results for both selected comparisons. U3/L15 matched the learning-only control on task 15; U14/L15 was 2.6 percentage points lower. Mean retained-task differences were -1.086 and -1.6 points, but individual tasks fell by up to 11.0 and 14.2 points. The original multi-seed matrix remains incomplete. Forgotten-task accuracies were not included in the supplied excerpt, so successful forgetting and its persistence are not established by these figures.
 
@@ -22,7 +22,7 @@ The [8 October setup record](Experiment-trajectory-2026-10-08) describes reserve
 
 | Reporting date or period | What is covered |
 | --- | --- |
-| [10 October 2026](Experiment-trajectory-2026-10-10) | All 12 selected jobs complete across three seeds; final CPU review and three-seed averages pending. |
+| [10 October 2026](Experiment-trajectory-2026-10-10) | All selected training and CPU review complete; six verified comparisons, three-seed averages, and readable report. |
 | [9 October 2026](Experiment-trajectory-2026-10-09) | Live R2 progress check for paired generalization: two completed jobs, one resumable job, and 42 pending jobs. |
 | [8 October 2026](Experiment-trajectory-2026-10-08) | Recovery setup and seed-0 shared L0 completion; verified R2 cleanup; paired-study preparation, resume, and CPU review notebooks. |
 | [7 October 2026](Experiment-trajectory-2026-10-07) | R2 continuation, beta batch and repeat, learning sequence, paired unlearning comparison, and reflection against the paper. |

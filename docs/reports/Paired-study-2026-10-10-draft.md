@@ -1,14 +1,14 @@
 # What happens when we forget a task and then learn task 15?
 
-**Draft, 10 October 2026. Training is complete for all three runs. The score tables below still cover the first two runs; final scores are awaiting review.** This report uses the saved results available at this snapshot. It does not include later training.
+**Completed selected study, 10 October 2026. All three runs and all six comparisons have been reviewed.** This report uses the saved results available at this snapshot. It does not include later training.
 
-## What we know so far
+## Main findings
 
-- **Forgetting:** task 3 and task 14 both reach 10% accuracy after forgetting. They stay at 10% after learning task 15 in both completed runs.
-- **Learning task 15:** the model still learns task 15. Forgetting first sometimes improves its score and sometimes reduces it. We cannot yet claim a consistent benefit.
-- **Other tasks:** their average score falls slightly, but some individual tasks lose 11 to 14.2 points. A small average loss does not mean every task is protected.
+- **Forgetting:** task 3 and task 14 both reach 10% accuracy after forgetting. They stay at 10% after learning task 15 in all three runs.
+- **Learning task 15:** the model still learns task 15. forgetting task 3 gives the same or higher score in all three runs. Forgetting task 14 sometimes improves the score and sometimes reduces it. The task-3 average is strongly influenced by Run 3.
+- **Other tasks:** five of the six branches have a lower average score on other tasks. The largest loss on an individual task ranges from 2.6 to 14.2 points. A small average loss does not mean every task is protected.
 
-These are results from two completed runs. The final average across all three runs is still pending.
+These results cover seeds 0, 1, and 2. Averages below are calculated separately for each forgetting request.
 
 ## What exactly are we comparing?
 
@@ -36,12 +36,12 @@ Accuracy is the percentage of validation images classified correctly. Each task 
 | Run 1 (seed 0): task 14 | 42.6% | 10.0% | 10.0% |
 | Run 2 (seed 1): task 3 | 40.4% | 10.0% | 10.0% |
 | Run 2 (seed 1): task 14 | 40.4% | 10.0% | 10.0% |
-| Run 3 (seed 2): task 3 | Pending | Pending | Pending |
-| Run 3 (seed 2): task 14 | Pending | Pending | Pending |
+| Run 3 (seed 2): task 3 | 38.4% | 10.0% | 10.0% |
+| Run 3 (seed 2): task 14 | 41.8% | 10.0% | 10.0% |
 
-**Reading this table:** in Run 1, task 3 falls from 35.6% to 10.0% after forgetting. It is still at 10.0% after the model learns task 15. The other three completed comparisons show the same final 10.0% score.
+**Reading this table:** in Run 1, task 3 falls from 35.6% to 10.0% after forgetting. It is still at 10.0% after the model learns task 15. The other five completed comparisons show the same final 10.0% score.
 
-The study accepts a forgotten-task score at or below 12%. All four completed comparisons meet this threshold. None of the saved evaluations during task-15 learning rises above it. This shows reduced classification accuracy over this tested continuation. It does **not** prove that the task's information has been erased or cannot be recovered.
+The study accepts a forgotten-task score at or below 12%. All six completed comparisons meet this threshold. None of the saved evaluations during task-15 learning rises above it. This shows reduced classification accuracy over this tested continuation. It does **not** prove that the task's information has been erased or cannot be recovered.
 
 ## 2. Could the model still learn task 15?
 
@@ -51,17 +51,19 @@ All numbers below are task-15 validation accuracy. Higher is better. Compare the
 | --- | ---: | ---: | ---: |
 | Run 1 (seed 0) | 50.8% | 50.8% | 48.2% |
 | Run 2 (seed 1) | 44.0% | 47.2% | 47.8% |
-| Run 3 (seed 2) | Completed; score not in this comparison snapshot | **Pending** | **Pending** |
+| Run 3 (seed 2) | 34.4% | 47.4% | 32.6% |
 
 In Run 1, forgetting task 3 makes no difference: both scores are 50.8%. Forgetting task 14 gives 48.2%, which is **2.6 points lower** than the baseline.
 
 In Run 2, forgetting task 3 gives **3.2 points higher** accuracy than the baseline. Forgetting task 14 gives **3.8 points higher** accuracy.
 
+In Run 3, forgetting task 3 changes task-15 accuracy by +13.0 points relative to its baseline. Forgetting task 14 changes it by -1.8 points.
+
 A **percentage point** is the difference between two percentage scores: 47.2% minus 44.0% is 3.2 points. These differences are not relative percentage improvements.
 
 ![Task 15 accuracy for the baseline and both forgetting branches, labeled separately for each completed run](figures/paired-study-2026-10-10.png)
 
-The chart shows the same scores as the table. Each bar has its accuracy written beside it. Run 3 is omitted because its scores are not yet available in this snapshot.
+The chart shows the same scores as the table. Each bar has its accuracy written beside it. All three runs are shown.
 
 ## 3. What happened to the other learned tasks?
 
@@ -73,41 +75,35 @@ Here we compare each forgetting branch with the baseline **after both have learn
 | Run 1 (seed 0): forget 14, then learn 15 | 1.60 points lower | Task 17: 14.2 points lower |
 | Run 2 (seed 1): forget 3, then learn 15 | 1.57 points lower | Task 1: 11.6 points lower |
 | Run 2 (seed 1): forget 14, then learn 15 | 1.74 points lower | Task 0: 14.0 points lower |
-| Run 3 (seed 2): forget 3, then learn 15 | Pending | Pending |
-| Run 3 (seed 2): forget 14, then learn 15 | Pending | Pending |
+| Run 3 (seed 2): forget 3, then learn 15 | 1.20 points lower | Task 0: 4.2 points lower |
+| Run 3 (seed 2): forget 14, then learn 15 | 0.29 points higher | Task 9: 2.6 points lower |
 
 **Reading this table:** in Run 1, forgetting task 3 lowers the average across the other seven tasks by 1.09 points. However, task 9 alone loses 11.0 points. Some tasks improve while others decline, so the average can hide a large loss.
 
 The main concern is therefore the loss on individual tasks, even when task 15 learns successfully. The task with the largest loss also changes between runs.
 
-## How much remains?
+## Three-seed averages
 
-| Work | Complete | Remaining |
-| --- | --- | --- |
-| Training jobs | 12 of 12 | None |
-| Baseline-versus-forgetting comparisons | 6 of 6 | None; final scores awaiting review |
-| Learn or forget requests | 39 of 39 | None |
+For each run, we subtract the baseline accuracy from the forgetting branch accuracy. We then average those three differences. This keeps each branch matched to its own starting model.
 
-Completion update supplied by the user: latest verified R2 save 10 October 2026 at 22:42:48 UTC. All source models, baselines, and forgetting branches are complete for seeds 0, 1, and 2. These completion counts are newer than the score snapshot above. Seed-2 scores have not yet been supplied or reviewed.
+| Forgetting request | Average task-15 change | Task-15 standard deviation | Average change on other tasks | Other-task standard deviation |
+| --- | ---: | ---: | ---: | ---: |
+| Forget 3, then learn 15 | +5.40 points | 6.77 points | -1.29 points | 0.25 points |
+| Forget 14, then learn 15 | -0.20 points | 3.49 points | -1.02 points | 1.13 points |
 
-| Final result to add | Status |
-| --- | --- |
-| Run 3: forget task 3, then learn task 15 | Complete; scores awaiting review |
-| Run 3: forget task 14, then learn task 15 | Complete; scores awaiting review |
-| Average task-15 effect across all three seeds, separately for each forgotten task | Pending |
-| Average effect on other tasks, separately for each forgotten task | Pending |
-| Variation across all three seeds | Pending |
-| Final conclusion and total session duration | Pending |
+The standard deviation measures how much the three run results differ from their average. It is not a confidence interval. The individual run scores above remain important because an average can hide opposite effects. Only three seeds were tested.
 
-Training is finished. Use notebook 20 on CPU with the same study ID and SAVE_SUMMARY_TO_R2 enabled to review and save the final summaries. The other sequences from the original plan are deferred and are not required for this narrowed study.
+## Completion and saved summaries
+
+All selected work is complete: **12/12 jobs, 6/6 comparisons, and 39/39 requests**. Notebook 20 has been run on CPU, and the R2 summary objects have been checked. The other sequences and forget-task-5 branches from the original plan remain deferred. No further GPU training is needed for this selected study.
 
 ## What can this experiment support?
 
-So far, the requested task reaches chance-level accuracy and stays there during one subsequent task. Learning task 15 remains possible, but the effect on its accuracy varies between runs. Some other tasks suffer substantial losses.
+So far, the requested task reaches chance-level accuracy and stays there during one subsequent task. Learning task 15 remains possible. Forgetting task 3 has an average task-15 gain of 5.40 points, with run effects of 0.0, +3.2, and +13.0 points. Forgetting task 14 has an average change of -0.20 points, with effects of -2.6, +3.8, and -1.8 points. The large differences between runs limit a general claim. Some other tasks suffer substantial losses.
 
 This study tests **one order and one incoming task**, not all possible sequences. Task 3 and task 14 differ in both task identity and learning position. We therefore cannot say that their differences are caused only by being learned first or last. The two forgetting branches share a baseline within each run, so they are not independent repetitions.
 
-We will calculate the final three-seed averages after reviewing the completed Run 3 scores. Even three seeds provide limited evidence about how broadly the result holds. This study does not test privacy, recovery, or long future learning sequences.
+Even three seeds provide limited evidence about how broadly the result holds. This study does not test privacy, recovery, or long future learning sequences.
 
 ## Technical details and recorded time
 
@@ -127,25 +123,25 @@ We will calculate the final three-seed averages after reviewing the completed Ru
 
 The weight-generating network produces the classifier's parameters. Learning updates this network and the new task's code. Forgetting updates the network while keeping the task codes fixed. A protection loss tries to limit changes to other tasks' generated parameters. This diagnostic study uses beta 0.1, compared with the repository's paper-based Tiny ImageNet default of 0.01. It is not a paper reproduction, and older experiment-06 results are not included in these results.
 
-The nine saved session logs total **12 h 48 m 38 s**. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time. The two later user-supplied sessions lasted 1 h 46 m 24 s and 35 m 17 s. Including them brings recorded runner time to **15 h 10 m 20 s across eleven sessions**; these latest sessions have not yet been independently reviewed from R2.
+The 11 verified saved session logs total **15 h 10 m 20 s**. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time.
 
 Checkpoints save after learning epochs and at 20-step forgetting boundaries. A restart resumes from the last verified R2 save; work after that save may repeat. Completed jobs are skipped.
 
 ## Detailed evidence
 
-The four completed comparisons pass all recorded checks that the branches use matching starting models and task-15 training conditions. The [saved evidence](evidence/paired-study-2026-10-10.json) contains the exact scores, pairing checks, study plan, and session logs. The [dated experiment record](../wiki/Experiment-trajectory-2026-10-10.md) records the progress history.
+The six completed comparisons pass all recorded checks that the branches use matching starting models and task-15 training conditions. The [saved evidence](evidence/paired-study-2026-10-10.json) contains the exact scores, pairing checks, study plan, and session logs. The [dated experiment record](../wiki/Experiment-trajectory-2026-10-10.md) records the progress history.
 
 For readers checking individual tasks, this table shows branch accuracy minus baseline accuracy after learning task 15, in percentage points. A plus sign means higher accuracy; a minus sign means lower accuracy.
 
-| Task | Seed 0: U3/L15 | Seed 0: U14/L15 | Seed 1: U3/L15 | Seed 1: U14/L15 |
-| --- | ---: | ---: | ---: | ---: |
-| 3 | Forgotten; excluded | -2.2 | Forgotten; excluded | +4.0 |
-| 0 | +10.6 | +18.6 | -5.4 | -14.0 |
-| 9 | -11.0 | -7.0 | +9.8 | +4.2 |
-| 5 | +4.8 | -2.4 | +4.2 | +4.6 |
-| 17 | -8.0 | -14.2 | +2.6 | -0.6 |
-| 1 | -6.2 | -1.0 | -11.6 | -4.0 |
-| 7 | +2.2 | -3.0 | -1.4 | -6.4 |
-| 14 | +0.0 | Forgotten; excluded | -9.2 | Forgotten; excluded |
+| Task | Run 1: forget 3 | Run 1: forget 14 | Run 2: forget 3 | Run 2: forget 14 | Run 3: forget 3 | Run 3: forget 14 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 3 | Forgotten; excluded | -2.2 | Forgotten; excluded | +4.0 | Forgotten; excluded | +0.8 |
+| 0 | +10.6 | +18.6 | -5.4 | -14.0 | -4.2 | -1.0 |
+| 9 | -11.0 | -7.0 | +9.8 | +4.2 | +0.2 | -2.6 |
+| 5 | +4.8 | -2.4 | +4.2 | +4.6 | +0.6 | +3.4 |
+| 17 | -8.0 | -14.2 | +2.6 | -0.6 | -0.6 | +4.0 |
+| 1 | -6.2 | -1.0 | -11.6 | -4.0 | -3.0 | -0.2 |
+| 7 | +2.2 | -3.0 | -1.4 | -6.4 | -1.4 | -2.4 |
+| 14 | +0.0 | Forgotten; excluded | -9.2 | Forgotten; excluded | +0.0 | Forgotten; excluded |
 
-Study ID: `paired_generalization_v2`. Fixed training revision: `65e2e7c850fd6f1852a99d9e81780c27f799c926`. Review snapshot: 2026-10-10T20:16:26.108265+00:00. No new training was performed for this report.
+Study ID: `paired_generalization_v2`. Fixed training revision: `65e2e7c850fd6f1852a99d9e81780c27f799c926`. Review snapshot: 2026-10-11T00:47:25.057126+00:00. No new training was performed for this report.

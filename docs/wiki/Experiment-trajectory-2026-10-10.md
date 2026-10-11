@@ -66,3 +66,18 @@ The user reported session `20261010T220801006167Z` completing the seed-2 U14/L15
 The session records 2,117.425159358 seconds (35 m 17 s), max_jobs 4, a 120-minute soft budget, and a 15-minute reserve. Plan SHA-256 remains `a51f342dfdf1faef9dd22f06426db5ad1e5ac7800a6b9318df055400cf310171`. Adding both latest user-supplied session durations to the nine previously reviewed logs gives 54,620.146437 seconds, rounded to 15 h 10 m 20 s across eleven sessions. This is recorded runner time, not billed GPU time. The final two session records have not yet been independently reviewed from R2.
 
 No seed-2 accuracy scores accompanied this completion panel. Training completion does not establish a successful forgetting threshold or the final paired effects. The report now marks all training complete while retaining its verified four-comparison numeric snapshot. Next: run notebook 20 on CPU with the same study ID and SAVE_SUMMARY_TO_R2 enabled, review all six comparison reports, and fill the three-seed means, variation, forgetting checks, and final conclusions. No further A100 session is needed for the selected scope; deferred orders remain deferred.
+
+## Final CPU review and saved summaries verified
+
+The user confirmed running notebook 20. A read-only R2 review verified all six selected comparisons and all recorded pairing checks, without downloading models or training. All six notebook-20 exports passed their SHA-256 checks under `uncle/paired_generalization/paired_generalization_v2/summaries/20261011T004607328665Z/`: summary.json, study.json, comparisons.csv, retained_tasks.csv, paired_effects.png, and paired_effects.svg. The saved summary's comparison rows and plan hash match the independent review. The export timestamp is 11 October UTC, corresponding to 10 October in America/New_York.
+
+Seed 2 completes the missing numeric results. Its baseline task-15 accuracy is 34.4%. U3/L15 scores 47.4%, a +13.0-point difference, with a -1.20-point mean change on retained tasks and a largest retained loss of 4.2 points on task 0. U14/L15 scores 32.6%, a -1.8-point difference, with a +0.29-point mean retained change and a largest loss of 2.6 points on task 9. Target task 3 starts at 38.4%; target task 14 starts at 41.8%. Both reach 10.0% after unlearning and remain 10.0% after learning task 15. Across all six comparisons, no saved L15 evaluation exceeds the 12% forgetting threshold after the gate is met.
+
+| Request | Three-seed mean task-15 difference | Sample SD | Three-seed mean retained difference | Sample SD |
+| --- | ---: | ---: | ---: | ---: |
+| U3/L15 | +5.40 | 6.77 | -1.29 | 0.25 |
+| U14/L15 | -0.20 | 3.49 | -1.02 | 1.13 |
+
+Differences and standard deviations are in percentage points. Means use paired branch-minus-baseline effects separately for each target. The task-3 average is strongly influenced by seed 2's +13.0 points. The task-14 mean is near zero, with both positive and negative seed effects. The largest individual retained loss ranges from 2.6 to 14.2 points. Three seeds, shared controls, and one learning order limit generalization. These results support observed classification suppression during one subsequent task, not erasure, privacy, or recovery resistance.
+
+All eleven session logs were independently read and verified from R2. Their durations sum to 54,620.146437 seconds, rounded to 15 h 10 m 20 s. The Markdown and standalone HTML report now show all three seeds, separately calculated means and standard deviations, a three-run labeled accuracy chart, and no remaining numeric placeholders for the selected study. Deferred orders and targets remain outside this result.
