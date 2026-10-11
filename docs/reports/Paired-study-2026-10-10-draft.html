@@ -29,7 +29,7 @@ li { margin: 8px 0; }
 <div class="notice"><strong>Draft report.</strong> Remaining results are marked as pending. Tables scroll horizontally on smaller screens. You can print this page or save it as PDF from your browser.</div>
 <nav aria-label="Report sections"><a href="#what-we-know-so-far">What we know so far</a> <a href="#what-exactly-are-we-comparing">What exactly are we comparing?</a> <a href="#1-did-the-model-forget-the-requested-task">1. Did the model forget the requested task?</a> <a href="#2-could-the-model-still-learn-task-15">2. Could the model still learn task 15?</a> <a href="#3-what-happened-to-the-other-learned-tasks">3. What happened to the other learned tasks?</a> <a href="#how-much-remains">How much remains?</a> <a href="#what-can-this-experiment-support">What can this experiment support?</a> <a href="#technical-details-and-recorded-time">Technical details and recorded time</a> <a href="#detailed-evidence">Detailed evidence</a></nav>
 <h1>What happens when we forget a task and then learn task 15?</h1>
-<p><strong>Draft, 10 October 2026. Two runs have finished; the third run is unfinished.</strong> This report uses the saved results available at this snapshot. It does not include later training.</p>
+<p><strong>Draft, 10 October 2026. Training is complete for all three runs. The score tables below still cover the first two runs; final scores are awaiting review.</strong> This report uses the saved results available at this snapshot. It does not include later training.</p>
 <h2 id="what-we-know-so-far">What we know so far</h2>
 <ul>
 <li><strong>Forgetting:</strong> task 3 and task 14 both reach 10% accuracy after forgetting. They stay at 10% after learning task 15 in both completed runs.</li>
@@ -214,22 +214,22 @@ li { margin: 8px 0; }
 <tbody>
 <tr>
 <td>Training jobs</td>
-<td>11 of 12</td>
-<td>1 branch job for Run 3</td>
+<td>12 of 12</td>
+<td>None</td>
 </tr>
 <tr>
 <td>Baseline-versus-forgetting comparisons</td>
-<td>5 of 6</td>
-<td>1 comparison for Run 3</td>
+<td>6 of 6</td>
+<td>None; final scores awaiting review</td>
 </tr>
 <tr>
 <td>Learn or forget requests</td>
-<td>38 of 39</td>
-<td>Final learn-15 request, with partial work already saved</td>
+<td>39 of 39</td>
+<td>None</td>
 </tr>
 </tbody>
 </table></div>
-<p>Progress update supplied by the user: latest verified R2 save 10 October 2026 at 22:03:47 UTC. Run 3 has finished its source model, learn-15 baseline, and forget-3/learn-15 branch. Its forget-14 request is complete; the following learn-15 request can resume. These progress counts are newer than the score snapshot above. The newly completed comparison scores have not yet been supplied or reviewed. These counts do not predict remaining GPU time.</p>
+<p>Completion update supplied by the user: latest verified R2 save 10 October 2026 at 22:42:48 UTC. All source models, baselines, and forgetting branches are complete for seeds 0, 1, and 2. These completion counts are newer than the score snapshot above. Seed-2 scores have not yet been supplied or reviewed.</p>
 <div class="table-scroll"><table>
 <thead>
 <tr>
@@ -244,7 +244,7 @@ li { margin: 8px 0; }
 </tr>
 <tr>
 <td>Run 3: forget task 14, then learn task 15</td>
-<td>Final learn-15 request resumable</td>
+<td>Complete; scores awaiting review</td>
 </tr>
 <tr>
 <td>Average task-15 effect across all three seeds, separately for each forgotten task</td>
@@ -264,11 +264,11 @@ li { margin: 8px 0; }
 </tr>
 </tbody>
 </table></div>
-<p>Keep seed 2 in notebook 19 and run all to finish these branches. Then use notebook 20 on CPU to review and save the final summaries. The other sequences from the original plan are deferred and are not required for this narrowed study.</p>
+<p>Training is finished. Use notebook 20 on CPU with the same study ID and SAVE_SUMMARY_TO_R2 enabled to review and save the final summaries. The other sequences from the original plan are deferred and are not required for this narrowed study.</p>
 <h2 id="what-can-this-experiment-support">What can this experiment support?</h2>
 <p>So far, the requested task reaches chance-level accuracy and stays there during one subsequent task. Learning task 15 remains possible, but the effect on its accuracy varies between runs. Some other tasks suffer substantial losses.</p>
 <p>This study tests <strong>one order and one incoming task</strong>, not all possible sequences. Task 3 and task 14 differ in both task identity and learning position. We therefore cannot say that their differences are caused only by being learned first or last. The two forgetting branches share a baseline within each run, so they are not independent repetitions.</p>
-<p>We will calculate the final three-seed averages when Run 3 finishes. Even three seeds provide limited evidence about how broadly the result holds. This study does not test privacy, recovery, or long future learning sequences.</p>
+<p>We will calculate the final three-seed averages after reviewing the completed Run 3 scores. Even three seeds provide limited evidence about how broadly the result holds. This study does not test privacy, recovery, or long future learning sequences.</p>
 <h2 id="technical-details-and-recorded-time">Technical details and recorded time</h2>
 <div class="table-scroll"><table>
 <thead>
@@ -325,7 +325,7 @@ li { margin: 8px 0; }
 </tbody>
 </table></div>
 <p>The weight-generating network produces the classifier's parameters. Learning updates this network and the new task's code. Forgetting updates the network while keeping the task codes fixed. A protection loss tries to limit changes to other tasks' generated parameters. This diagnostic study uses beta 0.1, compared with the repository's paper-based Tiny ImageNet default of 0.01. It is not a paper reproduction, and older experiment-06 results are not included in these results.</p>
-<p>The nine saved session logs total <strong>12 h 48 m 38 s</strong>. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time. The later user-supplied session lasted 1 h 46 m 24 s. Including it brings recorded runner time to <strong>14 h 35 m 3 s across ten sessions</strong>; this latest session has not yet been independently reviewed from R2.</p>
+<p>The nine saved session logs total <strong>12 h 48 m 38 s</strong>. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time. The two later user-supplied sessions lasted 1 h 46 m 24 s and 35 m 17 s. Including them brings recorded runner time to <strong>15 h 10 m 20 s across eleven sessions</strong>; these latest sessions have not yet been independently reviewed from R2.</p>
 <p>Checkpoints save after learning epochs and at 20-step forgetting boundaries. A restart resumes from the last verified R2 save; work after that save may repeat. Completed jobs are skipped.</p>
 <h2 id="detailed-evidence">Detailed evidence</h2>
 <p>The four completed comparisons pass all recorded checks that the branches use matching starting models and task-15 training conditions. The <a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/evidence/paired-study-2026-10-10.json">saved evidence</a> contains the exact scores, pairing checks, study plan, and session logs. The <a href="https://github.com/sumitasthana/CARK/blob/main/docs/wiki/Experiment-trajectory-2026-10-10.md">dated experiment record</a> records the progress history.</p>

@@ -84,7 +84,7 @@ def main():
                 harm.append(f'| {label}: forget {target}, then learn 15 | Pending | Pending |')
     text = f'''# What happens when we forget a task and then learn task 15?
 
-**Draft, 10 October 2026. Two runs have finished; the third run is unfinished.** This report uses the saved results available at this snapshot. It does not include later training.
+**Draft, 10 October 2026. Training is complete for all three runs. The score tables below still cover the first two runs; final scores are awaiting review.** This report uses the saved results available at this snapshot. It does not include later training.
 
 ## What we know so far
 
@@ -150,22 +150,22 @@ The main concern is therefore the loss on individual tasks, even when task 15 le
 
 | Work | Complete | Remaining |
 | --- | --- | --- |
-| Training jobs | 11 of 12 | 1 branch job for Run 3 |
-| Baseline-versus-forgetting comparisons | 5 of 6 | 1 comparison for Run 3 |
-| Learn or forget requests | 38 of 39 | Final learn-15 request, with partial work already saved |
+| Training jobs | 12 of 12 | None |
+| Baseline-versus-forgetting comparisons | 6 of 6 | None; final scores awaiting review |
+| Learn or forget requests | 39 of 39 | None |
 
-Progress update supplied by the user: latest verified R2 save 10 October 2026 at 22:03:47 UTC. Run 3 has finished its source model, learn-15 baseline, and forget-3/learn-15 branch. Its forget-14 request is complete; the following learn-15 request can resume. These progress counts are newer than the score snapshot above. The newly completed comparison scores have not yet been supplied or reviewed. These counts do not predict remaining GPU time.
+Completion update supplied by the user: latest verified R2 save 10 October 2026 at 22:42:48 UTC. All source models, baselines, and forgetting branches are complete for seeds 0, 1, and 2. These completion counts are newer than the score snapshot above. Seed-2 scores have not yet been supplied or reviewed.
 
 | Final result to add | Status |
 | --- | --- |
 | Run 3: forget task 3, then learn task 15 | Complete; scores awaiting review |
-| Run 3: forget task 14, then learn task 15 | Final learn-15 request resumable |
+| Run 3: forget task 14, then learn task 15 | Complete; scores awaiting review |
 | Average task-15 effect across all three seeds, separately for each forgotten task | Pending |
 | Average effect on other tasks, separately for each forgotten task | Pending |
 | Variation across all three seeds | Pending |
 | Final conclusion and total session duration | Pending |
 
-Keep seed 2 in notebook 19 and run all to finish these branches. Then use notebook 20 on CPU to review and save the final summaries. The other sequences from the original plan are deferred and are not required for this narrowed study.
+Training is finished. Use notebook 20 on CPU with the same study ID and SAVE_SUMMARY_TO_R2 enabled to review and save the final summaries. The other sequences from the original plan are deferred and are not required for this narrowed study.
 
 ## What can this experiment support?
 
@@ -173,7 +173,7 @@ So far, the requested task reaches chance-level accuracy and stays there during 
 
 This study tests **one order and one incoming task**, not all possible sequences. Task 3 and task 14 differ in both task identity and learning position. We therefore cannot say that their differences are caused only by being learned first or last. The two forgetting branches share a baseline within each run, so they are not independent repetitions.
 
-We will calculate the final three-seed averages when Run 3 finishes. Even three seeds provide limited evidence about how broadly the result holds. This study does not test privacy, recovery, or long future learning sequences.
+We will calculate the final three-seed averages after reviewing the completed Run 3 scores. Even three seeds provide limited evidence about how broadly the result holds. This study does not test privacy, recovery, or long future learning sequences.
 
 ## Technical details and recorded time
 
@@ -193,7 +193,7 @@ We will calculate the final three-seed averages when Run 3 finishes. Even three 
 
 The weight-generating network produces the classifier's parameters. Learning updates this network and the new task's code. Forgetting updates the network while keeping the task codes fixed. A protection loss tries to limit changes to other tasks' generated parameters. This diagnostic study uses beta 0.1, compared with the repository's paper-based Tiny ImageNet default of 0.01. It is not a paper reproduction, and older experiment-06 results are not included in these results.
 
-The nine saved session logs total **{elapsed}**. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time. The later user-supplied session lasted 1 h 46 m 24 s. Including it brings recorded runner time to **14 h 35 m 3 s across ten sessions**; this latest session has not yet been independently reviewed from R2.
+The nine saved session logs total **{elapsed}**. This is elapsed time inside the study runner, including training, evaluation, and file transfers. It excludes earlier notebook setup and time between sessions. It is not a measurement of billed GPU time. The two later user-supplied sessions lasted 1 h 46 m 24 s and 35 m 17 s. Including them brings recorded runner time to **15 h 10 m 20 s across eleven sessions**; these latest sessions have not yet been independently reviewed from R2.
 
 Checkpoints save after learning epochs and at 20-step forgetting boundaries. A restart resumes from the last verified R2 save; work after that save may repeat. Completed jobs are skipped.
 
