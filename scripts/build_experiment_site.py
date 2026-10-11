@@ -207,6 +207,27 @@ def build():
     values['source_list']='<ul>'+''.join('<li><a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/trajectory/evidence/'+name+'">'+html.escape(label)+'</a></li>' for name,label in zip(names,[
         'Five-value beta batch','Beta 0.1 repeat comparison','Learning sequence: tasks 1, 7, and 14',
         'Paired U3 and L15 comparison','Branch A: learning-only report','Branch B: unlearn-then-learn report']))+'</ul>'
+    import statistics
+    study = json.loads((ROOT/'docs/reports/evidence/paired-study-2026-10-10.json').read_text(encoding='utf-8'))
+    completed = study['selected_comparisons']
+    assert len(completed) == 6 and all(all(row['pair_checks'].values()) for row in completed)
+    get = lambda seed, target: next(row for row in completed if row['seed']==seed and row['forget_task']==str(target))
+    accuracy = table(['Seed', 'Learn 15 only', 'Forget 3 ? Learn 15', 'Forget 14 ? Learn 15'], [[seed, f"{get(seed,3)['new_task_a']:.1f}%", f"{get(seed,3)['new_task_b']:.1f}%", f"{get(seed,14)['new_task_b']:.1f}%"] for seed in range(3)])
+    effects = table(['Sequence', 'Task-15 changes: seeds 0, 1, 2', 'Mean task-15 change', 'Mean other-task change'], [[f'Forget {target} ? Learn 15', ', '.join(f"{get(seed,target)['new_task_difference']:+.1f}" for seed in range(3)), f"{statistics.mean(get(seed,target)['new_task_difference'] for seed in range(3)):+.2f}", f"{statistics.mean(get(seed,target)['retained_mean_difference'] for seed in range(3)):+.2f}"] for target in [3,14]])
+    values['latest_study'] = f'''<section id="paired-expanded">
+      <p class="section-number">Latest results ? 10 October 2026</p>
+      <h2>Completed extension: three seeds and two forgetting targets</h2>
+      <p>Each seed first learns <strong>3 ? 0 ? 9 ? 5 ? 17 ? 1 ? 7 ? 14</strong>. We copy its source model into three independent continuations: learn 15 only, forget 3 then learn 15, and forget 14 then learn 15. This tests different request sequences after one source order.</p>
+      {accuracy}
+      {effects}
+      <p class="small">Changes are percentage points: forgetting branch minus the matching learning-only baseline. Other-task means exclude the requested forgotten task and average seven tasks per seed. Each sequence mean uses three seeds.</p>
+      <div class="note"><p><strong>Main finding:</strong> both forgotten tasks reach 10% accuracy after forgetting and remain there after task-15 learning in every seed. Forgetting task 3 matches or improves task-15 accuracy, but the +5.40-point mean includes a large +13.0-point seed-2 effect. Forgetting task 14 has mixed effects.</p></div>
+      <h3>Do earlier tasks retain their accuracy?</h3>
+      <p>We evaluate all previously learned tasks except the requested forgotten task. During forgetting, drops are measured against the model before forgetting. After learning task 15, retention is measured against the same seed's learning-only baseline. For forget 3, the retained tasks are 0, 9, 5, 17, 1, 7, and 14. For forget 14, they are 3, 0, 9, 5, 17, 1, and 7.</p>
+      <p>Five of six forgetting branches have lower mean retained-task accuracy. Individual final losses range up to <strong>14.2 points</strong>. Accuracy is therefore not uniformly preserved, even when the requested task stays at chance.</p>
+      <p class="small">12 jobs, six comparisons, and 39 requests complete. All recorded pairing checks pass. One source order, one incoming task, and three seeds limit generalization. Task identity and learning position change together. No erasure, privacy, or recovery claim is established. The new source models use uniform settings; the earlier pilot below is not included in these averages.</p>
+      <p><a href="paired-study.html">Concise report with charts, settings, and seed-level losses</a> ? <a href="paired-study-presentation.html">Four-slide presentation and interactive experiment tree</a> ? <a href="https://github.com/sumitasthana/CARK/blob/main/docs/reports/evidence/paired-study-2026-10-10.json">Verified evidence</a></p>
+    </section>'''
     template=Template((ROOT/'scripts/templates/experiment_report.html').read_text(encoding='utf-8'))
     assets['index.html']=template.substitute(values).encode()
     assets['.nojekyll']=b''

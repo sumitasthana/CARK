@@ -58,21 +58,22 @@
   <div class="topbar"><a class="brand" href="https://github.com/sumitasthana/CARK">CARK</a><div class="toplinks"><a href="paired-study.html">Three-seed paired study</a><a href="https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory">Full experiment record</a><a href="https://arxiv.org/html/2509.17530v1">Reference paper</a></div></div>
   <article class="report">
     <header>
-      <p class="eyebrow">Experimental report · Evidence through 7 October 2026</p>
+      <p class="eyebrow">Experimental report · Evidence through 10 October 2026</p>
       <h1>Learning, retention, and task-3 unlearning on Tiny ImageNet</h1>
-      <p class="lead">We studied whether an image classifier could learn new tasks, retain earlier tasks, and deliberately unlearn one task. In one controlled comparison, task-3 accuracy fell from 27.4% to 10.0% and remained at 10.0% while the model learned task 15. We have not tested whether task-3 information can be recovered.</p>
-      <div class="metadata"><span>Evidence through 7 October 2026</span><span>Tiny ImageNet · ResNet50 target model</span><span class="status">Further experiments paused for reflection</span></div>
-      <div class="keynumbers" aria-label="Main observations">
-        <div class="keynumber"><strong>27.4% → 10.0%</strong><span>Task 3 before and after unlearning</span></div>
-        <div class="keynumber"><strong>10.0%</strong><span>Task 3 after learning task 15</span></div>
-        <div class="keynumber"><strong>One pair</strong><span>Evidence from one seed and one later lesson</span></div>
+      <p class="lead">The completed three-seed study compares learning task 15 alone with forgetting task 3 or task 14 before learning task 15. Both forgotten tasks stay at 10% accuracy in every seed. Task-15 learning remains possible, but accuracy on other tasks is not uniformly preserved.</p>
+      <div class="metadata"><span>Evidence through 10 October 2026</span><span>Tiny ImageNet ? ResNet50 target model</span><span class="status">Selected three-seed study complete</span></div>
+      <div class="keynumbers" aria-label="Latest observations">
+        <div class="keynumber"><strong>3 seeds</strong><span>One source order; three request sequences per seed</span></div>
+        <div class="keynumber"><strong>10.0%</strong><span>Both forgotten tasks after learning task 15, in every seed</span></div>
+        <div class="keynumber"><strong>6 comparisons</strong><span>Verified against matching learning-only baselines</span></div>
       </div>
     </header>
-    <nav class="contents" aria-label="Report contents"><a href="#snapshot">Experiment snapshot</a><a href="#question">Research question</a><a href="#methods">Dataset, settings, and architecture</a><a href="#repeatability">Repeated runs</a><a href="#protection">Protection</a><a href="#sequence">Successive lessons</a><a href="#paired">Paired test</a><a href="#claims">Paper comparison</a><a href="#evidence">Evidence</a></nav>
+    <nav class="contents" aria-label="Report contents"><a href="#paired-expanded">Completed three-seed study</a><a href="#snapshot">Earlier experiment snapshot</a><a href="#question">Research question</a><a href="#methods">Dataset, settings, and architecture</a><a href="#repeatability">Repeated runs</a><a href="#protection">Protection</a><a href="#sequence">Successive lessons</a><a href="#paired">Paired test</a><a href="#claims">Paper comparison</a><a href="#evidence">Evidence</a></nav>
     <main id="report">
+$latest_study
       <section id="snapshot">
-        <p class="section-number">Presentation summary · Evidence through 7 October 2026</p>
-        <div class="snapshot-toolbar"><h2>Key experiments and findings</h2><button type="button" id="present-snapshot" aria-pressed="false">Present this table</button></div>
+        <p class="section-number">Presentation summary · Evidence through 10 October 2026</p>
+        <div class="snapshot-toolbar"><h2>Earlier experiments and findings</h2><button type="button" id="present-snapshot" aria-pressed="false">Present this table</button></div>
         <div class="snapshot-context"><p><strong>Problem:</strong> early runs showed weak new-task learning, falling older-task scores, and very small generated classifier weights.</p><p><strong>Initialization decision:</strong> check the paper’s Hyperfan method for generated weights. Kaiming stays in the hypernetwork’s hidden layers. This was not a proven fix for forgetting. <a href="#initialization">Why and what changed</a>.</p></div>
         <p class="snapshot-scope"><strong>L = learn a task. U = unlearn a task.</strong> Each task contains ten image classes; chance accuracy is 10%. Arrows show operation order. All scores are validation accuracy; changes are percentage points.</p>
         <div class="table-scroll"><table class="snapshot-table"><thead><tr><th scope="col">Experiment</th><th scope="col">Sequence or comparison</th><th scope="col">Key findings</th></tr></thead><tbody>
@@ -81,7 +82,7 @@
           <tr><th scope="row"><a href="#sequence">Successive learning</a></th><td><span class="snapshot-start">Start: repeat model after tasks 3, 0, 9, 5, and 17.</span><span class="snapshot-sequence">L1 → L7 → L14</span><br><span class="snapshot-start">Continue each final model; beta 0.1; no unlearning.</span></td><td><ul><li>The original five-task average ended unchanged at <strong>41.76%</strong>.</li><li>Task 17 still fell from <strong>55.8% to 50.0%</strong>. The average hid an individual loss.</li></ul></td></tr>
           <tr><th scope="row"><a href="#paired">Unlearning and later learning</a></th><td><span class="snapshot-start">Start: same saved model after L14 for both branches.</span><span class="snapshot-sequence">A: L15<br>B: U3 → L15</span><br><span class="snapshot-start">Beta 0.1; gamma 0.01; same GPU session.</span></td><td><ul><li>In B, task 3 fell from <strong>27.4% to 10.0%</strong> and stayed at 10.0% during L15.</li><li>Task 15 reached <strong>54.4% in A vs 49.0% in B</strong>. Unlearning did not improve new-task learning in this pair.</li></ul></td></tr>
         </tbody></table></div>
-        <p class="snapshot-scope"><strong>Limit:</strong> these are one-seed diagnostics. The paired result covers one later lesson. Chance accuracy does not prove information erasure; recovery and privacy have not been tested. Experiments are paused.</p>
+        <p class="snapshot-scope"><strong>Limit:</strong> these earlier results are one-seed diagnostics and are not pooled with the completed three-seed study above. Both studies cover one later lesson. Chance accuracy does not prove information erasure; recovery and privacy have not been tested.</p>
         <p class="small"><a href="#methods">Settings and architecture</a> · <a href="#claims">Comparison with the paper</a> · <a href="#evidence">Evidence files</a>. Click an experiment name for its detailed results.</p>
       </section>
 
@@ -260,8 +261,9 @@
       </section>
 
       <section id="paired">
-        <p class="section-number">06 · Paired comparison: unlearn task 3, then learn task 15</p>
-        <h2>Task-3 accuracy fell to 10% and stayed at 10% during task-15 training</h2>
+        <p class="section-number">06 · Earlier pilot: unlearn task 3, then learn task 15</p>
+        <h2>Earlier one-seed pilot: task 3 stayed at 10% during task-15 training</h2>
+        <p class="small">Historical result from 7 October. The completed three-seed extension is shown at the top of this page; these older scores are not pooled into its averages.</p>
         <p><strong>Question:</strong> can deliberate unlearning reduce task-3 accuracy to chance, and does that accuracy increase again while learning a new task? Both branches loaded the checkpoint after task 14, containing tasks 3, 0, 9, 5, 17, 1, 7, and 14. The two branches ran in the same GPU session.</p>
         <div class="terms"><div class="term"><strong>A · Learning-only control</strong>Same starting checkpoint → learn task 15.</div><div class="term"><strong>B · Unlearning branch</strong>Same starting checkpoint → unlearn task 3 → learn task 15.</div></div>
         <p>A is the learning-only control: it measures changes caused by learning task 15. B adds task-3 unlearning before the same task-15 lesson. Neither branch used older-task training images. Older-task validation images were used only to measure accuracy.</p>
@@ -294,7 +296,7 @@
           <tr><th scope="row">Relapse over one later lesson</th><td>Task-3 accuracy after learning task 15 minus its accuracy immediately after unlearning.</td><td>0.0 points: 10.0% − 10.0%.</td></tr>
         </tbody></table></div>
         <p class="small">Spill and relapse definitions: <a href="https://arxiv.org/html/2509.17530v1#S4.SS4">paper, equations 4 and 5</a>. Functional forgetting in this report means low accuracy on the requested task under the current evaluation. It does not mean verified information erasure.</p>
-        <p class="takeaway"><strong>Learning and decision:</strong> this pair established low task-3 accuracy through one later lesson. It also showed temporary and task-specific changes on retained tasks, and lower new-task accuracy than the control. We closed this first comparison without another beta or gamma search. Whether task-3 information can be recovered remains the next research question; experiments are paused.</p>
+        <p class="takeaway"><strong>Learning and decision:</strong> this pair established low task-3 accuracy through one later lesson. It also showed temporary and task-specific changes on retained tasks, and lower new-task accuracy than the control. We closed this first comparison without another beta or gamma search. The three-seed extension above is now complete. Whether task-3 information can be recovered remains untested.</p>
       </section>
 
       <section id="claims">
@@ -302,15 +304,15 @@
         <h2>Comparison with the UnCLe paper: supported, mixed, and untested claims</h2>
         <p>The authors report chance-level forget accuracy, low damage to retained tasks, resistance to later relapse, and improved learning in longer sequences. They also report a membership inference test of privacy. <a href="https://arxiv.org/html/2509.17530v1#S4.SS4">Paper, discussion and Tables 1–3</a>.</p>
         <div class="table-scroll"><table class="assessment"><thead><tr><th scope="col">Claim</th><th scope="col">Our assessment</th><th scope="col">Reason</th></tr></thead><tbody>
-          <tr><th scope="row">Requested task falls to chance</th><td>Supported in one request</td><td>Task 3 fell from 27.4% to 10.0%.</td></tr>
-          <tr><th scope="row">No recovery during later learning</th><td>Supported over one later lesson</td><td>Task 3 stayed at 10.0% through all task-15 epochs.</td></tr>
+          <tr><th scope="row">Requested task falls to chance</th><td>Supported in six extension comparisons</td><td>Tasks 3 and 14 reach 10% after forgetting in all three seeds. The earlier pilot also reached 10%.</td></tr>
+          <tr><th scope="row">No recovery during later learning</th><td>Supported over one later lesson</td><td>Both forgotten targets stay at 10% after learning task 15 in every seed, with no recorded evaluation above the 12% threshold.</td></tr>
           <tr><th scope="row">Other tasks remain stable</th><td>Mixed evidence</td><td>Final mean losses were limited, but individual and temporary drops were larger.</td></tr>
-          <tr><th scope="row">Unlearning improves later learning</th><td>Not supported in this pair</td><td>Task 15 scored 5.4 points lower after unlearning. A longer saturation experiment was not performed.</td></tr>
+          <tr><th scope="row">Unlearning improves later learning</th><td>Depends on request and seed</td><td>The extension averages +5.40 points for forget 3 and -0.20 for forget 14. The earlier pilot scored 5.4 points lower. No long-sequence conclusion is established.</td></tr>
           <tr><th scope="row">Privacy under membership inference testing</th><td>Not assessed</td><td>We did not test whether an attacker could identify which images were used for training. This is the privacy test reported by the paper.</td></tr>
         </tbody></table></div>
         <h3>Differences that limit a direct paper comparison</h3>
-        <div class="table-scroll"><table><thead><tr><th scope="col">Condition</th><th scope="col">Our detailed pair</th><th scope="col">Paper</th></tr></thead><tbody>
-          <tr><th scope="row">Training seeds</th><td>Seed 0; one pair.</td><td>Main results average three seeds.</td></tr>
+        <div class="table-scroll"><table><thead><tr><th scope="col">Condition</th><th scope="col">Earlier detailed pair</th><th scope="col">Paper</th></tr></thead><tbody>
+          <tr><th scope="row">Training seeds</th><td>Earlier pilot: seed 0, one pair. The completed extension above uses seeds 0, 1, and 2.</td><td>Main results average three seeds.</td></tr>
           <tr><th scope="row">Timing of task-3 unlearning</th><td>After learning task 14.</td><td>Sequence 1 unlearns task 3 after learning tasks 3 and 0, before task 9.</td></tr>
           <tr><th scope="row">Learning protection beta</th><td>0.1.</td><td>0.01 for Tiny ImageNet.</td></tr>
           <tr><th scope="row">Learning rate</th><td>Constant 0.0001.</td><td>0.001 with a scheduler, which changes the learning rate during training.</td></tr>
@@ -322,9 +324,9 @@
           <li>Ordinary learning can lower older-task scores. A learning-only control is necessary when measuring unlearning damage.</li>
           <li>Weight protection helped substantially in the beta trials, but one result cannot establish a stable optimum.</li>
           <li>Individual task scores and intermediate measurements provide information that averages and final scores miss.</li>
-          <li>In one matched pair, task-3 accuracy fell to chance and remained there through one subsequent lesson.</li>
+          <li>In six matched extension comparisons, the requested forgotten task stays at chance after one subsequent lesson. Other-task accuracy is not uniformly preserved.</li>
         </ol>
-        <div class="note"><p><strong>Unanswered recovery question:</strong> can a small, fixed amount of additional training recover task-3 performance from the unlearned model? A control is needed because training can teach the task again, and information from other tasks can help. Recovery would need to show an advantage attributable to prior task-3 learning. This experiment has not been specified or run. Further experiments are paused for reflection.</p></div>
+        <div class="note"><p><strong>Unanswered recovery question:</strong> can a small, fixed amount of additional training recover task-3 performance from the unlearned model? A control is needed because training can teach the task again, and information from other tasks can help. Recovery would need to show an advantage attributable to prior task-3 learning. This experiment has not been specified or run. The selected three-seed extension is complete; recovery remains untested.</p></div>
       </section>
 
       <section id="evidence" class="source-links">
@@ -338,7 +340,7 @@
         <p class="small">This is the requested public write-up of the recorded experiments. The experiment trajectory remains the detailed record. Model checkpoints and private storage credentials are not included in this page.</p>
       </section>
     </main>
-    <footer><span>CARK · Research progress through 7 October 2026</span><button type="button" id="print-report">Print / save as PDF</button></footer>
+    <footer><span>CARK · Research progress through 10 October 2026</span><button type="button" id="print-report">Print / save as PDF</button></footer>
   </article>
   <script>
     const architecture=document.getElementById('architecture');

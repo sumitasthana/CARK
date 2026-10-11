@@ -95,3 +95,7 @@ The user requested a concise additional GitHub Pages report, written for a non-n
 ## Public report URL correction
 
 The user reported a 404 at the shared root report URL after publication. GitHub API inspection confirmed Pages uses the legacy main-branch repository-root source, while the manual workflow uploads only site/. The site-folder report remained available at /CARK/site/paired-study.html. A generated root-level report now preserves /CARK/paired-study.html and links to the site-folder homepage and presentation. The correction relies on the configured branch deployment and does not change Pages settings.
+
+## Original public report updated with the completed extension
+
+The user requested updating /CARK/site/index.html after completion of the larger study. The page now leads with the verified three-seed extension, all nine task-15 scores, paired averages, retention-check definitions, and links to the concise report and interactive tree. Header counts and conclusions reflect six verified comparisons. Earlier one-seed diagnostics remain labeled historical and are excluded from the new averages. The paper-assessment table now distinguishes mixed task-15 effects and incomplete retention from successful observed forgetting. No new measurements are introduced.
