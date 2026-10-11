@@ -2,6 +2,8 @@
 
 **Completed selected study, 10 October 2026. All three runs and all six comparisons have been reviewed.** This report uses the saved results available at this snapshot. It does not include later training.
 
+[Open the four-slide presentation and interactive experiment tree](Paired-study-2026-10-10-presentation.html)
+
 ## Main findings
 
 - **Forgetting:** task 3 and task 14 both reach 10% accuracy after forgetting. They stay at 10% after learning task 15 in all three runs.
