@@ -91,3 +91,7 @@ The presentation embeds the committed verified evidence and works offline. Brows
 ## Mentor-facing public summary
 
 The user requested a concise additional GitHub Pages report, written for a non-native English-speaking freshman undergraduate. The [mentor summary](https://sumitasthana.github.io/CARK/paired-study.html) presents the same verified three-seed evidence using one labeled bar chart and five compact tables for settings, task-15 scores, paired averages, forgetting stages, and individual retained-task losses. It states the seed-2 contribution, variation, limited scope, and absence of an erasure claim. The homepage links to this additional page, which also links to the four-slide presentation and interactive tree. Desktop and mobile checks confirmed all nine bars, five tables, working local presentation link, and no page-level horizontal overflow. The user explicitly authorized publishing this page; it adds no new experiment results.
+
+## Public report URL correction
+
+The user reported a 404 at the shared root report URL after publication. GitHub API inspection confirmed Pages uses the legacy main-branch repository-root source, while the manual workflow uploads only site/. The site-folder report remained available at /CARK/site/paired-study.html. A generated root-level report now preserves /CARK/paired-study.html and links to the site-folder homepage and presentation. The correction relies on the configured branch deployment and does not change Pages settings.

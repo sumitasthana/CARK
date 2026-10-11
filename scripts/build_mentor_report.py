@@ -50,5 +50,8 @@ page = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name
 </main></body></html>'''
 assert '\u2014' not in page
 (ROOT / 'site/paired-study.html').write_text(page, encoding='utf-8')
+# Pages is configured for main:/, so keep the shared root URL available too.
+root_page = page.replace('href="index.html"', 'href="site/index.html"').replace('href="paired-study-presentation.html"', 'href="site/paired-study-presentation.html"')
+(ROOT / 'paired-study.html').write_text(root_page, encoding='utf-8')
 (ROOT / 'site/paired-study-presentation.html').write_text((ROOT / 'docs/reports/Paired-study-2026-10-10-presentation.html').read_text(encoding='utf-8'), encoding='utf-8')
 print('Built site/paired-study.html and its linked presentation.')
