@@ -172,8 +172,14 @@ class Dashboard:
         try:
             from IPython import get_ipython
             shell = get_ipython()
-            if shell is not None and "ZMQ" in type(shell).__name__:
-                return "html"      # Jupyter or Colab
+            # Jupyter calls its shell ZMQInteractiveShell; Colab uses its own
+            # class with a plainer name, so checking for the name alone misses
+            # Colab and drops it to printed lines. Any shell with a kernel
+            # behind it can display HTML.
+            if shell is not None and (hasattr(shell, "kernel")
+                                      or "ZMQ" in type(shell).__name__
+                                      or "google.colab" in sys.modules):
+                return "html"
         except Exception:
             pass
         return "ansi" if sys.stderr.isatty() else "plain"
