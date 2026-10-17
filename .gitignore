@@ -30,10 +30,9 @@ proposal-assets/
 # Measurements written by explore.py, task1.py and run.py
 uncle_from_scratch/outputs/
 
-# Local status and logs from the scheduled wiki publisher
-/outputs/wiki_publication/
-/outputs/r2-review/
-/outputs/site-review/
+# Local scratch: publisher logs, review caches, downloaded study artifacts,
+# screenshots and throwaway checkouts. Nothing here is part of the project.
+/outputs/
 
 # Public chart measurements for the experiment report
 !/site/data/
