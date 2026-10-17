@@ -13,7 +13,59 @@ through E15, the 2026-09-29 30-step run, and the checkpoint-based diagnostics. N
 trajectory has passed both the short-run forgetting and retention criteria.
 These are existing observations, not measurements made during this plan update.
 
-## Target for 2026-10-05: explain cross-session L9 replay variance
+## Current priority after reassessment: test retention during learning
+
+This priority supersedes the replay-first schedule below. The research asks
+whether task information remains after unlearning. Its prerequisite is a model
+that learns tasks and preserves useful accuracy on the tasks it keeps. The
+full-sequence failure remains unresolved. That sequence contains both learn and
+forget requests, so older-task collapse alone does not isolate learning as the
+cause.
+
+The supplied replay pair used different GPU models and first differed at update
+1. It does not establish that hardware caused the historical spread. Exact
+hash agreement is a diagnostic tool, not a requirement for proceeding with all
+research. A tiny first-loss difference also does not, by itself, explain a large
+final accuracy gap.
+
+### Bound the remaining replay work
+
+Verify the files from the completed A100 run A on CPU. If the files are complete,
+allow at most one additional run B on the matching A100, using A's unchanged
+settings. If the files are incomplete or the required hardware is unavailable,
+retain the records and leave this pair unfinished. Do not restart the pair,
+start a stricter deterministic pair, or continue kernel-level tracing now.
+Record any remaining variance as an unresolved limitation and proceed to the
+learning-only diagnostic. No same-GPU pair result has yet been supplied.
+
+### Next research experiment
+
+**Question.** Does learning new tasks damage older-task accuracy when no forget
+requests occur?
+
+1. Restore the existing E08 checkpoint before U3, after L3 and L0. Verify its
+   saved history, evaluate tasks 3 and 0, and record their actual starting scores.
+   This historical all-images checkpoint is diagnostic-only.
+2. In one GPU session, learn tasks 9, 5, and 17 in that order, with no forget
+   requests. Keep the checkpoint's learning rate, beta, epochs, partition, and
+   other training settings unchanged. Save a distinct run configuration.
+3. After each new task, evaluate every task learned so far. Save those accuracies,
+   runtime provenance, and a checkpoint at each completed request boundary.
+4. Produce one table showing each task's accuracy before and after the subsequent
+   learn requests. Report changes in percentage points. Locate the first request
+   where an older task drops more than five percentage points from its score
+   before that request, if present. Use this as an exploratory warning, not a
+   statistical decision rule. Do not claim this single-seed result generalizes
+   across tasks, sequences, or seeds.
+
+If older-task accuracy collapses, examine the learning preservation penalty and
+its protected-task set at that request before choosing one intervention. If
+accuracy stays useful over this short sequence, extend the learning-only test
+before attributing the full-sequence collapse to unlearning. Do not resume gamma
+sweeps or component attribution yet. Once the diagnostic identifies a candidate
+setting, test it across multiple seeds to assess how consistently it works.
+
+## Earlier target for 2026-10-05: explain cross-session L9 replay variance
 
 **Target.** Locate the earliest recorded divergence when learning task 9 (L9)
 from the same saved post-U3 checkpoint in two fresh Colab GPU sessions, and
@@ -22,8 +74,8 @@ use the evidence to narrow the cause.
 [Stage 6 of the trajectory](https://github.com/sumitasthana/CARK/wiki/Experiment-trajectory#stage-6-paired-task-9-comparison-and-replay-variance)
 reports an 11-percentage-point spread in final task 0 accuracy across sessions,
 versus 0.4 points within one session. The paired effect remains inconclusive.
-Earlier resumes overwrote some environment records. These are historical
-observations; today's replay has not yet run.
+Earlier resumes overwrote some environment records. These were historical
+observations when the initial replay target was written.
 
 Workflow: [notebook 11](../notebooks/11_L9_session_replay.ipynb), with session A,
 session B in a fresh GPU runtime, and comparison in a fresh CPU runtime.
