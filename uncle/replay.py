@@ -43,6 +43,35 @@ def write_json(path, value):
     os.replace(temporary, path)
 
 
+def exact_math():
+    """Make the GPU do its arithmetic the same way on every run.
+
+    By default PyTorch lets the GPU pick whatever order of operations is
+    fastest. The order can change between runs and between GPU models, and a
+    different order gives answers that differ in the last few digits. Training
+    feeds each step into the next, so those last digits grow into real
+    differences. These six settings take the choice away.
+
+    `CUBLAS_WORKSPACE_CONFIG` has to be in the environment before anything
+    touches CUDA, so the caller sets it; this only checks that it is there.
+    `warn_only=False` means an operation with no exact version raises instead
+    of quietly continuing. For a repeatability experiment a loud stop at step
+    one beats a silent forty-minute run that cannot be trusted.
+    """
+    if os.environ.get("CUBLAS_WORKSPACE_CONFIG") not in (":4096:8", ":16:8"):
+        raise RuntimeError(
+            "Set CUBLAS_WORKSPACE_CONFIG=:4096:8 before importing torch. "
+            "cuBLAS reads it once when CUDA starts, so setting it later does nothing.")
+    torch.use_deterministic_algorithms(True, warn_only=False)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.allow_tf32 = False
+    torch.backends.cuda.matmul.allow_tf32 = False
+    # TF32 is a faster, less precise format for matrix multiply on Ampere and
+    # newer cards. "highest" keeps plain float32.
+    torch.set_float32_matmul_precision("highest")
+
+
 def runtime_settings():
     return {
         "deterministic_algorithms": torch.are_deterministic_algorithms_enabled(),
@@ -109,6 +138,7 @@ def run_replay(checkpoint, tasks, output, contract_path, *, label, new_task="9",
     the recorded config seed because historical checkpoints omit their states.
     """
     output, contract_path = Path(output), Path(contract_path)
+    exact_math()
     if label not in {"A", "B"}:
         raise ValueError("label must be A or B")
     if label == "B" and not contract_path.is_file():

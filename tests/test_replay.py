@@ -15,7 +15,8 @@ from torch.utils.data import TensorDataset
 from uncle.config import Config
 from uncle.hypernet import HyperNetwork, build_target
 from uncle.trainer import UnCLe
-from uncle.replay import check_gpu_model, compare_replays, file_hash, tensor_hash, write_json
+from uncle.replay import (check_gpu_model, compare_replays, exact_math, file_hash,
+                          runtime_settings, tensor_hash, write_json)
 
 
 @contextmanager
@@ -30,6 +31,44 @@ def temporary_folder():
         if folder.resolve().parent != parent:
             raise ValueError("Test cleanup escaped its temporary parent")
         shutil.rmtree(folder)
+
+
+class ExactMathTests(unittest.TestCase):
+    """The settings must actually be applied, not only recorded."""
+
+    def test_refuses_to_run_without_the_cublas_workspace_variable(self):
+        with patch.dict("os.environ", {"CUBLAS_WORKSPACE_CONFIG": "unset"}):
+            with self.assertRaisesRegex(RuntimeError, "CUBLAS_WORKSPACE_CONFIG"):
+                exact_math()
+
+    def test_applies_every_recorded_setting(self):
+        before = runtime_settings()
+        try:
+            with patch.dict("os.environ", {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}):
+                exact_math()
+                after = runtime_settings()
+            self.assertTrue(after["deterministic_algorithms"])
+            self.assertFalse(after["deterministic_warn_only"])
+            self.assertTrue(after["cudnn_deterministic"])
+            self.assertFalse(after["cudnn_benchmark"])
+            self.assertFalse(after["cudnn_allow_tf32"])
+            self.assertFalse(after["matmul_allow_tf32"])
+            self.assertEqual(after["float32_matmul_precision"], "highest")
+        finally:
+            torch.use_deterministic_algorithms(before["deterministic_algorithms"],
+                                               warn_only=before["deterministic_warn_only"])
+            torch.backends.cudnn.deterministic = before["cudnn_deterministic"]
+            torch.backends.cudnn.benchmark = before["cudnn_benchmark"]
+            torch.backends.cudnn.allow_tf32 = before["cudnn_allow_tf32"]
+            torch.backends.cuda.matmul.allow_tf32 = before["matmul_allow_tf32"]
+            torch.set_float32_matmul_precision(before["float32_matmul_precision"])
+
+    def test_spatial_mean_matches_the_pooling_layer_it_replaces(self):
+        from uncle.hypernet import SpatialMean
+        x = torch.randn(2, 3, 4, 4)
+        expected = torch.nn.AdaptiveAvgPool2d((1, 1))(x)
+        self.assertTrue(torch.allclose(SpatialMean()(x), expected, atol=1e-6))
+        self.assertEqual(list(SpatialMean().state_dict()), [])
 
 
 class ReplayTests(unittest.TestCase):

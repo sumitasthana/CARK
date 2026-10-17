@@ -18,6 +18,19 @@ from .config import Config, random_stream
 BATCHNORM = (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d)
 
 
+class SpatialMean(nn.Module):
+    """Average every feature map down to one number, keeping the 1x1 shape.
+
+    This replaces ResNet's AdaptiveAvgPool2d. The two compute the same value
+    here, but AdaptiveAvgPool2d's backward pass on a GPU has no exact version,
+    so it stops a run with exact math turned on. A mean does not. The module
+    holds no weights and no buffers, so saved checkpoints are unaffected.
+    """
+
+    def forward(self, x):
+        return x.mean((2, 3), keepdim=True)
+
+
 def build_target(config: Config) -> nn.Module:
     """The network whose weights get generated: F in the paper.
 
@@ -49,6 +62,7 @@ def build_target(config: Config) -> nn.Module:
         target.conv1 = nn.Conv2d(channels, 64, 3, stride=1, padding=1, bias=False)
         if size <= 32:
             target.maxpool = nn.Identity()
+        target.avgpool = SpatialMean()
 
     return target.to(config.torch_device).requires_grad_(False)
 
